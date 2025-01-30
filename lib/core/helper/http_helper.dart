@@ -12,8 +12,8 @@ import '../../features/login/view/login_screen.dart';
 import 'data_helper.dart';
 
 class HTTPHelper {
-  static const String baseUrl = 'http://84.247.165.136:8001/api/method/frappe.www.api.';
-  static const String imgBaseUrl = 'http://84.247.165.136:8001';
+  static const String baseUrl = 'https://erp.smartvgroup.com/api/method/frappe.www.api.';
+  static const String imgBaseUrl = 'https://erp.smartvgroup.com';
   // static const String baseUrl = 'https://f739-41-234-86-182.ngrok-free.app/api/method/frappe.www.api.';
 
   static Future login(String endPoint, dynamic body, BuildContext context, {Map<String, String>? headers}) async{

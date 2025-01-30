@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-// import 'package:shorebird_code_push/shorebird_code_push.dart';
-// import 'package:smart_vision/core/widgets/toast_widget.dart';
+
 import '../../../core/helper/data_helper.dart';
 import '../../../core/utils/colors.dart';
 import '../../../core/utils/media_query_values.dart';
-// import '../../../core/widgets/primary_button.dart';
 import '../../announcement/view/announceent_main_screen.dart';
 import '../../home/view/home_screen.dart';
 import '../../notification/view/notifications_screen.dart';
 import '../components/profile_container.dart';
 import 'profile_company_brief_screen.dart';
 import 'profile_info_screen.dart';
-
 import 'profile_main_salaries.dart';
 
 class ProfileMainScreen extends StatelessWidget {
@@ -55,13 +52,15 @@ class ProfileMainScreen extends StatelessWidget {
                       ),
                   ),
                   const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(instance.name ?? '', style: TextStyle(color: AppColors.mainColor, fontSize: 20)),
-                      const SizedBox(height: 2),
-                      Text(instance.userId ?? ''),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(instance.name ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.mainColor, fontSize: 20)),
+                        const SizedBox(height: 2),
+                        Text(instance.userId ?? ''),
+                      ],
+                    ),
                   ),
                 ],
               ),

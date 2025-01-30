@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_vision/core/utils/end_points.dart';
@@ -45,12 +47,33 @@ class LeavesCubit extends Cubit<LeavesState> {
     }
   }
   pickTime(bool start, BuildContext context) async{
+    int currentDay = DateTime.now().day;
+    TimeOfDay minTime = const TimeOfDay(hour: 18, minute: 0);
+    TimeOfDay maxTime = const TimeOfDay(hour: 23, minute: 59);
+
+    if (currentDay == DateTime.friday || currentDay == DateTime.saturday) {
+      minTime = const TimeOfDay(hour: 0, minute: 0);
+      maxTime = const TimeOfDay(hour: 23, minute: 59);
+    }
+
+    TimeOfDay? time = await showTimePicker(context: context, initialTime: minTime);
+    ///first time validation if null
+    if(time == null) return;
+    ///second time validation if in the available range
+    bool isValidTime = (time.hour > minTime.hour || (time.hour == minTime.hour && time.minute >= minTime.minute)) &&
+                     (time.hour < maxTime.hour || (time.hour == maxTime.hour && time.minute <= maxTime.minute));
+
+    if (!isValidTime) {
+      ToastWidget().showToast('Time must be between ${minTime.hour}:${minTime.minute} and ${maxTime.hour}:${maxTime.minute}', context);
+      return;
+    }
+    String formattedTime = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
     if(start) {
-      startTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-      startTimeController.text = startTime == null ? '' : '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}';
+      startTime = time;
+      startTimeController.text = formattedTime;
     }else {
-      endTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-      endTimeController.text = endTime == null ? '' : '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}';
+      endTime = time;
+      endTimeController.text = formattedTime;
     }
     emit(ReuestTimeChanged());
   }
@@ -70,16 +93,12 @@ class LeavesCubit extends Cubit<LeavesState> {
         shiftsTypes.clear();
         currentRequestType = 'Leave';
         shownRequestType = 'Leave Type';
-        shiftsTypes = [
-          LeaveTypesModel(leaveType: 'Work From Home', availableLeaves: 0),
-        ];
         leaveTypes.add(LeaveTypesModel(leaveType: 'Leave Without Pay', availableLeaves: 0));
         for (var leave in data['message']['data']) {
           leaveTypes.add(LeaveTypesModel.fromJson(leave));
         }
-        if(data['message']['shifts'] == true) {
-          shiftsTypes.add(LeaveTypesModel(leaveType: 'Late Excuse', availableLeaves: 0));
-          shiftsTypes.add(LeaveTypesModel(leaveType: 'Early Excuse', availableLeaves: 0));
+        for (var shift in data['message']['shifts']) {
+          shiftsTypes.add(LeaveTypesModel(leaveType: shift['name'], availableLeaves: 0));
         }
         selectedTypeList = leaveTypes;
         leavesLoading = false;
@@ -128,6 +147,11 @@ class LeavesCubit extends Cubit<LeavesState> {
   submitRequestOvertime(context) async{
     if(startDateController.text.isEmpty || startTimeController.text.isEmpty || endTimeController.text.isEmpty || reasonController.text.isEmpty) {
       ToastWidget().showToast('Please fill all the fields', context);
+      return;
+    }
+    ///check if start time is before end time
+    if(startTime!.hour > endTime!.hour || (startTime!.hour == endTime!.hour && startTime!.minute > endTime!.minute)) {
+      ToastWidget().showToast('Start time must be before end time', context);
       return;
     }
     final instance = DataHelper.instance;
