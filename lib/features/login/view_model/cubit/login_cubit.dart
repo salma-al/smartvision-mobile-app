@@ -1,14 +1,20 @@
-import 'dart:convert';
+// ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+import 'dart:io';
+// import 'dart:io';
+
+// import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_vision/core/helper/data_helper.dart';
-import 'package:smart_vision/core/utils/end_points.dart';
-import 'package:smart_vision/core/widgets/toast_widget.dart';
-import 'package:smart_vision/features/home/view/home_screen.dart';
 
 import '../../../../core/helper/http_helper.dart';
+import '../../../../core/helper/data_helper.dart';
+import '../../../../core/utils/end_points.dart';
+import '../../../../core/widgets/toast_widget.dart';
+import '../../../home/view/home_screen.dart';
 
 part 'login_state.dart';
 
@@ -19,44 +25,75 @@ class LoginCubit extends Cubit<LoginState> {
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
+  bool showPass = false;
   bool loginLoading = false;
 
-  login(context) async{
+  tooglePassword() {
+    showPass = !showPass;
+    emit(TogglePassword());
+  }
+  Future<String> getDiveceId() async {
+    final deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.id;
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor ?? 'unknown';
+    }
+    return 'unknown';
+  }
+  login(BuildContext context) async{
     if(emailController.text.isEmpty || passwordController.text.isEmpty) {
       ToastWidget().showToast('Please enter email and password', context);
       return;
     }
-    final body = {'email': emailController.text, 'password': passwordController.text};
+    final deviceId = await getDiveceId(); //UP1A.231005.007
+    // const deviceId = 'UP1A.231005.007';
+    final body = {'email': emailController.text, 'password': passwordController.text, 'device_id': deviceId};
     try {
       loginLoading = true;
       emit(LoginLoading());
       final response = await HTTPHelper.login(EndPoints.login, body, context);
       final data = jsonDecode(response);
       if(data['message']['status'] == 'success') {
-        String token = '${data['message']['token']}';
-        String userId = data['message']['user_id'];
-        String fullName = data['full_name'];
-        String? image = data['message']['image'] == null ? null : '${HTTPHelper.imgBaseUrl}${data['message']['image']}';
         final instance = DataHelper.instance;
-        instance.token = token;
-        instance.userId = userId;
-        instance.name = fullName;
+        instance.token = '${data['message']['token']}';
+        instance.userId = data['message']['user_id'];
+        instance.name = data['full_name'];
         instance.email = emailController.text;
-        instance.img = image;
-        instance.set();
+        instance.img = data['message']['image'] == null ? null : '${HTTPHelper.imgBaseUrl}${data['message']['image']}';
         await saveFcmToken(context);
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (Route<dynamic> route) => false);
+        await checkReports(context);
+        await instance.set();
+        loginLoading = false;
+        emit(LoginSuccess());
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen(saveToken: false)), (Route<dynamic> route) => false);
+      }else {
+        loginLoading = false;
+        emit(LoginError());
+        ToastWidget().showToast(data['message']['message'] ?? 'Invalid email or password', context);
       }
-      loginLoading = false;
       emit(LoginSuccess());
     }catch(e){
       loginLoading = false;
       emit(LoginError());
+      ToastWidget().showToast('Something went wrong, Please try again later', context);
     }
   }
-  saveFcmToken(context) async{
+  saveFcmToken(BuildContext context) async{
     String? token = await FirebaseMessaging.instance.getToken();
+    if (token == null) {
+      ToastWidget().showToast('FCM Token is null. Retrying...', context);
+      await Future.delayed(const Duration(seconds: 3));
+      token = await FirebaseMessaging.instance.getToken();
+      
+      if (token == null) {
+        ToastWidget().showToast('FCM Token still null. Check Firebase setup.', context);
+        return;
+      }
+    }
     final instance = DataHelper.instance;
     final body = {'user_id': instance.userId, 'fcm_token': token};
     try {
@@ -67,5 +104,12 @@ class LoginCubit extends Cubit<LoginState> {
     }catch(e){
       ToastWidget().showToast('Something went wrong', context);
     }
+  }
+  checkReports(BuildContext context) async {
+    final instance = DataHelper.instance;
+    final data = await HTTPHelper.httpPost(EndPoints.availableRequests, {'employee_id': instance.userId}, context);
+    instance.showRequests = data['message']['has_access'] ?? false;
+    instance.isHr = data['message']['is_hr'] ?? false;
+    instance.isManager = data['message']['is_direct_manager'] ?? false;
   }
 }

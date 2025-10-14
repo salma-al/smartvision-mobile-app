@@ -12,11 +12,11 @@ class MainContainerDecoration extends StatelessWidget {
       margin: EdgeInsets.all(margin ?? 0),
       padding: EdgeInsets.all(padding ?? 0),
       decoration: BoxDecoration(
-        color: HexColor('#FFF8DB').withOpacity(opacity ?? 0.3),
+        color: HexColor('#FFF8DB').withValues(alpha: opacity ?? 0.3),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             spreadRadius: 3,
             blurRadius: 5,
             offset: const Offset(0, 3),

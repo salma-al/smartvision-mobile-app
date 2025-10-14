@@ -13,3 +13,6 @@ final class UpdateElapsedTime extends SignInOutState {}
 final class CheckInOutLoading extends SignInOutState {}
 final class CheckInOutSuccess extends SignInOutState {}
 final class CheckInOutError extends SignInOutState {}
+
+final class ImageCaptured extends SignInOutState {}
+final class ImageCleared extends SignInOutState {}

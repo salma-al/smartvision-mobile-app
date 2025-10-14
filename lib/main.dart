@@ -1,25 +1,24 @@
-// import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:smart_vision/firebase_options.dart';
-import 'package:smart_vision/notification_service.dart';
-import 'package:smart_vision/splash_screen.dart';
+import 'package:upgrader/upgrader.dart';
 
-void main() async{
+import 'firebase_options.dart';
+import 'notification_service.dart';
+import 'splash_screen.dart';
+
+main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  }
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  FlutterNativeSplash.remove();
   await NotificationService().initialize();
+  FlutterNativeSplash.remove();
   runApp(const MyApp());
-  // runApp(
-  //   DevicePreview(
-  //     builder: (context) => const MyApp(),
-  //   ),
-  // );
 }
 
 class MyApp extends StatelessWidget {
@@ -30,16 +29,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Smart Vision',
       debugShowCheckedModeBanner: false,
-      // builder: DevicePreview.appBuilder,
-      // locale: DevicePreview.locale(context),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
         fontFamily: 'Arial',
       ),
-      home: const SplashScreen(),
+      home: UpgradeAlert(
+        showIgnore: false,
+        showLater: false,
+        dialogStyle: UpgradeDialogStyle.cupertino,
+        upgrader: Upgrader(
+          // willDisplayUpgrade: ({required display, installedVersion, versionInfo}) {
+          //   if (versionInfo != null) {
+          //     if(versionInfo.appStoreVersion?.build != installedVersion) {
+          //       ///show upgrade dialog
+          //     }
+          //   }
+          // },
+        ),
+        child: const SplashScreen(),
+      ),
     );
   }
 }
-
-// handle ios configuration about geolocator package

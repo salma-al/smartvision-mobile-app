@@ -20,7 +20,7 @@ class PrimaryButton extends StatelessWidget {
         width: width ?? context.width * 0.5,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
-          color: color ?? HexColor('#FFF8DB').withOpacity(0.65),
+          color: color ?? HexColor('#FFF8DB').withValues(alpha: 0.65),
         ),
         child: Center(
           child: Text(

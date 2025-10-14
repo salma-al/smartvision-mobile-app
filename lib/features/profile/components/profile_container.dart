@@ -14,7 +14,7 @@ class ProfileContainer extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
+            color: Colors.grey.withValues(alpha: 0.5),
             spreadRadius: 4,
             blurRadius: 6,
             offset: const Offset(4, 5),

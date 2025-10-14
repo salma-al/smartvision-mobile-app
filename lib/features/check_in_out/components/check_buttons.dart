@@ -8,22 +8,20 @@ class CheckButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.mainColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 16),
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.mainColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-          ),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+      ),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          color: Colors.white,
         ),
       ),
     );

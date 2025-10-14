@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 
 import '../../../core/helper/data_helper.dart';
 import '../../../core/utils/colors.dart';
 import '../../../core/utils/media_query_values.dart';
+import '../../../core/widgets/primary_button.dart';
 import '../../announcement/view/announceent_main_screen.dart';
 import '../../home/view/home_screen.dart';
+import '../../login/view/login_screen.dart';
 import '../../notification/view/notifications_screen.dart';
 import '../components/profile_container.dart';
 import 'profile_company_brief_screen.dart';
@@ -113,7 +116,7 @@ class ProfileMainScreen extends StatelessWidget {
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementMainScreen())),
                         child: ListTile(
                           leading: Icon(Icons.announcement, color: AppColors.mainColor),
-                          title: Text('announcement', style: TextStyle(fontSize: 16, color: AppColors.darkColor)),
+                          title: Text('Announcement', style: TextStyle(fontSize: 16, color: AppColors.darkColor)),
                           trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.mainColor),
                         ),
                       ),
@@ -121,11 +124,19 @@ class ProfileMainScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              // const SizedBox(height: 30),
-              // PrimaryButton(
-              //   text: 'Check for updates', 
-              //   onTap: () {},
-              // ),
+              const SizedBox(height: 24),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: context.width * 0.2),
+                child: PrimaryButton(
+                  text: 'Logout',
+                  color: HexColor('#D9534F'),
+                  onTap: () async {
+                    await instance.reset();
+                    // ignore: use_build_context_synchronously
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
+                  }
+                ),
+              ),
             ],
           ),
         ),
@@ -134,32 +145,27 @@ class ProfileMainScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 8,
         currentIndex: 2,
-        selectedItemColor: AppColors.mainColor.withOpacity(0.8),
-        unselectedItemColor: AppColors.darkColor.withOpacity(0.8),
-        items: <BottomNavigationBarItem> [
+        selectedItemColor: AppColors.mainColor.withValues(alpha: 0.8),
+        unselectedItemColor: AppColors.darkColor.withValues(alpha: 0.8),
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const NotificationScreen()));
+          } else if (index == 0) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(saveToken: false)));
+          }
+        },
+        items: const [
           BottomNavigationBarItem(
-            icon: InkWell(
-              child: const Icon(Icons.home_filled), 
-              onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen())),
-            ), 
-            label: 'Home', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.home_filled),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: InkWell(
-              onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const NotificationScreen())),
-              child: const Icon(Icons.notifications),
-            ), 
-            label: 'Notifications', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
           ),
           BottomNavigationBarItem(
-            icon: InkWell(
-              onTap: () {},
-              child: const Icon(Icons.person),
-            ), 
-            label: 'Profile', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

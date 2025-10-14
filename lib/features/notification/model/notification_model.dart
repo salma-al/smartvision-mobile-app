@@ -5,11 +5,11 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      name: json['name'],
-      date: json['sending_date'],
-      title: json['title'],
-      message: json['content'],
-      docType: json['doctype_name'],
+      name: json['name'] ?? '',
+      date: json['sending_date'] ?? '',
+      title: json['title'] ?? '',
+      message: json['content'] ?? '',
+      docType: json['doctype_name'] ?? '',
     );
   }
 }

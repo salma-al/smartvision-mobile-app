@@ -1,7 +1,7 @@
 import 'package:dashed_circular_progress_bar/dashed_circular_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_vision/core/utils/colors.dart';
-import 'package:smart_vision/features/follow_up/view/follow_up_screen.dart';
+import 'follow_up_screen.dart';
 
 import '../model/project_model.dart';
 

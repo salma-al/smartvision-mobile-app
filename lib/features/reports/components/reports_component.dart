@@ -13,17 +13,17 @@ class ReportsComponent extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Card(
-        shadowColor: Colors.grey.withOpacity(0.5),
+        shadowColor: Colors.grey.withValues(alpha: 0.5),
         surfaceTintColor: HexColor('#f2f2f2'),
+        color: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+          child: Row(
             children: [
-              Image.asset(image, fit: BoxFit.contain, width: 70, height: 70),
-              const SizedBox(height: 8),
+              Image.asset(image, fit: BoxFit.contain, width: 40, height: 40),
+              const SizedBox(width: 8),
               Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: AppColors.mainColor)),
             ],
           ),

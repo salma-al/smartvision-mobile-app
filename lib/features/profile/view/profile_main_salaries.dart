@@ -119,7 +119,7 @@ class ProfileMainSalary extends StatelessWidget {
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color: AppColors.mainColor.withOpacity(0.8),
+                                            color: AppColors.mainColor.withValues(alpha: 0.8),
                                             borderRadius: BorderRadius.circular(16),
                                           ),
                                           child: const Text('Details', style: TextStyle(color: Colors.white, fontSize: 14))),

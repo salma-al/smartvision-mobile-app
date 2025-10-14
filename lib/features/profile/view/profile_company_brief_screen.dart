@@ -55,25 +55,28 @@ class CompanyProfileScreen extends StatelessWidget {
                         Text('SVG', textAlign: TextAlign.center, style: TextStyle(color: AppColors.mainColor, fontSize: 24)),
                         const SizedBox(height: 25),
                         ProfileContainer(
-                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 15),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text(cubit.company ?? '', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                              const Divider(),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(
-                                  title: Text(
-                                    'The company\'s branch in ${cubit.branch ?? ''}', 
-                                    style: TextStyle(fontSize: 16, color: AppColors.darkColor), 
-                                    maxLines: 2, 
-                                    overflow: TextOverflow.ellipsis,
-                                  )),
-                              ),
-                            ],
+                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 28),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text(cubit.company ?? '', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                                const Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(
+                                    title: Text(
+                                      'The company\'s branch in ${cubit.branch ?? ''}', 
+                                      style: TextStyle(fontSize: 16, color: AppColors.darkColor), 
+                                      maxLines: 2, 
+                                      overflow: TextOverflow.ellipsis,
+                                    )),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 30),
@@ -83,9 +86,9 @@ class CompanyProfileScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         ProfileContainer(
-                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 15),
+                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 28),
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 20),
+                            padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
                             child: ListTile(title: Text(cubit.description ?? 'not set', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
                           ),
                         ),

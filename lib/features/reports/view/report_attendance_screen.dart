@@ -62,7 +62,7 @@ class ReportAttendance extends StatelessWidget {
                                   ? cubit.fromDate!
                                   : 'From Date',
                               onTap: () => cubit.selectDate(context, true),
-                              color: Colors.grey.withOpacity(0.2),
+                              color: Colors.grey.withValues(alpha: 0.2),
                               textColor: Colors.grey,
                             ),
                           ),
@@ -73,7 +73,7 @@ class ReportAttendance extends StatelessWidget {
                                   ? cubit.toDate!
                                   : 'To Date',
                               onTap: () => cubit.selectDate(context, false),
-                              color: Colors.grey.withOpacity(0.2),
+                              color: Colors.grey.withValues(alpha: 0.2),
                               textColor: Colors.grey,
                             ),
                           ),
@@ -97,7 +97,7 @@ class ReportAttendance extends StatelessWidget {
                         child: PrimaryButton(
                           text: 'Apply filters',
                           onTap: () => cubit.getAttendance(context),
-                          color: AppColors.mainColor.withOpacity(0.8),
+                          color: AppColors.mainColor.withValues(alpha: 0.8),
                         ),
                       ),
                       const SizedBox(height: 16),

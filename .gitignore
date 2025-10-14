@@ -41,3 +41,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# iOS build files
+/ios/build/
+ios/build/
+**/ios/build/
+
+# macOS
+.DS_Store
+
+# Flutter build directories
+**/build/

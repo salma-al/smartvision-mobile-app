@@ -92,8 +92,8 @@ class AttendanceScreen extends StatelessWidget {
                                   margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: cubit.selectedDay == day
-                                        ? const Color.fromARGB(255, 174, 12, 0).withOpacity(0.7)
-                                        : AppColors.mainColor.withOpacity(0.7),
+                                        ? const Color.fromARGB(255, 174, 12, 0).withValues(alpha: 0.7)
+                                        : AppColors.mainColor.withValues(alpha: 0.7),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Center(
@@ -122,7 +122,7 @@ class AttendanceScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.2),
+                            color: Colors.grey.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(25),
                           ),
                           margin: const EdgeInsets.all(8.0),
@@ -147,7 +147,7 @@ class AttendanceScreen extends StatelessWidget {
                         ),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.2),
+                            color: Colors.grey.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(25),
                           ),
                           margin: const EdgeInsets.all(8.0),
@@ -162,7 +162,7 @@ class AttendanceScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Container(
-                          // color: HexColor('#FFF8DB').withOpacity(0.5),
+                          // color: HexColor('#FFF8DB').withValues(alpha: 0.5),
                           padding: const EdgeInsets.all(16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

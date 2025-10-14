@@ -8,6 +8,7 @@ class DataHelper {
   static DataHelper get instance => _instance;
 
   String? token, name, userId, email, img;
+  bool showRequests = false, isHr = false, isManager = false;
 
   set() async{
     await CacheHelper.setData('userId', userId);

@@ -2,7 +2,7 @@
 // ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+    show defaultTargetPlatform, TargetPlatform;
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -16,23 +16,11 @@ import 'package:flutter/foundation.dart'
 /// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
         return ios;
-      case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
-        return windows;
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -40,49 +28,21 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDhgQYJhMSD-vwNvF0hA5DFE4d2-y20ryE',
-    appId: '1:246772927756:web:64b715b9fee8125fe78d29',
-    messagingSenderId: '246772927756',
-    projectId: 'frappe-fcm-47833',
-    authDomain: 'frappe-fcm-47833.firebaseapp.com',
-    storageBucket: 'frappe-fcm-47833.firebasestorage.app',
-    measurementId: 'G-94HZVTMZ4J',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDId6VYv_JPaeFguiQ9lDHgCj3sxj5wfCM',
-    appId: '1:246772927756:android:c58eef794c075975e78d29',
-    messagingSenderId: '246772927756',
-    projectId: 'frappe-fcm-47833',
-    storageBucket: 'frappe-fcm-47833.firebasestorage.app',
+    apiKey: 'AIzaSyDTHglCo4CFtwInyw3Louxt_u-oxuig4rM',
+    appId: '1:373833368783:android:e4c71059ec1e055d3463ba',
+    messagingSenderId: '373833368783',
+    projectId: 'frappe-fcm-8b942',
+    storageBucket: 'frappe-fcm-8b942.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBgfuViMMEHJxxt9Wab5QeigK7IYAmMxo4',
-    appId: '1:246772927756:ios:f254327965e0d8afe78d29',
-    messagingSenderId: '246772927756',
-    projectId: 'frappe-fcm-47833',
-    storageBucket: 'frappe-fcm-47833.firebasestorage.app',
-    iosBundleId: 'com.example.smartVision',
+    apiKey: 'AIzaSyAuiW8V-RsxAiRdih5W7ur0UGNf-tuSUdQ',
+    appId: '1:373833368783:ios:e652bb0e6f71278d3463ba',
+    messagingSenderId: '373833368783',
+    projectId: 'frappe-fcm-8b942',
+    storageBucket: 'frappe-fcm-8b942.firebasestorage.app',
+    iosBundleId: 'com.svg.smart-vision-group',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBgfuViMMEHJxxt9Wab5QeigK7IYAmMxo4',
-    appId: '1:246772927756:ios:f254327965e0d8afe78d29',
-    messagingSenderId: '246772927756',
-    projectId: 'frappe-fcm-47833',
-    storageBucket: 'frappe-fcm-47833.firebasestorage.app',
-    iosBundleId: 'com.example.smartVision',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDhgQYJhMSD-vwNvF0hA5DFE4d2-y20ryE',
-    appId: '1:246772927756:web:42200c200c34f93ce78d29',
-    messagingSenderId: '246772927756',
-    projectId: 'frappe-fcm-47833',
-    authDomain: 'frappe-fcm-47833.firebaseapp.com',
-    storageBucket: 'frappe-fcm-47833.firebasestorage.app',
-    measurementId: 'G-CNXNYDGRS4',
-  );
 }

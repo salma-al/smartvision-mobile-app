@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:smart_vision/core/widgets/loading_widget.dart';
 import 'package:smart_vision/features/announcement/model/announcements_model.dart';
 import 'package:smart_vision/features/announcement/view_model/cubit/announcement_cubit.dart';
@@ -13,6 +14,7 @@ class AnnouncementMainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Announcement', style: TextStyle(color: AppColors.mainColor)),
         leading: IconButton(
@@ -59,14 +61,24 @@ class AnnouncementMainScreen extends StatelessWidget {
                               const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  Expanded(child: Text(ann.description, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.darkColor, fontSize: 16))),
+                                  Expanded(
+                                    child: Html(
+                                      data: ann.description,
+                                      style: {
+                                        "body": Style(
+                                          maxLines: 1,
+                                          textOverflow: TextOverflow.ellipsis,
+                                        ),
+                                      },
+                                    ),
+                                  ),
                                   const SizedBox(width: 12),
                                   InkWell(
                                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AnnouncementDetailsScreen(announcement: ann))),
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: AppColors.mainColor.withOpacity(0.8),
+                                        color: AppColors.mainColor.withValues(alpha: 0.8),
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                       child: const Text('Details', style: TextStyle(color: Colors.white, fontSize: 14))),

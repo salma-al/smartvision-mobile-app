@@ -13,7 +13,7 @@ class AttendanceReportComponent extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.2),
+        color: Colors.grey.withValues(alpha: 0.2),
         borderRadius: isFirst
             ? const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12))
             : isLast

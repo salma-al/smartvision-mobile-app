@@ -18,7 +18,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   static ProfileCubit get(context) => BlocProvider.of(context);
 
   ///personal info part
-  String? position, department, manager, employmentType, joiningDate, startShift, endShift;
+  String? position, department, manager, employmentType, joiningDate, startShift, endShift, currSalary;
   ///company info part
   String? company, branch, description, lat, long, distance;
   ///salaries info part
@@ -44,6 +44,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         joiningDate = response['message']['data']['date_of_joining'];
         startShift = response['message']['data']['default_shift_start'];
         endShift = response['message']['data']['default_shift_end'];
+        currSalary = response['message']['data']['current_salary'] != null ? '${response['message']['data']['current_salary']}' : null;
         instance.img = response['message']['data']['image'] == null ? instance.img : '${HTTPHelper.imgBaseUrl}${response['message']['data']['image']}';
         await CacheHelper.setData('img', instance.img);
       }

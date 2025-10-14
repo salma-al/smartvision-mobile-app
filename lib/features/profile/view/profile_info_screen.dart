@@ -2,16 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:smart_vision/core/utils/colors.dart';
-import 'package:smart_vision/core/utils/media_query_values.dart';
 import 'package:smart_vision/core/widgets/loading_widget.dart';
-import 'package:smart_vision/core/widgets/primary_button.dart';
 import 'package:smart_vision/features/profile/components/profile_container.dart';
 import 'package:smart_vision/features/profile/view_model/cubit/profile_cubit.dart';
 
 import '../../../core/helper/data_helper.dart';
-import '../../login/view/login_screen.dart';
 
 class ProfileInfoScreen extends StatelessWidget {
   const ProfileInfoScreen({super.key});
@@ -66,34 +62,37 @@ class ProfileInfoScreen extends StatelessWidget {
                         Text(instance.userId ?? '', textAlign: TextAlign.center),
                         const SizedBox(height: 25),
                         ProfileContainer(
-                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 15),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text(instance.email ?? '', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                              const Divider(),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text(instance.userId ?? '', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                              const Divider(),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text('Employment Type: ${cubit.employmentType ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                              const Divider(),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text('Default Shift: ${cubit.startShift ?? 'not set'} - ${cubit.endShift ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                              const Divider(),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text('Joining Date: ${cubit.joiningDate ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                            ],
+                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 28),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text(instance.email ?? '', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                                const Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text(instance.userId ?? '', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                                const Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text('Employment Type: ${cubit.employmentType ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                                const Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text('Default Shift: ${cubit.startShift ?? 'not set'} - ${cubit.endShift ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                                const Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text('Joining Date: ${cubit.joiningDate ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 30),
@@ -103,36 +102,32 @@ class ProfileInfoScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         ProfileContainer(
-                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 15),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text('Title: ${cubit.position ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                              const Divider(),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text('Department: ${cubit.department ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                              const Divider(),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: ListTile(title: Text('Manager: ${cubit.manager ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: context.width * 0.2),
-                          child: PrimaryButton(
-                            text: 'Logout',
-                            color: HexColor('#D9534F'),
-                            onTap: () async {
-                              await instance.reset();
-                              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-                            }
+                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 28),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text('Title: ${cubit.position ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                                const Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text('Department: ${cubit.department ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                                const Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text('Current Salary: ${cubit.currSalary ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                                const Divider(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ListTile(title: Text('Manager: ${cubit.manager ?? 'not set'}', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),

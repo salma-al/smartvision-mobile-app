@@ -21,7 +21,7 @@ class LeaveDateComponent extends StatelessWidget {
             hintText: hintTitle,
             readOnly: true,
             onTap: onTap,
-            fillColor: Colors.grey.withOpacity(0.2),
+            fillColor: Colors.grey.withValues(alpha: 0.2),
           ),
         ],
       ),

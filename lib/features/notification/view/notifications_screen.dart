@@ -97,32 +97,27 @@ class NotificationScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 8,
         currentIndex: 1,
-        selectedItemColor: AppColors.mainColor.withOpacity(0.8),
-        unselectedItemColor: AppColors.darkColor.withOpacity(0.8),
-        items: <BottomNavigationBarItem> [
+        selectedItemColor: AppColors.mainColor.withValues(alpha: 0.8),
+        unselectedItemColor: AppColors.darkColor.withValues(alpha: 0.8),
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(saveToken: false)));
+          } else if (index == 2) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProfileMainScreen()));
+          }
+        },
+        items: const [
           BottomNavigationBarItem(
-            icon: InkWell(
-              child: const Icon(Icons.home_filled), 
-              onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen())),
-            ), 
-            label: 'Home', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.home_filled),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: InkWell(
-              onTap: () {},
-              child: const Icon(Icons.notifications),
-            ), 
-            label: 'Notifications', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
           ),
           BottomNavigationBarItem(
-            icon: InkWell(
-              onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProfileMainScreen())),
-              child: const Icon(Icons.person),
-            ), 
-            label: 'Profile', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

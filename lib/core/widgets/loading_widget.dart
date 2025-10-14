@@ -9,7 +9,7 @@ class LoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey.withOpacity(0.5),
+      color: Colors.grey.withValues(alpha: 0.5),
       width: context.width,
       height: context.height,
       child: Center(

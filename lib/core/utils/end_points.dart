@@ -38,4 +38,9 @@ class EndPoints {
   static const String getNotifications = 'get_notifications';
   ///announcements
   static const String getAnnouncements = 'get_announcements';
+
+  ///requests
+  static const String availableRequests = 'check_approval_screen_access';
+  static const String getRequests = 'get_pending_requests';
+  static const String updateRequest = 'update_request_status';
 }

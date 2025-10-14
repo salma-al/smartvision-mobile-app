@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:smart_vision/core/utils/media_query_values.dart';
 import '../../../core/utils/colors.dart';
 import '../model/announcements_model.dart';
@@ -10,11 +11,13 @@ class AnnouncementDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Announcement Details', style: TextStyle(color: AppColors.mainColor)),
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: AppColors.mainColor),
-            onPressed: () => Navigator.pop(context)),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.mainColor),
+          onPressed: () => Navigator.pop(context),
+        ),
         backgroundColor: Colors.white,
         actions: [
           Image.asset('assets/images/home_logo.png', width: 40, height: 40),
@@ -57,7 +60,7 @@ class AnnouncementDetailsScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text('Content', style: TextStyle(fontSize: 16, color: AppColors.mainColor)),
                     const SizedBox(height: 24),
-                    Text(announcement.description, style: TextStyle(fontSize: 16, color: AppColors.darkColor)),
+                    Html(data: announcement.description),
                   ],
                 ),
               ),

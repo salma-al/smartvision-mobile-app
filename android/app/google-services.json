@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "246772927756",
-    "project_id": "frappe-fcm-47833",
-    "storage_bucket": "frappe-fcm-47833.firebasestorage.app"
+    "project_number": "373833368783",
+    "project_id": "frappe-fcm-8b942",
+    "storage_bucket": "frappe-fcm-8b942.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:246772927756:android:c58eef794c075975e78d29",
+        "mobilesdk_app_id": "1:373833368783:android:e4c71059ec1e055d3463ba",
         "android_client_info": {
           "package_name": "com.svg.smart_vision"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDId6VYv_JPaeFguiQ9lDHgCj3sxj5wfCM"
+          "current_key": "AIzaSyDTHglCo4CFtwInyw3Louxt_u-oxuig4rM"
         }
       ],
       "services": {

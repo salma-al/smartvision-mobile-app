@@ -25,7 +25,7 @@ class PieChartWidget extends StatelessWidget {
                 return PieChartSectionData(
                   value: values[index].toDouble(),
                   showTitle: false,
-                  color: colors[index].withOpacity(0.6),
+                  color: colors[index].withValues(alpha: 0.6),
                   radius: 20,
                 );
               }),
@@ -54,7 +54,7 @@ class PieChartWidget extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: colors[index].withOpacity(0.6),
+                    color: colors[index].withValues(alpha: 0.6),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -199,7 +199,7 @@ class LineChartWidget extends StatelessWidget {
               barWidth: 4,
               belowBarData: BarAreaData(
                 show: true,
-                color: Colors.blue.withOpacity(0.3),
+                color: Colors.blue.withValues(alpha: 0.3),
               ),
               dotData: const FlDotData(show: false),
             ),

@@ -25,6 +25,7 @@ class AnnouncementCubit extends Cubit<AnnouncementState> {
       if(data['message']['status'] == 'success') {
         announcements.clear();
         announcements = (data['message']['data'] as List).map((e) => AnnouncementsModel.fromJson(e)).toList();
+        announcements.sort((a, b) => DateTime.parse(b.date).compareTo(DateTime.parse(a.date)));
         emit(AnnouncementLoaded());
       }
     } catch (e) {

@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:smart_vision/core/helper/data_helper.dart';
-import 'package:smart_vision/core/utils/colors.dart';
-import 'package:smart_vision/core/utils/media_query_values.dart';
-import 'package:smart_vision/features/profile/view/profile_main_screen.dart';
 
 import '../../../core/widgets/dialogs.dart';
+import '../../../core/helper/data_helper.dart';
+import '../../../core/utils/colors.dart';
+import '../../../core/utils/media_query_values.dart';
+import '../../profile/view/profile_main_screen.dart';
 import '../../attendance/view/attendance_screen.dart';
 import '../../notification/view/notifications_screen.dart';
 import '../../reports/view/reports_screen.dart';
 import '../../check_in_out/view/sign_in_out_screen.dart';
+import '../../requests/view/requests_screen.dart';
 import '../../leaves/view/leaves_screen.dart';
 import '../components/home_card.dart';
 import '../components/sign_in_out_card.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final bool saveToken;
+  const HomeScreen({super.key, required this.saveToken});
 
   @override
   Widget build(BuildContext context) {
     final instance = DataHelper.instance;
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
@@ -43,22 +44,25 @@ class HomeScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.mainColor.withOpacity(0.8),
+                            color: AppColors.mainColor.withValues(alpha: 0.8),
                           ),
-                          maxLines: 2,
+                          maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        Text('Welcome to Smart Vision', style: TextStyle(fontSize: 18, color: AppColors.darkColor)),
+                        Text(
+                          'Welcome to Smart Vision',
+                          style: TextStyle(fontSize: 18, color: AppColors.darkColor),
+                        ),
                       ],
                     ),
                   ),
                   Image.asset('assets/images/home_logo.png', height: 50, width: 50),
                 ],
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 20),
               // GridView for Options
               GridView.count(
-                crossAxisCount: 2,
+                crossAxisCount: context.width > 600 ? 3 : 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
                 shrinkWrap: true,
@@ -67,46 +71,46 @@ class HomeScreen extends StatelessWidget {
                   HomeCard(
                     icon: Icons.description,
                     label: 'Reports',
-                    color: AppColors.mainColor.withOpacity(0.8),
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ReportsScreen())),
+                    color: AppColors.mainColor.withValues(alpha: 0.8),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ReportsScreen())),
                   ),
                   HomeCard(
                     icon: Icons.access_time,
                     label: 'Attendance',
-                    color: AppColors.mainColor.withOpacity(0.8),
+                    color: AppColors.mainColor.withValues(alpha: 0.8),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceScreen())),
                   ),
-                  // HomeCard(
-                  //   icon: Icons.assignment,
-                  //   label: 'Follow Up',
-                  //   color: AppColors.mainColor.withOpacity(0.8),
-                  //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectsScreen())),
-                  // ),
                   HomeCard(
                     icon: Icons.assignment,
                     label: 'Follow Up',
-                    color: AppColors.mainColor.withOpacity(0.8),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return const ComingSoonDialog();
-                        },
-                      );
-                    },
+                    color: AppColors.mainColor.withValues(alpha: 0.8),
+                    onTap: () => showDialog(context: context, builder: (BuildContext context) => const ComingSoonDialog()),
                   ),
                   HomeCard(
                     icon: Icons.beach_access,
                     label: 'Shift / Leave',
-                    color: AppColors.mainColor.withOpacity(0.8),
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RequestScreen())),
+                    color: AppColors.mainColor.withValues(alpha: 0.8),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LeavesScreen())),
+                  ),
+                  if(instance.showRequests && context.width > 600)
+                  HomeCard(
+                    label: 'Requests',
+                    color: AppColors.mainColor.withValues(alpha: 0.8),
+                    icon: Icons.exit_to_app,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RequestsScreen())),
                   ),
                 ],
               ),
-              // Sign In/Out button combined
+              if(instance.showRequests && context.width < 600)
+              SignInOutCard(
+                label: 'Requests',
+                color: AppColors.mainColor.withValues(alpha: 0.8),
+                icon: Icons.exit_to_app,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RequestsScreen())),
+              ),
               SignInOutCard(
                 label: 'Check in / Check out',
-                color: AppColors.mainColor.withOpacity(0.8),
+                color: AppColors.mainColor.withValues(alpha: 0.8),
                 icon: Icons.exit_to_app,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignInOutScreen())),
               ),
@@ -118,32 +122,27 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 8,
         currentIndex: 0,
-        selectedItemColor: AppColors.mainColor.withOpacity(0.8),
-        unselectedItemColor: AppColors.darkColor.withOpacity(0.8),
-        items: <BottomNavigationBarItem> [
+        selectedItemColor: AppColors.mainColor.withValues(alpha: 0.8),
+        unselectedItemColor: AppColors.darkColor.withValues(alpha: 0.8),
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const NotificationScreen()));
+          } else if (index == 2) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProfileMainScreen()));
+          }
+        },
+        items: const [
           BottomNavigationBarItem(
-            icon: InkWell(
-              child: const Icon(Icons.home_filled), 
-              onTap: () {},
-            ), 
-            label: 'Home', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.home_filled),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: InkWell(
-              onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const NotificationScreen())),
-              child: const Icon(Icons.notifications),
-            ), 
-            label: 'Notifications', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
           ),
           BottomNavigationBarItem(
-            icon: InkWell(
-              onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProfileMainScreen())), 
-              child: const Icon(Icons.person),
-            ), 
-            label: 'Profile', 
-            backgroundColor: AppColors.mainColor,
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

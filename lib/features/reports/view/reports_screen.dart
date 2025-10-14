@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_vision/core/utils/colors.dart';
+// import 'package:smart_vision/features/meetings/view/meetings_calendar_screen.dart';
 import 'package:smart_vision/features/reports/components/reports_component.dart';
 import 'package:smart_vision/features/reports/model/reports_model.dart';
 import 'package:smart_vision/features/reports/view/report_attendance_screen.dart';
@@ -7,16 +8,17 @@ import 'package:smart_vision/features/reports/view/report_overtime_screen.dart';
 import 'package:smart_vision/features/reports/view/report_requests_screen.dart';
 
 class ReportsScreen extends StatelessWidget {
-  final List<ReportsModel> reports = [
-    ReportsModel(title: 'Attendance Report', screen: ReportAttendance(), image: 'assets/images/attendance_report.png'),
-    ReportsModel(title: 'Requests Report', screen: const ReportRequests(), image: 'assets/images/requests_report.png'),
-    ReportsModel(title: 'Overtime Report', screen: const ReportOvertimeScreen(), image: 'assets/images/overtime_report.png'),
-  ];
-
-  ReportsScreen({super.key});
+  const ReportsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final List<ReportsModel> reports = [
+      ReportsModel(title: 'Attendance Report', screen: ReportAttendance(), image: 'assets/images/attendance_report.png'),
+      ReportsModel(title: 'Requests Report', screen: const ReportRequests(), image: 'assets/images/requests_report.png'),
+      ReportsModel(title: 'Overtime Report', screen: const ReportOvertimeScreen(), image: 'assets/images/overtime_report.png'),
+      // ReportsModel(title: 'Meetings Calendar', screen: const MeetingsCalendarScreen(), image: 'assets/images/meetings.png'),
+      // ReportsModel(title: 'My Meetings', screen: const MeetingsCalendarScreen(), image: 'assets/images/my_meetings.png'),
+    ];
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -31,24 +33,20 @@ class ReportsScreen extends StatelessWidget {
         ],
         backgroundColor: Colors.white,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 24, right: 24),
-          child: GridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 0.9,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              ...reports.map((e) => ReportsComponent(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => e.screen)),
-                title: e.title, 
-                image: e.image,
-              )),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: reports.length,
+          itemBuilder: (context, index) {
+            ReportsModel rep = reports[index];
+            return ReportsComponent(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => rep.screen)), 
+              title: rep.title, 
+              image: rep.image,
+            );
+          },
         ),
       ),
     );

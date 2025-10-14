@@ -37,7 +37,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
     return Container(
       padding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: fillColor ?? Colors.grey.withOpacity(0.2),
+        color: fillColor ?? Colors.grey.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(raduis ?? 16),
         border: Border.all(
           color: enabledBorder != null
@@ -63,7 +63,7 @@ class CustomDropdownFormField<T> extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           hintText: hintText,
-          hintStyle: hintStyle ?? TextStyle(color: HexColor('#1F3233').withOpacity(0.7)),
+          hintStyle: hintStyle ?? TextStyle(color: HexColor('#1F3233').withValues(alpha: 0.7)),
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon,
           filled: true,

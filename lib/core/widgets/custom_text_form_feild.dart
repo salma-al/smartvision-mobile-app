@@ -46,14 +46,14 @@ class CustomTextFormField extends StatelessWidget {
         contentPadding:contentPadding?? const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         focusedBorder:focusedBorder?? OutlineInputBorder(
             borderSide: BorderSide(
-              color: HexColor('#FFF8DB').withOpacity(0.2),
+              color: HexColor('#FFF8DB').withValues(alpha: 0.2),
               width: 1.3,
             ),
             borderRadius: BorderRadius.circular(16)
         ),
         enabledBorder:enabledBorder?? OutlineInputBorder(
           borderSide: BorderSide(
-            color: HexColor('#FFF8DB').withOpacity(0.2),
+            color: HexColor('#FFF8DB').withValues(alpha: 0.2),
             width: 1.3,
           ),
             borderRadius: BorderRadius.circular(16)
@@ -66,7 +66,7 @@ class CustomTextFormField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: fillColor??HexColor('#FFF8DB').withOpacity(0.2),
+        fillColor: fillColor??HexColor('#FFF8DB').withValues(alpha: 0.2),
       ),
       obscureText:isObscureText?? false,
     );

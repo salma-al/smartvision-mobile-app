@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
+import '../../../core/utils/colors.dart';
+
 class FollowUpScreen extends StatefulWidget {
   const FollowUpScreen({super.key});
 
@@ -16,15 +18,15 @@ class FollowUpScreenState extends State<FollowUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: HexColor('#497B7B'),
+      // backgroundColor: HexColor('#497B7B'),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Follow Up', style: TextStyle(color: Colors.white)),
+        title: const Text('Follow Up'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: HexColor('#497B7B'),
+        // backgroundColor: HexColor('#497B7B'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -36,7 +38,7 @@ class FollowUpScreenState extends State<FollowUpScreen> {
             // Completion Slider with External Label
             Text(
               'Completion Percentage',
-              style: TextStyle(fontFamily: 'Colfax', fontSize: 16, color: HexColor('#FFF8DB')),
+              style: TextStyle(fontFamily: 'Colfax', fontSize: 16, color: AppColors.darkColor),
             ),
             const SizedBox(height: 8),
             Row(
@@ -47,7 +49,7 @@ class FollowUpScreenState extends State<FollowUpScreen> {
                   style: TextStyle(
                     fontFamily: 'Colfax',
                     fontSize: 16,
-                    color: HexColor('#FFF8DB'),
+                    color: AppColors.darkColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -57,8 +59,8 @@ class FollowUpScreenState extends State<FollowUpScreen> {
                     min: 0,
                     max: 100,
                     divisions: 20,
-                    activeColor: HexColor('#FFF8DB'),
-                    inactiveColor: HexColor('#FFF8DB').withOpacity(0.5),
+                    activeColor: AppColors.darkColor,
+                    inactiveColor: AppColors.darkColor.withValues(alpha: 0.5),
                     onChanged: (value) {
                       setState(() {
                         completionPercentage = value;
@@ -73,13 +75,13 @@ class FollowUpScreenState extends State<FollowUpScreen> {
             // Notes Field
             Text(
               'Notes',
-              style: TextStyle(fontFamily: 'Colfax', fontSize: 16, color: HexColor('#FFF8DB')),
+              style: TextStyle(fontFamily: 'Colfax', fontSize: 16, color: AppColors.darkColor),
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: HexColor('#FFF8DB').withOpacity(0.7),
+                color: HexColor('#FFF8DB').withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TextField(
@@ -88,7 +90,7 @@ class FollowUpScreenState extends State<FollowUpScreen> {
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Enter notes here...',
-                  hintStyle: TextStyle(fontFamily: 'Colfax', color: HexColor('#1F3233').withOpacity(0.6)),
+                  hintStyle: TextStyle(fontFamily: 'Colfax', color: AppColors.darkColor),
                 ),
                 style: TextStyle(fontFamily: 'Colfax', color: HexColor('#1F3233')),
               ),
@@ -103,15 +105,15 @@ class FollowUpScreenState extends State<FollowUpScreen> {
                   // Handle submit action
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: HexColor('#FFF8DB').withOpacity(0.7),
+                  backgroundColor: AppColors.darkColor,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Submit',
-                  style: TextStyle(fontSize: 18, color: HexColor('#1F3233')),
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),

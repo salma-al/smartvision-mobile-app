@@ -1,8 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:smart_vision/core/helper/data_helper.dart';
 import 'package:smart_vision/core/helper/http_helper.dart';
 import 'package:smart_vision/core/utils/end_points.dart';
@@ -17,19 +21,17 @@ class SignInOutCubit extends Cubit<SignInOutState> {
   SignInOutCubit() : super(SignInOutInitial());
 
   static SignInOutCubit get(context) => BlocProvider.of(context);
-
+  
+  File? imageFile;
   List<CheckRecordsModel> checkRecords = [];
   String currentLocation = '';
-  String startHour = '---';
-  String endHour = '---';
-  bool checkLoading = false;
+  String startHour = '---', endHour = '---';
+  bool checkLoading = false, availableCheck = true, isCheckedIn = true;
   Timer? timer;
   Duration elapsedDuration = Duration.zero;
   String companyAddress = '';
-  double compLat = 0.0;
-  double compLong = 0.0;
-  double currLat = 0.0;
-  double currLong = 0.0;
+  double compLat = 0.0, compLong = 0.0;
+  double currLat = 0.0, currLong = 0.0;
 
   String formatTime(String time) {
     // Parse the input time string
@@ -61,7 +63,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
   }
   String getDaySuffix(int day) {
     if (day >= 11 && day <= 13) {
-      return 'th'; // Special case for 11th, 12th, and 13th
+      return 'th';
     }
     switch (day % 10) {
       case 1:
@@ -110,7 +112,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
 
     return '$hours hours $minutes minutes';
   }
-  getCurrentLocation(context) async {
+  Future<void> getCurrentLocation(context) async {
     ///handle permission
     bool serviceEnabled;
     LocationPermission permission;
@@ -180,6 +182,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
         companyAddress = data['message']['data']['company_details']['address'] ?? 'unavailable';
         String lat = data['message']['data']['company_details']['latitude'] ?? '';
         String long = data['message']['data']['company_details']['longitude'] ?? '';
+        availableCheck = data['message']['data']['shift status'] ?? false;
         if(lat.isNotEmpty && long.isNotEmpty) {
           compLat = double.parse(lat);
           compLong = double.parse(long);
@@ -193,29 +196,35 @@ class SignInOutCubit extends Cubit<SignInOutState> {
         if(checkRecords.isEmpty) {
           checkRecords.add(CheckRecordsModel(checkInTime: '---', checkOutTime: '---'));
         }
-        if(checkRecords.isNotEmpty && checkRecords.last.checkInTime != '---' && checkRecords.last.checkOutTime == '---') {
-          DateTime now = DateTime.now();
-          List<String> timeParts = checkRecords.last.checkInTime.split(':');
-          int hour = int.parse(timeParts[0]);
-          int minute = int.parse(timeParts[1]);
-          int second = int.parse(timeParts[2]);
-
-          // Create a DateTime for today with the parsed time
-          DateTime lastCheckIn = DateTime(
-            now.year,
-            now.month,
-            now.day,
-            hour,
-            minute,
-            second,
-          );
-          startTimer(lastCheckIn);
-        }else {
+        isCheckedIn = checkRecords.isEmpty || checkRecords.last.checkInTime == '---' || checkRecords.last.checkOutTime != '---';
+        if(!availableCheck) {
           stopTimer();
+          ToastWidget().showToast('You are out of shift.', context);
+        } else {
+          if(checkRecords.isNotEmpty && checkRecords.last.checkInTime != '---' && checkRecords.last.checkOutTime == '---') {
+            DateTime now = DateTime.now();
+            List<String> timeParts = checkRecords.last.checkInTime.split(':');
+            int hour = int.parse(timeParts[0]);
+            int minute = int.parse(timeParts[1]);
+            int second = int.parse(timeParts[2]);
+
+            // Create a DateTime for today with the parsed time
+            DateTime lastCheckIn = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              hour,
+              minute,
+              second,
+            );
+            startTimer(lastCheckIn);
+          }else {
+            stopTimer();
+          }
         }
         checkLoading = false;
         emit(GetLastCheckSuccess());
-      }else {
+      } else {
         ToastWidget().showToast(data['message']['message'], context);
         checkLoading = false;
         emit(GetLastCheckError());
@@ -235,39 +244,79 @@ class SignInOutCubit extends Cubit<SignInOutState> {
       ToastWidget().showToast('Could not launch the map', context);
     }
   }
-  double calculateDistance() {
-    return Geolocator.distanceBetween(compLat, compLong, currLat, currLong);
+  double calculateDistance() => Geolocator.distanceBetween(compLat, compLong, currLat, currLong);
+  Future<void> pickImage(BuildContext context) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70,
+      );
+      
+      if (image != null) {
+        imageFile = File(image.path);
+        if(checkRecords.isEmpty || 
+           checkRecords.last.checkInTime == '---' || 
+           checkRecords.last.checkOutTime != '---') {
+          await checkFunction(context, true);
+        } else {
+          await checkFunction(context, false);
+        }
+      }
+    } catch (e) {
+      ToastWidget().showToast('Failed to capture image', context);
+    }
+  }  
+  void clearImage() {
+    imageFile = null;
+    emit(ImageCleared());
   }
-  checkFunction(context, bool isCheckIn) async{
+  checkFunction(context, bool isCheckIn) async {
+    checkLoading = true;
+    emit(CheckInOutLoading());
     await getCurrentLocation(context);
     if(currLat == 0.0 || currLong == 0.0) {
       ToastWidget().showToast('Please enable your location permissions and try again', context);
+      checkLoading = false;
+      emit(CheckInOutError());
       return;
     }
     double distance = calculateDistance();
     final instance = DataHelper.instance;
     String action = isCheckIn ? 'check-in' : 'check-out';
+    
     final body = {
       'action': action,
-      'employee_id': instance.userId,
+      'employee_id': instance.userId!,
       'lat': currLat.toString(),
       'long': currLong.toString(),
-      'distance': distance
+      'distance': distance.toString(),
     };
-    checkLoading = true;
-    emit(CheckInOutLoading());
     try {
+      if(imageFile != null) {
+        final data = await HTTPHelper.uploadFiles(context, imageFile!, EndPoints.checkInOut, 'image', body);
+        if(data['status'] == 200) {
+          imageFile = null;
+          ToastWidget().showToast(data['data']['message']['message'], context);
+          checkLoading = false;
+          emit(CheckInOutSuccess());
+          if(data['data']['message']['status'] == 'success') await getLastChecks(context);
+          return;
+        }
+        return;
+      }
       final data = await HTTPHelper.httpPost(EndPoints.checkInOut, body, context);
-      checkLoading = false;
-      if(data['message']['status'] == 'success') {
+      if (data['message']['status'] == 'success') {
+        imageFile = null;
         ToastWidget().showToast(data['message']['message'], context);
         emit(CheckInOutSuccess());
         await getLastChecks(context);
-      }else {
+      } else {
         ToastWidget().showToast(data['message']['message'], context);
         emit(CheckInOutError());
       }
-    }catch(e) {
+      checkLoading = false;
+    } catch(e) {
       ToastWidget().showToast('Something went wrong', context);
       checkLoading = false;
       emit(CheckInOutError());

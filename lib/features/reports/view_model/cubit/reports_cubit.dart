@@ -10,7 +10,7 @@ import 'package:smart_vision/features/reports/model/requests_model.dart';
 
 import '../../model/overtime_model.dart';
 
-part 'rreports_state.dart';
+part 'reports_state.dart';
 
 class ReportsCubit extends Cubit<ReportsState> {
   ReportsCubit() : super(ReportsInitial());
@@ -24,17 +24,11 @@ class ReportsCubit extends Cubit<ReportsState> {
   List<LeaveRequestsModel> leaveRequests = [];
   List<ShiftRequestsModel> shiftRequests = [];
   List<AttendanceModel> attendance = [];
-  bool reportLoading = false;
-  int openCount = 0;
-  int draftCount = 0;
-  int approvedCount = 0;
-  int rejectedCount = 0;
+  bool reportLoading = false, isCollapsed = false;
+  int requestedCount = 0, managerApproved = 0, approvedCount = 0, rejectedCount = 0;
   int cancelledCount = 0;
   int typeSwitch = 0;
-  int present = 0;
-  int onLeave = 0;
-  int absent = 0;
-  int workFromHome = 0;
+  int present = 0, onLeave = 0, absent = 0, workFromHome = 0;
   bool scrolled = false;
   List<OvertimeModel> overtimeList = [];
 
@@ -72,25 +66,46 @@ class ReportsCubit extends Cubit<ReportsState> {
   Color getStatusColor(String status) {
     switch (status) {
       case 'On Leave':
-        return Colors.orange.withOpacity(0.7);
+        return Colors.orange.withValues(alpha: 0.7);
       case 'Work\nFrom Home':
       case 'Work From Home':
-        return Colors.grey.withOpacity(0.7);
+        return Colors.grey.withValues(alpha: 0.7);
       case 'Absent':
-        return Colors.red.withOpacity(0.7);
+        return Colors.red.withValues(alpha: 0.7);
       case 'Present':
-        return Colors.green.withOpacity(0.7);
+        return Colors.green.withValues(alpha: 0.7);
       default:
         return Colors.transparent;
     }
   }
+  int getRequestsCount(String status) {
+    switch (status) {
+      case 'Requested':
+        return requestedCount;
+      case 'Manager Approved':
+        return managerApproved;
+      case 'Approved':
+        return approvedCount;
+      case 'Rejected':
+        return rejectedCount;
+      case 'Cancelled':
+        return cancelledCount;
+      default:
+        return 0;
+    }
+  }
+  void collapseCounts() {
+    isCollapsed = !isCollapsed;
+    emit(CollapseChanged());
+  }
   Color getRequestsStatusColor(String status) {
     switch (status) {
-      case 'Open':
-      case 'Draft':
+      case 'Requested':
         return HexColor('#00b0ed');
+      case 'Manager Approved':
+        return HexColor('#00b0af');
       case 'Approved':
-        return HexColor('#63ea73');
+        return Colors.green;
       case 'Rejected':
         return HexColor('#ff0000');
       case 'Cancelled':
@@ -127,7 +142,8 @@ class ReportsCubit extends Cubit<ReportsState> {
               leaveRequests.add(LeaveRequestsModel.fromJson(ss));
             }
           }
-          openCount = leaveRequests.where((element) => element.status == 'Open').toList().length;
+          requestedCount = leaveRequests.where((element) => element.status == 'Requested').toList().length;
+          managerApproved = shiftRequests.where((element) => element.status == 'Manager Approved').toList().length;
           approvedCount = leaveRequests.where((element) => element.status == 'Approved').toList().length;
           rejectedCount = leaveRequests.where((element) => element.status == 'Rejected').toList().length;
           cancelledCount = leaveRequests.where((element) => element.status == 'Cancelled').toList().length;
@@ -140,12 +156,14 @@ class ReportsCubit extends Cubit<ReportsState> {
           }
           for(var ss in shiftRequests) {
             if(ss.status == 'Open') {
-              ss.status = 'Draft';
+              ss.status = 'Requested';
             }
           }
-          draftCount = shiftRequests.where((element) => element.status == 'Draft').toList().length;
+          requestedCount = shiftRequests.where((element) => element.status == 'Requested').toList().length;
+          managerApproved = shiftRequests.where((element) => element.status == 'Manager Approved').toList().length;
           approvedCount = shiftRequests.where((element) => element.status == 'Approved').toList().length;
           rejectedCount = shiftRequests.where((element) => element.status == 'Rejected').toList().length;
+          cancelledCount = shiftRequests.where((element) => element.status == 'Cancelled').toList().length;
           typeSwitch = 2;
         }
         emit(ReportLoaded());

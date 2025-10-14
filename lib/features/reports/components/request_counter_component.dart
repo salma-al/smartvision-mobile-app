@@ -9,38 +9,44 @@ class RequestCounterComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: context.width * 0.2,
-      child: Column(
-        children: [
-          const SizedBox(height: 4),
-          Container(
-            width: context.width,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: color,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      child: SizedBox(
+        width: context.width * 0.2,
+        child: Column(
+          children: [
+            const SizedBox(height: 4),
+            Container(
+              width: context.width,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: color,
+              ),
+              child: Text(
+                status,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12, color: Colors.white),
+              ),
             ),
-            child: Text(
-              status,
-              style: const TextStyle(fontSize: 12, color: Colors.white),
+            const SizedBox(height: 4),
+            Container(
+              width: context.width,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
+                color: color,
+              ),
+              child: Text(
+                count.toString(),
+                style: const TextStyle(fontSize: 16, color: Colors.white),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            width: context.width,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
-              color: color,
-            ),
-            child: Text(
-              count.toString(),
-              style: const TextStyle(fontSize: 16, color: Colors.white),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

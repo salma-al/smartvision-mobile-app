@@ -7,11 +7,11 @@ import '../../../core/widgets/custom_text_form_feild.dart';
 import '../../../core/widgets/loading_widget.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../components/leave_date_component.dart';
-import '../components/request_type_component.dart';
+// import '../components/request_type_component.dart';
 import '../view_model/cubit/leaves_cubit.dart';
 
-class RequestScreen extends StatelessWidget {
-  const RequestScreen({super.key});
+class LeavesScreen extends StatelessWidget {
+  const LeavesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,67 +42,41 @@ class RequestScreen extends StatelessWidget {
                     onRefresh: () => cubit.getAvailableLeaves(context),
                     child: ListView(
                       children: [
-                        // Available Requests Info
-                        if(cubit.currentRequestType == 'Leave')
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.mainColor.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(8),
+                        if(cubit.currentRequestType == RequestType.leave)
+                        ...[
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.mainColor.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Leaves balance: ${cubit.currentLeaveType == null ? 0 : cubit.currentLeaveType!.availableLeaves}', 
+                              style: const TextStyle(fontSize: 16, color: Colors.white),
+                            ),
                           ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Available Leave Times: ${cubit.currentLeaveType == null ? 0 : cubit.currentLeaveType!.availableLeaves}', 
-                            style: const TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                        ),
-                        if(cubit.currentRequestType == 'Leave')
-                        const SizedBox(height: 50),
+                          const SizedBox(height: 50),
+                        ],
 
-                        // Request Type Radio Buttons
                         const Text('Request Type', style: TextStyle(fontSize: 18)),
                         const SizedBox(height: 8),
-                        Container(
-                          width: context.width,
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Wrap(
-                            alignment: WrapAlignment.spaceEvenly,
-                            runSpacing: 8,
-                            children: [
-                              RequestTypeComponent(
-                                title: 'Shift',
-                                textColor: cubit.currentRequestType == 'Shift' ? Colors.white : AppColors.darkColor,
-                                background: cubit.currentRequestType == 'Shift' ? AppColors.mainColor : Colors.grey.withOpacity(0.4),
-                                onTap: () => cubit.changeRequestType('Shift'),
-                              ),
-                              RequestTypeComponent(
-                                title: 'Leave',
-                                textColor: cubit.currentRequestType == 'Leave' ? Colors.white : AppColors.darkColor,
-                                background: cubit.currentRequestType == 'Leave' ? AppColors.mainColor : Colors.grey.withOpacity(0.4),
-                                onTap: () => cubit.changeRequestType('Leave'),
-                              ),
-                              RequestTypeComponent(
-                                title: 'OverTime',
-                                textColor: cubit.currentRequestType == 'OverTime' ? Colors.white : AppColors.darkColor,
-                                background: cubit.currentRequestType == 'OverTime' ? AppColors.mainColor : Colors.grey.withOpacity(0.4),
-                                onTap: () => cubit.changeRequestType('OverTime'),
-                              ),
-                            ],
-                          ),
+                        CustomDropdownFormField(
+                          raduis: 12,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                          hintText: 'Select Request Type',
+                          items: RequestType.values.map((e) => DropdownMenuItem(value: e, child: Text(e.toString().split('.').last))).toList(),
+                          value: cubit.currentRequestType,
+                          onChanged: (val) => cubit.changeRequestType(val!),
                         ),
                         const SizedBox(height: 20),
                     
-                        // Type Dropdown
-                        if(cubit.currentRequestType != 'OverTime')
+                        if(cubit.currentRequestType != RequestType.overtime)
                         ...[
                           Text(cubit.shownRequestType, style: const TextStyle(fontSize: 18)),
                           const SizedBox(height: 8),
                           CustomDropdownFormField(
-                            raduis: 35,
+                            raduis: 12,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
                             hintText: 'Select ${cubit.shownRequestType}',
                             items: cubit.selectedTypeList.map((e) => DropdownMenuItem(value: e, child: Text(e.leaveType))).toList(),
@@ -112,28 +86,29 @@ class RequestScreen extends StatelessWidget {
                           const SizedBox(height: 20),
                         ],
                         
-                        // Start and End Date Fields in One Row
                         Row(
                           children: [
                             LeaveDateComponent(
-                              title: cubit.currentRequestType != 'OverTime' ? 'Start Date' : 'Date', 
+                              title: cubit.currentRequestType != RequestType.overtime ? 'Start Date' : 'Date', 
                               hintTitle: 'Enter start date...', 
                               controller: cubit.startDateController, 
                               onTap: () => cubit.pickDate(true, context),
                             ),
-                            const SizedBox(width: 16),
-                            if(cubit.currentRequestType != 'OverTime')
-                            LeaveDateComponent(
-                              title: 'End Date', 
-                              hintTitle: 'Enter end date...', 
-                              controller: cubit.endDateController, 
-                              onTap: () => cubit.pickDate(false, context),
-                            ),
+                            if(cubit.currentRequestType != RequestType.overtime)
+                            ...[
+                              const SizedBox(width: 16),
+                              LeaveDateComponent(
+                                title: 'End Date', 
+                                hintTitle: 'Enter end date...', 
+                                controller: cubit.endDateController, 
+                                onTap: () => cubit.pickDate(false, context),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 30),
 
-                        if(cubit.currentRequestType == 'OverTime')
+                        if(cubit.currentRequestType == RequestType.overtime)
                         Row(
                           children: [
                             LeaveDateComponent(
@@ -151,25 +126,37 @@ class RequestScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+
+                        if(cubit.currentLeaveType != null && cubit.currentLeaveType!.leaveType.toLowerCase().contains('excuse') && cubit.currentRequestType == RequestType.shift)
+                        ...[
+                          const Text('Excuse Time', style: TextStyle(fontSize: 18)),
+                          const SizedBox(height: 8),
+                          CustomDropdownFormField(
+                            raduis: 12,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                            hintText: 'Select excuse time',
+                            items: cubit.availExcusesTimes.map((e) => DropdownMenuItem(value: e, child: Text(e.toString()))).toList(),
+                            value: cubit.selectedExcuseTime,
+                            onChanged: (val) => cubit.changeExcuseTime(val),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                         const SizedBox(height: 30),
-                        
-                        if(cubit.currentRequestType == 'Leave' || cubit.currentRequestType == 'OverTime' || (cubit.currentLeaveType != null && cubit.currentLeaveType!.leaveType == 'Work From Home'))
                         CustomTextFormField(
                           hintText: 'Reason...', 
                           maxLines: 3,
                           controller: cubit.reasonController,
-                          fillColor: Colors.grey.withOpacity(0.2),
+                          fillColor: Colors.grey.withValues(alpha: 0.2),
                         ),
                         const SizedBox(height: 50),
                     
-                        // Submit Button
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: context.width * 0.2),
                           child: PrimaryButton(
                             text: 'Submit', 
                             color: AppColors.mainColor,
                             width: context.width * 0.5,
-                            onTap: cubit.currentRequestType == 'OverTime' ? () => cubit.submitRequestOvertime(context) : () => cubit.submitRequest(context),
+                            onTap: cubit.currentRequestType == RequestType.overtime ? () => cubit.submitRequestOvertime(context) : () => cubit.submitRequest(context),
                           ),
                         ),
                         const SizedBox(height: 16),
