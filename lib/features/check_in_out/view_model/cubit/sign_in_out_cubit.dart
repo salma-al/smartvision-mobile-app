@@ -7,12 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:smart_vision/core/helper/data_helper.dart';
-import 'package:smart_vision/core/helper/http_helper.dart';
-import 'package:smart_vision/core/utils/end_points.dart';
-import 'package:smart_vision/core/widgets/toast_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
+// import 'package:worldtime/worldtime.dart';
 
+import '../../../../core/helper/data_helper.dart';
+import '../../../../core/helper/http_helper.dart';
+import '../../../../core/utils/end_points.dart';
+import '../../../../core/widgets/toast_widget.dart';
 import '../../model/check_records_model.dart';
 
 part 'sign_in_out_state.dart';
@@ -26,7 +27,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
   List<CheckRecordsModel> checkRecords = [];
   String currentLocation = '';
   String startHour = '---', endHour = '---';
-  bool checkLoading = false, availableCheck = true, isCheckedIn = true;
+  bool checkLoading = false, availableCheck = true, isCheckedIn = true, requiredImg = false;
   Timer? timer;
   Duration elapsedDuration = Duration.zero;
   String companyAddress = '';
@@ -34,7 +35,6 @@ class SignInOutCubit extends Cubit<SignInOutState> {
   double currLat = 0.0, currLong = 0.0;
 
   String formatTime(String time) {
-    // Parse the input time string
     if(time == '---') return '---';
     final parts = time.split(':');
     int hour = int.parse(parts[0]);
@@ -44,7 +44,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
     hour = hour % 12 == 0 ? 12 : hour % 12;
 
     final period = isPM ? 'PM' : 'AM';
-    return '$hour $period';
+    return '$hour:${parts[1]} $period';
   }
   String getFormattedDate() {
     final now = DateTime.now();
@@ -169,7 +169,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
     timer = null;
     elapsedDuration = Duration.zero;
   }
-  getLastChecks(context) async{
+  getLastChecks(BuildContext context) async{
     final instance = DataHelper.instance;
     final body = {'employee_id': instance.userId};
     checkLoading = true;
@@ -182,6 +182,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
         companyAddress = data['message']['data']['company_details']['address'] ?? 'unavailable';
         String lat = data['message']['data']['company_details']['latitude'] ?? '';
         String long = data['message']['data']['company_details']['longitude'] ?? '';
+        requiredImg = data['message']['data']['company_details']['log_with_image'] ?? false;
         availableCheck = data['message']['data']['shift status'] ?? false;
         if(lat.isNotEmpty && long.isNotEmpty) {
           compLat = double.parse(lat);
@@ -267,10 +268,6 @@ class SignInOutCubit extends Cubit<SignInOutState> {
       ToastWidget().showToast('Failed to capture image', context);
     }
   }  
-  void clearImage() {
-    imageFile = null;
-    emit(ImageCleared());
-  }
   checkFunction(context, bool isCheckIn) async {
     checkLoading = true;
     emit(CheckInOutLoading());
@@ -283,10 +280,9 @@ class SignInOutCubit extends Cubit<SignInOutState> {
     }
     double distance = calculateDistance();
     final instance = DataHelper.instance;
-    String action = isCheckIn ? 'check-in' : 'check-out';
     
     final body = {
-      'action': action,
+      'action': isCheckIn ? 'check-in' : 'check-out',
       'employee_id': instance.userId!,
       'lat': currLat.toString(),
       'long': currLong.toString(),
@@ -309,17 +305,46 @@ class SignInOutCubit extends Cubit<SignInOutState> {
       if (data['message']['status'] == 'success') {
         imageFile = null;
         ToastWidget().showToast(data['message']['message'], context);
+        checkLoading = false;
         emit(CheckInOutSuccess());
         await getLastChecks(context);
       } else {
         ToastWidget().showToast(data['message']['message'], context);
+        checkLoading = false;
         emit(CheckInOutError());
       }
-      checkLoading = false;
     } catch(e) {
       ToastWidget().showToast('Something went wrong', context);
       checkLoading = false;
       emit(CheckInOutError());
     }
   }
+  // updateAfterCheck(bool checkIn) async {
+  //   final worldtimePlugin = Worldtime();
+  //   final DateTime worldTime = await worldtimePlugin.timeByLocation(latitude: compLat, longitude: compLong);
+  //   final String time = '${worldTime.hour.toString().padLeft(2, '0')}:${worldTime.minute.toString().padLeft(2, '0')}:${worldTime.second.toString().padLeft(2, '0')}';
+  //   if(checkIn) {
+  //     if(checkRecords.isEmpty || checkRecords.last.checkInTime != '---') checkRecords.add(CheckRecordsModel(checkInTime: time, checkOutTime: '---'));
+  //     if(checkRecords.isNotEmpty && checkRecords.last.checkInTime != '---' && checkRecords.last.checkOutTime == '---') {
+  //       DateTime now = DateTime.now();
+  //       List<String> timeParts = checkRecords.last.checkInTime.split(':');
+  //       int hour = int.parse(timeParts[0]);
+  //       int minute = int.parse(timeParts[1]);
+  //       int second = int.parse(timeParts[2]);
+  //       DateTime lastCheckIn = DateTime(
+  //         now.year,
+  //         now.month,
+  //         now.day,
+  //         hour,
+  //         minute,
+  //         second,
+  //       );
+  //       startTimer(lastCheckIn);
+  //     }else {
+  //       stopTimer();
+  //     }
+  //   } else {
+  //     if(checkRecords.isNotEmpty && checkRecords.last.checkOutTime == '---') checkRecords.last.checkOutTime = time;
+  //   }
+  // }
 }

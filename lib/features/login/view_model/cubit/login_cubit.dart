@@ -2,13 +2,12 @@
 
 import 'dart:convert';
 import 'dart:io';
-// import 'dart:io';
 
-// import 'package:device_info_plus/device_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_vision/core/helper/cache_helper.dart';
 
 import '../../../../core/helper/http_helper.dart';
 import '../../../../core/helper/data_helper.dart';
@@ -25,9 +24,19 @@ class LoginCubit extends Cubit<LoginState> {
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  bool showPass = false;
-  bool loginLoading = false;
+  bool showPass = false, loginLoading = false, saveEmailAndPassword = false;
 
+  getEmailAndPass() async {
+    String email = await CacheHelper.getData('email', String) ?? '';
+    String password = await CacheHelper.getData('password', String) ?? '';
+    emailController.text = email;
+    passwordController.text = password;
+    emit(SavedEmailAndPass());
+  }
+  toggleSave() {
+    saveEmailAndPassword = !saveEmailAndPassword;
+    emit(ToggleSave());
+  }
   tooglePassword() {
     showPass = !showPass;
     emit(TogglePassword());
@@ -49,12 +58,15 @@ class LoginCubit extends Cubit<LoginState> {
       ToastWidget().showToast('Please enter email and password', context);
       return;
     }
-    final deviceId = await getDiveceId(); //UP1A.231005.007
-    // const deviceId = 'UP1A.231005.007';
+    final deviceId = await getDiveceId();
     final body = {'email': emailController.text, 'password': passwordController.text, 'device_id': deviceId};
     try {
       loginLoading = true;
       emit(LoginLoading());
+      if(saveEmailAndPassword) {
+        await CacheHelper.setData('email', emailController.text);
+        await CacheHelper.setData('password', passwordController.text);
+      }
       final response = await HTTPHelper.login(EndPoints.login, body, context);
       final data = jsonDecode(response);
       if(data['message']['status'] == 'success') {

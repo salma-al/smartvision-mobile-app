@@ -1,9 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:upgrader/upgrader.dart';
 
 import 'firebase_options.dart';
 import 'notification_service.dart';
@@ -34,21 +32,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Arial',
       ),
-      home: UpgradeAlert(
-        showIgnore: false,
-        showLater: false,
-        dialogStyle: UpgradeDialogStyle.cupertino,
-        upgrader: Upgrader(
-          // willDisplayUpgrade: ({required display, installedVersion, versionInfo}) {
-          //   if (versionInfo != null) {
-          //     if(versionInfo.appStoreVersion?.build != installedVersion) {
-          //       ///show upgrade dialog
-          //     }
-          //   }
-          // },
-        ),
-        child: const SplashScreen(),
-      ),
+      home: const SplashScreen(),
     );
   }
 }

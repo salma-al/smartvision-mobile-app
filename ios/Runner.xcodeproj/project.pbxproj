@@ -484,7 +484,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.0.4;
+				CURRENT_PROJECT_VERSION = 2.0.5;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 4965W79HY7;
 				ENABLE_BITCODE = NO;
@@ -495,7 +495,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 9;
+				MARKETING_VERSION = 10;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.svg.smart-vision-group";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -680,7 +680,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.0.4;
+				CURRENT_PROJECT_VERSION = 2.0.5;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 4965W79HY7;
 				ENABLE_BITCODE = NO;
@@ -691,7 +691,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 9;
+				MARKETING_VERSION = 10;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.svg.smart-vision-group";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -712,7 +712,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.0.4;
+				CURRENT_PROJECT_VERSION = 2.0.5;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 4965W79HY7;
 				ENABLE_BITCODE = NO;
@@ -723,7 +723,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 9;
+				MARKETING_VERSION = 10;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.svg.smart-vision-group";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

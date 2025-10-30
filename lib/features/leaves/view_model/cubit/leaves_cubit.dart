@@ -124,7 +124,7 @@ class LeavesCubit extends Cubit<LeavesState> {
     }
   }
   submitRequest(context) async {
-    if(startDateController.text.isEmpty || endDateController.text.isEmpty || reasonController.text.isEmpty || currentLeaveType != null) {
+    if(startDateController.text.isEmpty || endDateController.text.isEmpty || reasonController.text.isEmpty || currentLeaveType == null) {
       ToastWidget().showToast('Please fill all the fields', context);
       return;
     }

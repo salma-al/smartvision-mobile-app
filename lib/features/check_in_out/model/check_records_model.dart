@@ -1,5 +1,5 @@
 class CheckRecordsModel {
-  final String checkInTime, checkOutTime;
+  String checkInTime, checkOutTime;
 
   CheckRecordsModel({required this.checkInTime, required this.checkOutTime});
 

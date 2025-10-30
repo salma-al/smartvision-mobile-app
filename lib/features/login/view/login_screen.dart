@@ -13,7 +13,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LoginCubit(),
+      create: (context) => LoginCubit()..getEmailAndPass(),
       child: Scaffold(
         backgroundColor: Colors.white,
         body: BlocBuilder<LoginCubit, LoginState>(
@@ -85,7 +85,21 @@ class LoginScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 35),
+                        const SizedBox(height: 16),
+                        // checkbox save email and password
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: cubit.saveEmailAndPassword, 
+                              onChanged: (val) => cubit.toggleSave(),
+                              checkColor: Colors.white,
+                              activeColor: AppColors.mainColor,
+                              side: BorderSide(color: AppColors.mainColor),
+                            ),
+                            Text('Save email and password', style: TextStyle(color: AppColors.mainColor)),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                         // Login Button
                         PrimaryButton(
                           text: 'Sign in', 

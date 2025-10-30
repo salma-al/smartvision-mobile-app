@@ -2,7 +2,7 @@ name: smart_vision
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 1.0.2+9
+version: 1.0.3+10
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -21,20 +21,19 @@ dependencies:
   geolocator: ^12.0.0
   url_launcher: ^6.3.0
   flutter_native_splash: ^2.4.0
-  percent_indicator: ^4.2.4
   dashed_circular_progress_bar: ^0.0.6
   firebase_core: ^3.4.0
   firebase_messaging: ^15.1.0
   flutter_local_notifications: ^18.0.1
   flutter_html: ^3.0.0
   path_provider: ^2.1.5
-  # device_preview: ^1.1.0
   shorebird_code_push: ^1.1.6
   intl: ^0.19.0
   image_picker: ^1.0.7
   device_info_plus: ^10.0.1
   upgrader: ^12.1.0
   package_info_plus: ^8.1.1
+  new_version_plus: ^0.0.12
 
 dev_dependencies:
   flutter_test:
@@ -77,4 +76,3 @@ flutter:
     - family: Arial
       fonts:
         - asset: assets/fonts/ARLRDBD.ttf
-

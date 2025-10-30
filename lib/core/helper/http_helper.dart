@@ -13,6 +13,7 @@ import 'data_helper.dart';
 class HTTPHelper {
   static const String baseUrl = 'https://erp.smartvgroup.com/api/method/svg_mobile_app.api.';
   static const String imgBaseUrl = 'https://erp.smartvgroup.com';
+  static bool isRequestRunning = false;
   // static const String baseUrl = 'https://f739-41-234-86-182.ngrok-free.app/api/method/frappe.www.api.';
 
   static Future login(String endPoint, dynamic body, BuildContext context, {Map<String, String>? headers}) async{
@@ -26,127 +27,38 @@ class HTTPHelper {
   }
 
   static Future<dynamic> httpPost(String endPoint, Map<String, dynamic> body, BuildContext context, {Map<String, String>? headers}) async {
+    if(isRequestRunning) return null;
+    isRequestRunning = true;
     Uri url = Uri.parse(baseUrl + endPoint);
     final instance = DataHelper.instance;
-
-    // Ensure token is available; if not, reset and navigate to login
     if (instance.token == null) {
       await instance.reset();
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
       return;
     }
-
-    // Encode body as JSON
     String encodedBody = jsonEncode(body);
-
-    // Prepare headers
     headers = headers ?? <String, String>{};
     headers['Content-Type'] = 'application/json';
     headers['Cookie'] = 'sid=${instance.token}';
-
     try {
-      // Make POST request
       final response = await http.post(url, body: encodedBody, headers: headers);
-
-      // Decode response
       final utf8ResponseBody = utf8.decode(response.bodyBytes);
-
       if (response.statusCode == 401 || utf8ResponseBody.contains('"session_expired":1')) {
         await instance.reset();
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-        return null;
+        return;
       }
-
-      // Parse and return JSON response
       return jsonDecode(utf8ResponseBody);
     } catch (e) {
       return {'status': 'fail', 'message': 'Something went wrong'};
+    } finally {
+      isRequestRunning = false;
     }
-  }
-
-  static Future httpGet(String endPoint, Map<String, String> headers, BuildContext context, {dynamic params}) async{
-    Uri url = Uri.parse(baseUrl + endPoint).replace(queryParameters: params);
-    final instance = DataHelper.instance;
-    if(instance.token == null) {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return;
-    }
-    if(instance.token != null && headers['Authorization'] == null) headers['Authorization'] = '${instance.token}';
-    var response = await http.get(url, headers: headers);
-    var body = response.body;
-    if (body.contains('login')) {
-      
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return '';
-    }
-    var decodedResponse = jsonDecode(body);
-    if (decodedResponse is Map<String, dynamic> && (decodedResponse['error'] == "Token has expired. Please log in again." || decodedResponse['message'] == 'Unauthenticated.')) {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return '';
-    }
-    return response.body;
-  }
-
-  static Future httpPut(String endPoint, dynamic body, BuildContext context, {Map<String, String>? headers}) async{
-    Uri url = Uri.parse(baseUrl + endPoint);
-    final instance = DataHelper.instance;
-    if(instance.token == null) {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return;
-    }
-    headers = headers ?? <String, String>{};
-    if(instance.token != null && (headers['Authorization'] == null)) headers['Authorization'] = '${instance.token}';
-    var response = await http.put(url, body: body, headers: headers);
-    var bodyy = response.body;
-    if (bodyy.contains('login')) {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return '';
-    }
-    var decodedResponse = jsonDecode(bodyy);
-    if (decodedResponse is Map<String, dynamic> && decodedResponse['error'] == "Token has expired. Please log in again." || decodedResponse['message'] == 'Unauthenticated.') {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return '';
-    }
-    return response.body;
-  }
-
-  static Future httpDelete(String endPoint, Map<String, String> headers, BuildContext context) async{
-    Uri url = Uri.parse(baseUrl + endPoint);
-    final instance = DataHelper.instance;
-    if(instance.token == null) {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return;
-    }
-    if(instance.token != null && headers['Authorization'] == null) headers['Authorization'] = '${instance.token}';
-    var response = await http.delete(url, headers: headers);
-    var body = response.body;
-    if (body.contains('login')) {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return '';
-    }
-    Map<String, dynamic>? decodedResponse;
-    try {
-      decodedResponse = jsonDecode(body);
-    } catch (e) {
-      return body;
-    }
-    if (decodedResponse is Map<String, dynamic> && decodedResponse['error'] == "Token has expired. Please log in again." || decodedResponse!['message'] == 'Unauthenticated.') {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return '';
-    }
-    return body;
   }
 
   static Future<Map<String, dynamic>> uploadFiles(BuildContext context, File file, String endPoint, String imgKey, Map<String, String> body) async {
+    if(isRequestRunning) return {'status': 'fail', 'message': 'Can\'t run this request right now.'};
+    isRequestRunning = true;
     try {
       final uri = Uri.parse('$baseUrl$endPoint');
       final instance = DataHelper.instance;
@@ -189,6 +101,8 @@ class HTTPHelper {
       }
     } catch (e) {
       return {'status': 500, 'message': 'An error occurred: $e'};
+    } finally {
+      isRequestRunning = false;
     }
   }
 }

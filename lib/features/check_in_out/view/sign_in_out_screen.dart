@@ -114,9 +114,9 @@ class SignInOutScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         // Check-In and Check-Out Buttons
-                        if(cubit.availableCheck && cubit.isCheckedIn)
+                        if(cubit.availableCheck && cubit.isCheckedIn && !cubit.requiredImg)
                         CheckButtons(onTap: () => cubit.checkFunction(context, true), title: 'Check In')
-                        else if(cubit.availableCheck && !cubit.isCheckedIn)
+                        else if(cubit.availableCheck && !cubit.isCheckedIn && !cubit.requiredImg)
                         CheckButtons(onTap: () => cubit.checkFunction(context, false), title: 'Check Out'),
                         const SizedBox(height: 30),
                         // Display Check-In and Check-Out Times with Hours Worked
