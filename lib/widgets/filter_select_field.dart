@@ -192,18 +192,18 @@ class _OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppBorderRadius.radius4),
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
         onTap: onTap,
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: selected ? const Color(0xFFEFEDED) : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppBorderRadius.radius4),
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
           ),
-          child: Text(label, style: AppTypography.p12()),
+          child: Text(label, style: AppTypography.p14()),
         ),
       ),
     );

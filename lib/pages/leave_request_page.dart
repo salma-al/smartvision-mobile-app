@@ -78,116 +78,117 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Tabs
-              PillTabs(
-                index: _tabIndex,
-                tabs: const ['Request', 'History'],
-                onChanged: (i) => setState(() => _tabIndex = i),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PillTabs(
+                    index: _tabIndex,
+                    tabs: const ['Request', 'History'],
+                    onChanged: (i) => setState(() => _tabIndex = i),
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.sectionMargin),
 
               // Leave Type
               const FormLabel('Leave Type'),
               const SizedBox(height: 12),
-              FilterSelectField(
-                label: '',
-                value: _leaveType,
-                options: const ['Annual Leave', 'Sick Leave', 'Unpaid Leave', 'Emergency Leave'],
-                onChanged: (v) => setState(() => _leaveType = v),
-                popupMatchScreenWidth: true,
-                screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
+              SizedBox(
+                width: double.infinity,
+                child: FilterSelectField(
+                  label: '',
+                  value: _leaveType,
+                  options: const ['Annual Leave', 'Sick Leave', 'Unpaid Leave', 'Emergency Leave'],
+                  onChanged: (v) => setState(() => _leaveType = v),
+                  popupMatchScreenWidth: true,
+                  screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
+                ),
               ),
-
               const SizedBox(height: AppSpacing.sectionMargin),
 
-              // Start / End dates
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const FormLabel('Start Date'),
-                        const SizedBox(height: 12),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-                          onTap: () => _pickDate(isStart: true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-                              boxShadow: AppShadows.popupShadow,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(_formatDate(_start), style: AppTypography.p14()),
-                                const Icon(Icons.expand_more, color: AppColors.darkText, size: 18),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+              // Start/End Dates section -- prepare for popup
+              const FormLabel('Start Date'),
+              const SizedBox(height: 12),
+              _DateField(
+                label: _formatDate(_start),
+                onTap: () {/* TODO: Show popup here, not showDatePicker */},
+              ),
+              const SizedBox(height: AppSpacing.sameSectionMargin),
+              const FormLabel('End Date'),
+              const SizedBox(height: 12),
+              _DateField(
+                label: _formatDate(_end),
+                onTap: () {/* TODO: Show popup here, not showDatePicker */},
+              ),
+              const SizedBox(height: AppSpacing.sectionMargin),
+
+              // Reason label + styled textbox
+              const FormLabel('Reason'),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                  boxShadow: AppShadows.popupShadow,
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Type your reason...', border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                  const SizedBox(width: 30),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const FormLabel('End Date'),
-                        const SizedBox(height: 12),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-                          onTap: () => _pickDate(isStart: false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-                              boxShadow: AppShadows.popupShadow,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(_formatDate(_end), style: AppTypography.p14()),
-                                const Icon(Icons.expand_more, color: AppColors.darkText, size: 18),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  minLines: 1,
+                  maxLines: 4,
+                  style: AppTypography.body14(),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sectionMargin),
+
+              // Confirm button - content-width only
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PrimaryButton(
+                    label: 'Confirm',
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Leave request submitted')),
+                      );
+                    },
                   ),
                 ],
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-              const SizedBox(height: AppSpacing.sectionMargin),
-
-              // Duration
-              const FormLabel('Duration'),
-              const SizedBox(height: 12),
-              FilterSelectField(
-                label: '',
-                value: _duration,
-                options: const ['0.5 hours','1 hour','1.5 hours','2 hours','2.5 hours','3 hours','3.5 hours','4 hours'],
-                onChanged: (v) => setState(() => _duration = v),
-                popupMatchScreenWidth: true,
-                screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
-              ),
-
-              const SizedBox(height: AppSpacing.sectionMargin),
-
-              Center(
-                child: PrimaryButton(
-                  label: 'Confirm',
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Leave request submitted')),
-                    );
-                  },
-                ),
-              ),
+// _DateField for calendar placeholder, re-usable popup migration planned
+class _DateField extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _DateField({required this.label, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+            boxShadow: AppShadows.popupShadow,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label, style: AppTypography.p14()),
+              const Icon(Icons.expand_more, color: AppColors.darkText, size: 18),
             ],
           ),
         ),
