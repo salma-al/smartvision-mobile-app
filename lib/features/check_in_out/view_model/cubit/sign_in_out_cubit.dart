@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-// import 'package:worldtime/worldtime.dart';
 
 import '../../../../core/helper/data_helper.dart';
 import '../../../../core/helper/http_helper.dart';
@@ -33,6 +32,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
   String companyAddress = '';
   double compLat = 0.0, compLong = 0.0;
   double currLat = 0.0, currLong = 0.0;
+  double? uploadProgress;
 
   String formatTime(String time) {
     if(time == '---') return '---';
@@ -290,11 +290,22 @@ class SignInOutCubit extends Cubit<SignInOutState> {
     };
     try {
       if(imageFile != null) {
-        final data = await HTTPHelper.uploadFiles(context, imageFile!, EndPoints.checkInOut, 'image', body);
+        final data = await HTTPHelper.uploadFilesWithProgress(
+          context: context, 
+          file: imageFile!, 
+          endPoint: EndPoints.checkInOut, 
+          imgKey: 'image', 
+          body: body,
+          onProgress: (progress) {
+            uploadProgress = progress;
+            emit(CheckInOutLoading());
+          },
+        );
         if(data['status'] == 200) {
           imageFile = null;
           ToastWidget().showToast(data['data']['message']['message'], context);
           checkLoading = false;
+          uploadProgress = null;
           emit(CheckInOutSuccess());
           if(data['data']['message']['status'] == 'success') await getLastChecks(context);
           return;
@@ -319,32 +330,4 @@ class SignInOutCubit extends Cubit<SignInOutState> {
       emit(CheckInOutError());
     }
   }
-  // updateAfterCheck(bool checkIn) async {
-  //   final worldtimePlugin = Worldtime();
-  //   final DateTime worldTime = await worldtimePlugin.timeByLocation(latitude: compLat, longitude: compLong);
-  //   final String time = '${worldTime.hour.toString().padLeft(2, '0')}:${worldTime.minute.toString().padLeft(2, '0')}:${worldTime.second.toString().padLeft(2, '0')}';
-  //   if(checkIn) {
-  //     if(checkRecords.isEmpty || checkRecords.last.checkInTime != '---') checkRecords.add(CheckRecordsModel(checkInTime: time, checkOutTime: '---'));
-  //     if(checkRecords.isNotEmpty && checkRecords.last.checkInTime != '---' && checkRecords.last.checkOutTime == '---') {
-  //       DateTime now = DateTime.now();
-  //       List<String> timeParts = checkRecords.last.checkInTime.split(':');
-  //       int hour = int.parse(timeParts[0]);
-  //       int minute = int.parse(timeParts[1]);
-  //       int second = int.parse(timeParts[2]);
-  //       DateTime lastCheckIn = DateTime(
-  //         now.year,
-  //         now.month,
-  //         now.day,
-  //         hour,
-  //         minute,
-  //         second,
-  //       );
-  //       startTimer(lastCheckIn);
-  //     }else {
-  //       stopTimer();
-  //     }
-  //   } else {
-  //     if(checkRecords.isNotEmpty && checkRecords.last.checkOutTime == '---') checkRecords.last.checkOutTime = time;
-  //   }
-  // }
 }

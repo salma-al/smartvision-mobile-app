@@ -4,17 +4,16 @@ import 'package:smart_vision/core/utils/colors.dart';
 class CheckButtons extends StatelessWidget {
   final VoidCallback onTap;
   final String title;
-  const CheckButtons({super.key, required this.onTap, required this.title});
+  final Color? color;
+  const CheckButtons({super.key, required this.onTap, required this.title, this.color});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.mainColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        backgroundColor: color ?? AppColors.mainColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
       child: Text(

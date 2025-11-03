@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -51,6 +52,86 @@ class HTTPHelper {
       return jsonDecode(utf8ResponseBody);
     } catch (e) {
       return {'status': 'fail', 'message': 'Something went wrong'};
+    } finally {
+      isRequestRunning = false;
+    }
+  }
+
+  static Future<Map<String, dynamic>> uploadFilesWithProgress({
+    required BuildContext context,
+    required File file,
+    required String endPoint,
+    required String imgKey,
+    required Map<String, String> body,
+    required Function(double progress) onProgress,
+  }) async {
+    if (isRequestRunning) {
+      return {'status': 'fail', 'message': 'Can\'t run this request right now.'};
+    }
+    isRequestRunning = true;
+
+    try {
+      final uri = Uri.parse('$baseUrl$endPoint');
+      final instance = DataHelper.instance;
+
+      if (instance.token == null) {
+        await instance.reset();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+        );
+        return {'status': 401, 'message': 'Token expired. Please log in again.'};
+      }
+
+      if (!await file.exists()) {
+        return {'status': 400, 'message': 'The selected file does not exist.'};
+      }
+
+      final fileLength = await file.length();
+      int bytesUploaded = 0;
+
+      final stream = http.ByteStream(Stream.castFrom(file.openRead()));
+      final Stream<List<int>> progressStream = stream.transform(
+        StreamTransformer.fromHandlers(handleData: (data, sink) {
+          bytesUploaded += data.length;
+          final progress = bytesUploaded / fileLength;
+          onProgress(progress.clamp(0.0, 1.0)); // 👈 steady progress 0 → 1
+          sink.add(data);
+        }),
+      );
+
+      final request = http.MultipartRequest('POST', uri);
+      request.files.add(http.MultipartFile(
+        imgKey,
+        progressStream,
+        fileLength,
+        filename: file.path.split('/').last,
+        contentType: MediaType('image', 'png'),
+      ));
+
+      request.fields.addAll(body);
+      request.headers.addAll({
+        'Cookie': 'sid=${instance.token}',
+      });
+
+      final response = await request.send();
+      final respStr = await response.stream.bytesToString();
+
+      try {
+        final decoded = jsonDecode(respStr);
+        return {
+          'status': response.statusCode,
+          'data': decoded,
+        };
+      } catch (_) {
+        return {
+          'status': response.statusCode,
+          'message': respStr,
+        };
+      }
+    } catch (e) {
+      return {'status': 500, 'message': 'Error: $e'};
     } finally {
       isRequestRunning = false;
     }

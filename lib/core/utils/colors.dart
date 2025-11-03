@@ -9,4 +9,6 @@ class AppColors {
   static Color lightColor = HexColor('#FFF8DB');
 
   static Color darkColor = HexColor('#535F5C');
+
+  static Color redColor = const Color.fromRGBO(178,59,59, 1);
 }

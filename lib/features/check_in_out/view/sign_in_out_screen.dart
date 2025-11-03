@@ -87,10 +87,10 @@ class SignInOutScreen extends StatelessWidget {
                         GestureDetector(
                           onTap: () => cubit.pickImage(context),
                           child: Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              color: Colors.white70,
-                              borderRadius: BorderRadius.circular(24),
+                              color: cubit.isCheckedIn ? AppColors.mainColor : AppColors.redColor,
+                              borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.grey.shade300,
@@ -101,12 +101,13 @@ class SignInOutScreen extends StatelessWidget {
                               ],
                             ),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.add_a_photo_rounded),
+                                const Icon(Icons.add_a_photo_rounded, color: Colors.white),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Take ${cubit.isCheckedIn ? 'checkin' : 'checkout'} photo',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
                                 ),
                               ],
                             ),
@@ -141,7 +142,7 @@ class SignInOutScreen extends StatelessWidget {
                   ),
                 ),
                 if (cubit.checkLoading)
-                const LoadingWidget(),
+                LoadingWidget(progress: cubit.uploadProgress),
               ],
             ),
           );
