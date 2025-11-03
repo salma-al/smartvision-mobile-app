@@ -154,29 +154,46 @@ class _FilterSelectFieldState extends State<FilterSelectField> {
         onTap: _togglePopup,
         borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
             boxShadow: AppShadows.defaultShadow,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // space between text & arrow
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (widget.leadingSvgAsset != null) ...[
-                SvgPicture.asset(widget.leadingSvgAsset!, width: 18, height: 18, color: AppColors.darkText),
-                const SizedBox(width: 8),
-              ],
-              Text(widget.label, style: AppTypography.helperText()),
-              const SizedBox(width: 8),
-              Text(widget.value, style: AppTypography.body14()),
-              const SizedBox(width: 8),
+              // Left side
+              Row(
+                children: [
+                  if (widget.leadingSvgAsset != null) ...[
+                    SvgPicture.asset(
+                      widget.leadingSvgAsset!,
+                      width: 18,
+                      height: 18,
+                      color: AppColors.darkText,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(widget.label, style: AppTypography.helperText()),
+                  const SizedBox(width: 8),
+                  Text(widget.value, style: AppTypography.p14()),
+                ],
+              ),
+              // Right side (arrow)
               if (widget.trailingSvgAsset != null)
-                SvgPicture.asset(widget.trailingSvgAsset!, width: 14, height: 14, color: AppColors.darkText)
+                SvgPicture.asset(
+                  widget.trailingSvgAsset!,
+                  width: 14,
+                  height: 14,
+                  color: AppColors.darkText,
+                )
               else
                 const Icon(Icons.expand_more, size: 16, color: AppColors.darkText),
             ],
           ),
+
         ),
       ),
     );
@@ -198,10 +215,10 @@ class _OptionTile extends StatelessWidget {
         onTap: onTap,
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: selected ? const Color(0xFFEFEDED) : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
           ),
           child: Text(label, style: AppTypography.p14()),
         ),

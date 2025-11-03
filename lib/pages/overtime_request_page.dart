@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:untitled1/widgets/filter_panel.dart';
+import 'package:untitled1/widgets/hours_badge.dart';
 import 'package:untitled1/widgets/icon_badge.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
@@ -10,26 +11,27 @@ import '../widgets/form_label.dart';
 import '../widgets/filter_select_field.dart';
 import '../widgets/primary_button.dart';
 
-class LeaveRequestPage extends StatefulWidget {
-  const LeaveRequestPage({super.key});
+class OvertimeRequestPage extends StatefulWidget {
+  const OvertimeRequestPage({super.key});
 
   @override
-  State<LeaveRequestPage> createState() => _LeaveRequestPageState();
+  State<OvertimeRequestPage> createState() => _OvertimeRequestPageState();
 }
 
-class _LeaveRequestPageState extends State<LeaveRequestPage> {
+class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
   int _tabIndex = 0;
-  String _leaveType = 'Annual Leave';
-  DateTime _start = DateTime.now();
-  DateTime _end = DateTime.now();
+
+  DateTime _overtimeDate = DateTime.now();
+  TimeOfDay _startTime = TimeOfDay.now();
+  TimeOfDay _endTime = TimeOfDay.now();
 
   OverlayEntry? _calendarOverlay;
 
+  // ---------- Inline Date Picker ----------
   void _showInlineDatePicker({
-    required bool isStart,
     required BuildContext fieldContext,
   }) {
-    _hideInlineDatePicker(); // close existing popup if open
+    _hideInlineDatePicker();
 
     final renderBox = fieldContext.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
@@ -40,11 +42,10 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     _calendarOverlay = OverlayEntry(
       builder: (context) {
         final screenWidth = MediaQuery.of(context).size.width;
-        final horizontalPadding = AppSpacing.pagePaddingHorizontal;
+        const horizontalPadding = AppSpacing.pagePaddingHorizontal;
 
         return Stack(
           children: [
-            // Close popup when tapping outside
             Positioned.fill(
               child: GestureDetector(
                 onTap: _hideInlineDatePicker,
@@ -61,35 +62,25 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                   width: screenWidth - horizontalPadding * 2,
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                    borderRadius:
+                    BorderRadius.circular(AppBorderRadius.radius12),
                     boxShadow: AppShadows.popupShadow,
                   ),
                   child: Theme(
                     data: Theme.of(context).copyWith(
                       colorScheme: ColorScheme.light(
-                        primary: AppColors.getAccentColor(CompanyTheme.groupCompany), // header & selected day color
-                        onPrimary: Colors.white, // text on selected day
-                        onSurface: AppColors.darkText, // default text color
-                      ),
-                      textButtonTheme: TextButtonThemeData(
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.getAccentColor(CompanyTheme.groupCompany),
-                        ),
+                        primary: AppColors.getAccentColor(
+                            CompanyTheme.groupCompany),
+                        onPrimary: Colors.white,
+                        onSurface: AppColors.darkText,
                       ),
                     ),
                     child: CalendarDatePicker(
-                      initialDate: isStart ? _start : _end,
+                      initialDate: _overtimeDate,
                       firstDate: DateTime(DateTime.now().year - 1),
                       lastDate: DateTime(DateTime.now().year + 2),
                       onDateChanged: (picked) {
-                        setState(() {
-                          if (isStart) {
-                            _start = picked;
-                            if (_end.isBefore(_start)) _end = _start;
-                          } else {
-                            _end = picked.isBefore(_start) ? _start : picked;
-                          }
-                        });
+                        setState(() => _overtimeDate = picked);
                         _hideInlineDatePicker();
                       },
                     ),
@@ -110,8 +101,30 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     _calendarOverlay = null;
   }
 
+  Future<void> _pickTime({
+    required bool isStart,
+    required BuildContext context,
+  }) async {
+    final initial = isStart ? _startTime : _endTime;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          _startTime = picked;
+        } else {
+          _endTime = picked;
+        }
+      });
+    }
+  }
+
   String _formatDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}';
+  String _formatTime(TimeOfDay t) =>
+      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
   @override
   void dispose() {
@@ -122,7 +135,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      appBar: const SecondaryAppBar(title: 'Leave Request'),
+      appBar: const SecondaryAppBar(title: 'Overtime Request'),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
@@ -144,7 +157,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                 ],
               ),
               const SizedBox(height: AppSpacing.sectionMargin),
-
               if (_tabIndex == 0)
                 _buildRequestTab(context)
               else
@@ -153,6 +165,97 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildRequestTab(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Overtime Date
+        const FormLabel('Overtime Date'),
+        const SizedBox(height: AppSpacing.margin12),
+        _DateField(
+          label: _formatDate(_overtimeDate),
+          icon: Icons.calendar_today_outlined,
+          onTap: (context) => _showInlineDatePicker(fieldContext: context),
+        ),
+        const SizedBox(height: AppSpacing.sectionMargin),
+
+        // Start / End Time
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const FormLabel('Start Time'),
+                  const SizedBox(height: AppSpacing.margin12),
+                  _DateField(
+                    label: _formatTime(_startTime),
+                    icon: Icons.access_time,
+                    onTap: (context) => _pickTime(isStart: true, context: context),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const FormLabel('End Time'),
+                  const SizedBox(height: AppSpacing.margin12),
+                  _DateField(
+                    label: _formatTime(_endTime),
+                    icon: Icons.access_time,
+                    onTap: (context) => _pickTime(isStart: false, context: context),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sectionMargin),
+
+        // Reason
+        const FormLabel('Reason'),
+        const SizedBox(height: AppSpacing.margin12),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+            boxShadow: AppShadows.popupShadow,
+          ),
+          child: TextField(
+            decoration: const InputDecoration(
+              hintText: 'Type your reason...',
+              border: InputBorder.none,
+              contentPadding:
+              EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            minLines: 2,
+            maxLines: 2,
+            style: AppTypography.body14(),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sectionMargin),
+
+        // Submit
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            PrimaryButton(
+              label: 'Submit',
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Overtime request submitted')),
+                );
+              },
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -188,28 +291,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                 'Leave without pay'
               ],
             ),
-            // Old code for reference:
-            /*
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: AppShadows.popupShadow,
-              ),
-              child: Row(
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/filter.svg',
-                    width: 16,
-                    height: 16,
-                  ),
-                  const SizedBox(width: 6),
-                  Text('Filters', style: AppTypography.p14()),
-                ],
-              ),
-            ),
-            */
           ],
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
@@ -218,120 +299,19 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         Column(
           children: [
             _HistoryRecord(
-              leaveType: 'Sick Leave',
-              status: 'Approved',
+              status: 'Manager Approved',
               date: 'Oct 01',
               reason: 'Doctor appointment',
               submitted: 'Sep 28, 2025',
+              overtimeHours: 5,
             ),
             const SizedBox(height: 12),
             _HistoryRecord(
-              leaveType: 'Casual Leave',
               status: 'Requested',
               date: 'Sep 25',
               reason: 'Family event',
               submitted: 'Sep 22, 2025',
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRequestTab(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Leave Type
-        const FormLabel('Leave Type'),
-        const SizedBox(height: AppSpacing.margin12),
-        SizedBox(
-          width: double.infinity,
-          child: FilterSelectField(
-            label: '',
-            value: _leaveType,
-            options: const [
-              'Annual Leave',
-              'Sick Leave',
-              'Unpaid Leave',
-              'Emergency Leave',
-            ],
-            onChanged: (v) => setState(() => _leaveType = v),
-            popupMatchScreenWidth: true,
-            screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sectionMargin),
-
-        // Start & End Dates (same row, 12px gap)
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const FormLabel('Start Date'),
-                  const SizedBox(height: AppSpacing.margin12),
-                  _DateField(
-                    label: _formatDate(_start),
-                    onTap: (context) =>
-                        _showInlineDatePicker(isStart: true, fieldContext: context),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const FormLabel('End Date'),
-                  const SizedBox(height: AppSpacing.margin12),
-                  _DateField(
-                    label: _formatDate(_end),
-                    onTap: (context) =>
-                        _showInlineDatePicker(isStart: false, fieldContext: context),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sectionMargin),
-
-        // Reason
-        const FormLabel('Reason'),
-        const SizedBox(height: AppSpacing.margin12),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-            boxShadow: AppShadows.popupShadow,
-          ),
-          child: TextField(
-            decoration: const InputDecoration(
-              hintText: 'Type your reason...',
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-            minLines: 2,
-            maxLines: 2,
-            style: AppTypography.body14(),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sectionMargin),
-
-        // Submit button
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PrimaryButton(
-              label: 'Submit',
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Leave request submitted')),
-                );
-              },
+              overtimeHours: 2.5,
             ),
           ],
         ),
@@ -340,11 +320,17 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   }
 }
 
-// _DateField for calendar placeholder, re-usable popup migration planned
+// ---------- Field Widget ----------
 class _DateField extends StatelessWidget {
   final String label;
+  final IconData icon;
   final Function(BuildContext) onTap;
-  const _DateField({required this.label, required this.onTap});
+
+  const _DateField({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +350,7 @@ class _DateField extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(label, style: AppTypography.p14()),
-              const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.darkText),
+              Icon(icon, size: 16, color: AppColors.darkText),
             ],
           ),
         ),
@@ -373,19 +359,20 @@ class _DateField extends StatelessWidget {
   }
 }
 
+
 class _HistoryRecord extends StatelessWidget {
-  final String leaveType;
   final String status;
   final String date;
   final String reason;
   final String submitted;
+  final num overtimeHours;
 
   const _HistoryRecord({
-    required this.leaveType,
     required this.status,
     required this.date,
     required this.reason,
     required this.submitted,
+    required this.overtimeHours,
   });
 
   @override
@@ -405,23 +392,29 @@ class _HistoryRecord extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconBadge(name: leaveType),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today_outlined, color: AppColors.darkText, size: 12),
+                  const SizedBox(width: 8),
+                  Text(date, style: AppTypography.p14())
+                ],
+              ),
               LeaveStatusBadge(status: status),
             ],
           ),
           const SizedBox(height: 12),
 
-          // Row 2: Date + Reason
-          Row(
-            children: [
-              Icon(Icons.calendar_today_outlined, color: AppColors.darkText, size: 12),
-              const SizedBox(width: 8),
-              Text(date, style: AppTypography.p14()),
-            ],
-          ),
           const SizedBox(height: 8),
           Text(reason, style: AppTypography.helperText()),
           const SizedBox(height: 8),
+
+          // Row 2: Hours badge
+          const SizedBox(height: 8),
+          HoursBadge(
+            number: overtimeHours,
+          ),
+
+          const SizedBox(height: 12),
 
           // Row 3: Submitted info
           Container(
@@ -445,5 +438,4 @@ class _HistoryRecord extends StatelessWidget {
     );
   }
 }
-
 
