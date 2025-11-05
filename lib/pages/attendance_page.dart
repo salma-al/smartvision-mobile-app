@@ -69,15 +69,16 @@ class _AttendancePageState extends State<AttendancePage> {
         const SizedBox(width: 8),
         Text('Period', style: AppTypography.helperText()),
         const SizedBox(width: 12),
-        FilterSelectField(
-          label: '',
-          value: monthName,
-          options: _monthNames,
-          onChanged: _setMonthByName,
-          leadingSvgAsset: null,
+        Flexible(
+          child: FilterSelectField(
+            label: '',
+            value: monthName,
+            options: _monthNames,
+            onChanged: _setMonthByName,
+            leadingSvgAsset: null,
+          ),
         ),
         const SizedBox(width: 16),
-        // const Icon(Icons.filter_list, color: AppColors.darkText, size: 18),
         SvgPicture.asset(
           'assets/icons/filter.svg',
           width: 18,
@@ -87,11 +88,13 @@ class _AttendancePageState extends State<AttendancePage> {
         const SizedBox(width: 8),
         Text('Type', style: AppTypography.helperText()),
         const SizedBox(width: 12),
-        FilterSelectField(
-          label: '',
-          value: _selectedType,
-          options: const ['All', 'Present', 'Absent', 'Leave'],
-          onChanged: (v) => setState(() => _selectedType = v),
+        Flexible(
+          child: FilterSelectField(
+            label: '',
+            value: _selectedType,
+            options: const ['All', 'Present', 'Absent', 'Leave'],
+            onChanged: (v) => setState(() => _selectedType = v),
+          ),
         ),
       ],
     );

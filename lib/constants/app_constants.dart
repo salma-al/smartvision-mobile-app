@@ -39,6 +39,7 @@ class AppColors {
   static const Color yellow = Color(0xFF894B00);
   static const Color lightYellow = Color(0xFFFEF9C2);
   static const Color lightGrey = Color(0xFFF9FAFB);
+  static const Color greyText = Color(0xFF76747B);
 
   // Dynamic accent color based on company
   static Color getAccentColor(CompanyTheme company) => company.accentColor;
@@ -139,6 +140,14 @@ class AppTypography {
     fontWeight: FontWeight.w400,
     height: 20 / 14,
     color: color ?? AppColors.helperText,
+    fontFamily: GoogleFonts.dmSans().fontFamily,
+  );
+
+  static TextStyle helperTextXSmall({Color? color}) => TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+    height: 20 / 14,
+    color: color ?? AppColors.greyText,
     fontFamily: GoogleFonts.dmSans().fontFamily,
   );
   
