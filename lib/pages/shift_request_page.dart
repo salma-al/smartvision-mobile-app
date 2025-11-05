@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:untitled1/widgets/filter_panel.dart';
-import 'package:untitled1/widgets/hours_badge.dart';
 import 'package:untitled1/widgets/icon_badge.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
@@ -11,27 +10,26 @@ import '../widgets/form_label.dart';
 import '../widgets/filter_select_field.dart';
 import '../widgets/primary_button.dart';
 
-class OvertimeRequestPage extends StatefulWidget {
-  const OvertimeRequestPage({super.key});
+class ShiftRequestPage extends StatefulWidget {
+  const ShiftRequestPage({super.key});
 
   @override
-  State<OvertimeRequestPage> createState() => _OvertimeRequestPageState();
+  State<ShiftRequestPage> createState() => _ShiftRequestPageState();
 }
 
-class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
+class _ShiftRequestPageState extends State<ShiftRequestPage> {
   int _tabIndex = 0;
-
-  DateTime _overtimeDate = DateTime.now();
-  TimeOfDay _startTime = TimeOfDay.now();
-  TimeOfDay _endTime = TimeOfDay.now();
+  String _shiftType = 'Work From Home';
+  DateTime _start = DateTime.now();
+  DateTime _end = DateTime.now();
 
   OverlayEntry? _calendarOverlay;
 
-  // ---------- Inline Date Picker ----------
   void _showInlineDatePicker({
+    required bool isStart,
     required BuildContext fieldContext,
   }) {
-    _hideInlineDatePicker();
+    _hideInlineDatePicker(); // close existing popup if open
 
     final renderBox = fieldContext.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
@@ -42,10 +40,11 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
     _calendarOverlay = OverlayEntry(
       builder: (context) {
         final screenWidth = MediaQuery.of(context).size.width;
-        const horizontalPadding = AppSpacing.pagePaddingHorizontal;
+        final horizontalPadding = AppSpacing.pagePaddingHorizontal;
 
         return Stack(
           children: [
+            // Close popup when tapping outside
             Positioned.fill(
               child: GestureDetector(
                 onTap: _hideInlineDatePicker,
@@ -62,25 +61,35 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
                   width: screenWidth - horizontalPadding * 2,
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius:
-                    BorderRadius.circular(AppBorderRadius.radius12),
+                    borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
                     boxShadow: AppShadows.popupShadow,
                   ),
                   child: Theme(
                     data: Theme.of(context).copyWith(
                       colorScheme: ColorScheme.light(
-                        primary: AppColors.getAccentColor(
-                            CompanyTheme.groupCompany),
-                        onPrimary: Colors.white,
-                        onSurface: AppColors.darkText,
+                        primary: AppColors.getAccentColor(CompanyTheme.groupCompany), // header & selected day color
+                        onPrimary: Colors.white, // text on selected day
+                        onSurface: AppColors.darkText, // default text color
+                      ),
+                      textButtonTheme: TextButtonThemeData(
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.getAccentColor(CompanyTheme.groupCompany),
+                        ),
                       ),
                     ),
                     child: CalendarDatePicker(
-                      initialDate: _overtimeDate,
+                      initialDate: isStart ? _start : _end,
                       firstDate: DateTime(DateTime.now().year - 1),
                       lastDate: DateTime(DateTime.now().year + 2),
                       onDateChanged: (picked) {
-                        setState(() => _overtimeDate = picked);
+                        setState(() {
+                          if (isStart) {
+                            _start = picked;
+                            if (_end.isBefore(_start)) _end = _start;
+                          } else {
+                            _end = picked.isBefore(_start) ? _start : picked;
+                          }
+                        });
                         _hideInlineDatePicker();
                       },
                     ),
@@ -101,30 +110,8 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
     _calendarOverlay = null;
   }
 
-  Future<void> _pickTime({
-    required bool isStart,
-    required BuildContext context,
-  }) async {
-    final initial = isStart ? _startTime : _endTime;
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: initial,
-    );
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _startTime = picked;
-        } else {
-          _endTime = picked;
-        }
-      });
-    }
-  }
-
   String _formatDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}';
-  String _formatTime(TimeOfDay t) =>
-      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
   @override
   void dispose() {
@@ -135,7 +122,7 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      appBar: const SecondaryAppBar(title: 'Overtime Request'),
+      appBar: const SecondaryAppBar(title: 'Shift Request'),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
@@ -157,6 +144,7 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
                 ],
               ),
               const SizedBox(height: AppSpacing.sectionMargin),
+
               if (_tabIndex == 0)
                 _buildRequestTab(context)
               else
@@ -168,33 +156,107 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
     );
   }
 
+  Widget _buildHistoryTab(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header row
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Request History', style: AppTypography.h3()),
+                  const SizedBox(height: 4),
+                  Text(
+                    'View and filter your shift request history',
+                    style: AppTypography.helperTextSmall(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Reusable FilterPanel button
+            FilterPanel(
+              typeLabel: 'Shift Type',
+              typeOptions: const [
+                'Work From Home',
+                'Excuse',
+                'Mission',
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sectionMargin),
+
+        // List of history records
+        Column(
+          children: [
+            _HistoryRecord(
+              shiftType: 'Work From Home',
+              status: 'Approved',
+              date: 'Oct 01',
+              reason: 'Doctor appointment',
+              submitted: 'Sep 28, 2025',
+            ),
+            const SizedBox(height: 12),
+            _HistoryRecord(
+              shiftType: 'Excuse',
+              status: 'Requested',
+              date: 'Sep 25',
+              reason: 'Family event',
+              submitted: 'Sep 22, 2025',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _buildRequestTab(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Overtime Date
-        const FormLabel('Overtime Date'),
+        // Shift Type
+        const FormLabel('Shift Type'),
         const SizedBox(height: AppSpacing.margin12),
-        _DateField(
-          label: _formatDate(_overtimeDate),
-          icon: Icons.calendar_today_outlined,
-          onTap: (context) => _showInlineDatePicker(fieldContext: context),
+        SizedBox(
+          width: double.infinity,
+          child: FilterSelectField(
+            label: '',
+            value: _shiftType,
+            options: const [
+              'Work From Home',
+              'Excuse',
+              'Mission',
+            ],
+            optionIcons: const {
+              'Work From Home': 'assets/icons/work_from_home.svg',
+              'Excuse': 'assets/icons/excuse.svg',
+              'Mission': 'assets/icons/mission.svg',
+            },
+            onChanged: (v) => setState(() => _shiftType = v),
+            popupMatchScreenWidth: true,
+            screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
+          ),
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
 
-        // Start / End Time
+        // Start & End Dates (same row, 12px gap)
         Row(
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const FormLabel('Start Time'),
+                  const FormLabel('Start Date'),
                   const SizedBox(height: AppSpacing.margin12),
                   _DateField(
-                    label: _formatTime(_startTime),
-                    icon: Icons.access_time,
-                    onTap: (context) => _pickTime(isStart: true, context: context),
+                    label: _formatDate(_start),
+                    onTap: (context) =>
+                        _showInlineDatePicker(isStart: true, fieldContext: context),
                   ),
                 ],
               ),
@@ -204,12 +266,12 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const FormLabel('End Time'),
+                  const FormLabel('End Date'),
                   const SizedBox(height: AppSpacing.margin12),
                   _DateField(
-                    label: _formatTime(_endTime),
-                    icon: Icons.access_time,
-                    onTap: (context) => _pickTime(isStart: false, context: context),
+                    label: _formatDate(_end),
+                    onTap: (context) =>
+                        _showInlineDatePicker(isStart: false, fieldContext: context),
                   ),
                 ],
               ),
@@ -231,8 +293,7 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
             decoration: const InputDecoration(
               hintText: 'Type your reason...',
               border: InputBorder.none,
-              contentPadding:
-              EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
             minLines: 2,
             maxLines: 2,
@@ -241,7 +302,7 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
 
-        // Submit
+        // Submit button
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -249,7 +310,7 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
               label: 'Submit',
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Overtime request submitted')),
+                  const SnackBar(content: Text('Shift request submitted')),
                 );
               },
             ),
@@ -258,87 +319,13 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
       ],
     );
   }
-
-  Widget _buildHistoryTab(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Header row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Request History', style: AppTypography.h3()),
-                  const SizedBox(height: 4),
-                  Text(
-                    'View and filter your leave request history',
-                    style: AppTypography.helperTextSmall(),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Reusable FilterPanel button
-            FilterPanel(
-              typeLabel: 'Leave Type',
-              typeOptions: const [
-                'Casual Leave',
-                'Sick Leave',
-                'Annual Leave',
-                'Leave without pay'
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sectionMargin),
-
-        // List of history records
-        Column(
-          children: [
-            _HistoryRecord(
-              status: 'Manager Approved',
-              date: 'Oct 01',
-              reason: 'Meeting with the team',
-              submitted: 'Sep 28, 2025',
-              overtimeHours: 5,
-            ),
-            const SizedBox(height: 12),
-            _HistoryRecord(
-              status: 'Requested',
-              date: 'Sep 25',
-              reason: 'Task completed',
-              submitted: 'Sep 22, 2025',
-              overtimeHours: 2.5,
-            ),
-            const SizedBox(height: 12),
-            _HistoryRecord(
-              status: 'Rejected',
-              date: 'Oct 12',
-              reason: 'Project 313',
-              submitted: 'Oct 04, 2025',
-              overtimeHours: 2.5,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
-// ---------- Field Widget ----------
+// _DateField for calendar placeholder, re-usable popup migration planned
 class _DateField extends StatelessWidget {
   final String label;
-  final IconData icon;
   final Function(BuildContext) onTap;
-
-  const _DateField({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
+  const _DateField({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -358,7 +345,7 @@ class _DateField extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(label, style: AppTypography.p14()),
-              Icon(icon, size: 16, color: AppColors.darkText),
+              const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.darkText),
             ],
           ),
         ),
@@ -367,20 +354,19 @@ class _DateField extends StatelessWidget {
   }
 }
 
-
 class _HistoryRecord extends StatelessWidget {
+  final String shiftType;
   final String status;
   final String date;
   final String reason;
   final String submitted;
-  final num overtimeHours;
 
   const _HistoryRecord({
+    required this.shiftType,
     required this.status,
     required this.date,
     required this.reason,
     required this.submitted,
-    required this.overtimeHours,
   });
 
   @override
@@ -400,29 +386,23 @@ class _HistoryRecord extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.calendar_today_outlined, color: AppColors.darkText, size: 12),
-                  const SizedBox(width: 8),
-                  Text(date, style: AppTypography.p14())
-                ],
-              ),
+              IconBadge(name: shiftType),
               LeaveStatusBadge(status: status),
             ],
           ),
           const SizedBox(height: 12),
 
+          // Row 2: Date + Reason
+          Row(
+            children: [
+              Icon(Icons.calendar_today_outlined, color: AppColors.darkText, size: 12),
+              const SizedBox(width: 8),
+              Text(date, style: AppTypography.p14()),
+            ],
+          ),
           const SizedBox(height: 8),
           Text(reason, style: AppTypography.helperText()),
           const SizedBox(height: 8),
-
-          // Row 2: Hours badge
-          const SizedBox(height: 8),
-          HoursBadge(
-            number: overtimeHours,
-          ),
-
-          const SizedBox(height: 12),
 
           // Row 3: Submitted info
           Container(
@@ -446,4 +426,5 @@ class _HistoryRecord extends StatelessWidget {
     );
   }
 }
+
 

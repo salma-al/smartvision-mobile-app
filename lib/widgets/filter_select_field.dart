@@ -11,6 +11,7 @@ class FilterSelectField extends StatefulWidget {
   final String? trailingSvgAsset; // small arrow svg
   final bool popupMatchScreenWidth;
   final double screenHorizontalPadding;
+  final Map<String, String>? optionIcons; // option text → SVG path
 
   const FilterSelectField({
     super.key,
@@ -22,6 +23,7 @@ class FilterSelectField extends StatefulWidget {
     this.trailingSvgAsset,
     this.popupMatchScreenWidth = false,
     this.screenHorizontalPadding = 16,
+    this.optionIcons,
   });
 
   @override
@@ -115,6 +117,7 @@ class _FilterSelectFieldState extends State<FilterSelectField> {
                           _OptionTile(
                             label: opt,
                             selected: opt == widget.value,
+                            iconAsset: widget.optionIcons != null ? widget.optionIcons![opt] : null, // ✅ new
                             onTap: () {
                               widget.onChanged(opt);
                               _hide();
@@ -154,33 +157,43 @@ class _FilterSelectFieldState extends State<FilterSelectField> {
         onTap: _togglePopup,
         borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: const Color(0xFFF6F6F6),
             borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-            boxShadow: AppShadows.defaultShadow,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween, // space between text & arrow
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Left side
-              Row(
-                children: [
-                  if (widget.leadingSvgAsset != null) ...[
-                    SvgPicture.asset(
-                      widget.leadingSvgAsset!,
-                      width: 18,
-                      height: 18,
-                      color: AppColors.darkText,
+              Expanded(
+                child: Row(
+                  children: [
+                    if (widget.leadingSvgAsset != null) ...[
+                      SvgPicture.asset(
+                        widget.leadingSvgAsset!,
+                        width: 18,
+                        height: 18,
+                        color: AppColors.darkText,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    if (widget.label.isNotEmpty) ...[
+                      Text(widget.label, style: AppTypography.helperText()),
+                      const SizedBox(width: 8),
+                    ],
+                    Flexible(
+                      child: Text(
+                        widget.value,
+                        style: AppTypography.p14(),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    const SizedBox(width: 8),
                   ],
-                  Text(widget.label, style: AppTypography.helperText()),
-                  const SizedBox(width: 8),
-                  Text(widget.value, style: AppTypography.p14()),
-                ],
+                ),
               ),
+              const SizedBox(width: 8),
               // Right side (arrow)
               if (widget.trailingSvgAsset != null)
                 SvgPicture.asset(
@@ -204,7 +217,14 @@ class _OptionTile extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _OptionTile({required this.label, required this.selected, required this.onTap});
+  final String? iconAsset; // ✅ new
+
+  const _OptionTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.iconAsset,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +240,19 @@ class _OptionTile extends StatelessWidget {
             color: selected ? const Color(0xFFEFEDED) : Colors.transparent,
             borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
           ),
-          child: Text(label, style: AppTypography.p14()),
+          child: Row(
+            children: [
+              if (iconAsset != null) ...[
+                SvgPicture.asset(
+                  iconAsset!,
+                  width: 18,
+                  height: 18,
+                ),
+                const SizedBox(width: 8),
+              ],
+              Text(label, style: AppTypography.p14()),
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:untitled1/pages/leave_request_page.dart';
 import 'package:untitled1/pages/overtime_request_page.dart';
+import 'package:untitled1/pages/shift_request_page.dart';
+import 'package:untitled1/pages/request_approval_page.dart';
 import '../constants/app_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/base_scaffold.dart';
@@ -316,6 +318,14 @@ class _HomePageState extends State<HomePage> {
         } else if (title == "Overtime Requests"){
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const OvertimeRequestPage())
+          );
+        } else if (title == "Shift Requests"){
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ShiftRequestPage())
+          );
+        } else if (title == "Requests Approval"){
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const RequestApprovalPage())
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
