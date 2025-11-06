@@ -133,7 +133,10 @@ class _CheckInPageState extends State<CheckInPage> {
     final remainingDuration = Duration(minutes: remainingMinutes);
 
     return BaseScaffold(
-      appBar: const SecondaryAppBar(title: 'Check In'),
+      appBar: const SecondaryAppBar(
+        title: 'Check In',
+        showBackButton: false,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.pagePaddingHorizontal,

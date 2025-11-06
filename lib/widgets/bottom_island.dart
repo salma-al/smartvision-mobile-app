@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:untitled1/pages/home_page.dart';
 import '../constants/app_constants.dart';
 import '../pages/check_in_page.dart'; // 👈 make sure this import path is correct
+import '../pages/profile_page.dart';
 
 class BottomIsland extends StatelessWidget {
   const BottomIsland({super.key});
@@ -21,10 +23,25 @@ class BottomIsland extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            Icons.apps_outlined,
-            color: AppColors.getAccentColor(CompanyTheme.groupCompany),
-            size: 24,
+
+          // 🔘 left icon with navigation
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: Icon(
+                Icons.apps_outlined,
+                color: AppColors.getAccentColor(CompanyTheme.groupCompany),
+                size: 24,
+              ),
+            ),
           ),
 
           // 🔘 Middle icon with navigation
@@ -51,10 +68,20 @@ class BottomIsland extends StatelessWidget {
             ),
           ),
 
-          Icon(
-            Icons.person_outline,
-            color: AppColors.darkText,
-            size: 24,
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfilePage(),
+                ),
+              );
+            },
+            child: Icon(
+              Icons.person_outline,
+              color: AppColors.darkText,
+              size: 24,
+            ),
           ),
         ],
       ),
