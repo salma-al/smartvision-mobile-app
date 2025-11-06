@@ -119,7 +119,7 @@ class _FilterPanelState extends State<FilterPanel> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: const Color(0xFFE6E3E3),
               borderRadius: BorderRadius.circular(12),
               boxShadow: AppShadows.popupShadow,
             ),
@@ -168,6 +168,7 @@ class _FilterPanelState extends State<FilterPanel> {
                   onChanged: (v) => setState(() => _selectedType = v),
                   popupMatchScreenWidth: true,
                   screenHorizontalPadding: 32,
+                  backgroundColor: const Color(0xFFF6F6F6),
                 ),
 
                 // Status filter (if statusOptions provided)
@@ -182,6 +183,7 @@ class _FilterPanelState extends State<FilterPanel> {
                     onChanged: (v) => setState(() => _selectedStatus = v),
                     popupMatchScreenWidth: true,
                     screenHorizontalPadding: 32,
+                    backgroundColor: const Color(0xFFF6F6F6),
                   ),
                 ],
 

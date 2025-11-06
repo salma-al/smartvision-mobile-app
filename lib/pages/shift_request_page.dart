@@ -40,7 +40,22 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
     _calendarOverlay = OverlayEntry(
       builder: (context) {
         final screenWidth = MediaQuery.of(context).size.width;
+        final screenHeight = MediaQuery.of(context).size.height;
         final horizontalPadding = AppSpacing.pagePaddingHorizontal;
+        
+        // Calculate available space
+        const calendarHeight = 360.0;
+        final spaceBelow = screenHeight - fieldOffset.dy - fieldSize.height;
+        final spaceAbove = fieldOffset.dy;
+        
+        // Determine if calendar should show above or below
+        final showAbove = spaceBelow < calendarHeight && spaceAbove > spaceBelow;
+        final topPosition = showAbove 
+            ? fieldOffset.dy - calendarHeight - 8
+            : fieldOffset.dy + fieldSize.height + 8;
+        final maxHeight = showAbove 
+            ? (spaceAbove - 16).clamp(280.0, calendarHeight)
+            : (spaceBelow - 16).clamp(280.0, calendarHeight);
 
         return Stack(
           children: [
@@ -54,11 +69,12 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
             Positioned(
               left: horizontalPadding,
               right: horizontalPadding,
-              top: fieldOffset.dy + fieldSize.height + 8,
+              top: topPosition,
               child: Material(
                 color: Colors.transparent,
                 child: Container(
                   width: screenWidth - horizontalPadding * 2,
+                  constraints: BoxConstraints(maxHeight: maxHeight),
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
@@ -160,33 +176,16 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Request History', style: AppTypography.h3()),
-                  const SizedBox(height: 4),
-                  Text(
-                    'View and filter your shift request history',
-                    style: AppTypography.helperTextSmall(),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Reusable FilterPanel button
-            FilterPanel(
-              typeLabel: 'Shift Type',
-              typeOptions: const [
-                'Work From Home',
-                'Excuse',
-                'Mission',
-              ],
-            ),
+        // FilterPanel with header and button
+        FilterPanel(
+          pageTitle: 'Request History',
+          pageSubtitle: 'View and filter your shift request history',
+          typeLabel: 'Shift Type',
+          typeOptions: const [
+            'All',
+            'Work From Home',
+            'Excuse',
+            'Mission',
           ],
         ),
         const SizedBox(height: AppSpacing.sectionMargin),

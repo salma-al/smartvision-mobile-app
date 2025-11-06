@@ -5,12 +5,14 @@ class DatePickerDropdown extends StatefulWidget {
   final DateTime? selectedDate;
   final Function(DateTime?) onDateSelected;
   final String placeholder;
+  final Color? backgroundColor;
 
   const DatePickerDropdown({
     super.key,
     this.selectedDate,
     required this.onDateSelected,
     this.placeholder = 'Select date',
+    this.backgroundColor,
   });
 
   @override
@@ -48,6 +50,17 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
   OverlayEntry _createOverlayEntry() {
     RenderBox renderBox = context.findRenderObject() as RenderBox;
     var size = renderBox.size;
+    var offset = renderBox.localToGlobal(Offset.zero);
+    
+    // Get screen height to check if calendar will be cut off
+    final screenHeight = MediaQuery.of(context).size.height;
+    const calendarHeight = 360.0;
+    final spaceBelow = screenHeight - offset.dy - size.height;
+    final spaceAbove = offset.dy;
+    
+    // Determine if calendar should show above or below the field
+    final showAbove = spaceBelow < calendarHeight && spaceAbove > spaceBelow;
+    final verticalOffset = showAbove ? -(calendarHeight + 4) : size.height + 4;
 
     return OverlayEntry(
       builder: (context) => GestureDetector(
@@ -60,25 +73,38 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
               child: CompositedTransformFollower(
                 link: _layerLink,
                 showWhenUnlinked: false,
-                offset: Offset(0, size.height + 4),
+                offset: Offset(0, verticalOffset),
                 child: Material(
                   elevation: 8,
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    constraints: const BoxConstraints(maxHeight: 320),
+                    constraints: BoxConstraints(
+                      maxHeight: showAbove 
+                          ? spaceAbove - 8 
+                          : (spaceBelow < calendarHeight ? spaceBelow - 8 : calendarHeight),
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: AppShadows.popupShadow,
                     ),
-                    child: CalendarDatePicker(
-                      initialDate: widget.selectedDate ?? DateTime.now(),
-                      firstDate: DateTime(DateTime.now().year - 1),
-                      lastDate: DateTime(DateTime.now().year + 2),
-                      onDateChanged: (date) {
-                        widget.onDateSelected(date);
-                        _closeDropdown();
-                      },
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: ColorScheme.light(
+                          primary: AppColors.teal,
+                          onPrimary: Colors.white,
+                          onSurface: AppColors.darkText,
+                        ),
+                      ),
+                      child: CalendarDatePicker(
+                        initialDate: widget.selectedDate ?? DateTime.now(),
+                        firstDate: DateTime(DateTime.now().year - 1),
+                        lastDate: DateTime(DateTime.now().year + 2),
+                        onDateChanged: (date) {
+                          widget.onDateSelected(date);
+                          _closeDropdown();
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -108,7 +134,7 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF6F6F6),
+            color: widget.backgroundColor ?? const Color(0xFFF6F6F6),
             borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
           ),
           child: Row(

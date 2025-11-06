@@ -40,7 +40,22 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     _calendarOverlay = OverlayEntry(
       builder: (context) {
         final screenWidth = MediaQuery.of(context).size.width;
+        final screenHeight = MediaQuery.of(context).size.height;
         final horizontalPadding = AppSpacing.pagePaddingHorizontal;
+        
+        // Calculate available space
+        const calendarHeight = 360.0;
+        final spaceBelow = screenHeight - fieldOffset.dy - fieldSize.height;
+        final spaceAbove = fieldOffset.dy;
+        
+        // Determine if calendar should show above or below
+        final showAbove = spaceBelow < calendarHeight && spaceAbove > spaceBelow;
+        final topPosition = showAbove 
+            ? fieldOffset.dy - calendarHeight - 8
+            : fieldOffset.dy + fieldSize.height + 8;
+        final maxHeight = showAbove 
+            ? (spaceAbove - 16).clamp(280.0, calendarHeight)
+            : (spaceBelow - 16).clamp(280.0, calendarHeight);
 
         return Stack(
           children: [
@@ -54,11 +69,12 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
             Positioned(
               left: horizontalPadding,
               right: horizontalPadding,
-              top: fieldOffset.dy + fieldSize.height + 8,
+              top: topPosition,
               child: Material(
                 color: Colors.transparent,
                 child: Container(
                   width: screenWidth - horizontalPadding * 2,
+                  constraints: BoxConstraints(maxHeight: maxHeight),
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
@@ -160,56 +176,16 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Request History', style: AppTypography.h3()),
-                  const SizedBox(height: 4),
-                  Text(
-                    'View and filter your leave request history',
-                    style: AppTypography.helperTextSmall(),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Reusable FilterPanel button
-            FilterPanel(
-              typeLabel: 'Leave Type',
-              typeOptions: const [
-                'Casual Leave',
-                'Sick Leave',
-                'Annual Leave',
-                'Leave without pay'
-              ],
-            ),
-            // Old code for reference:
-            /*
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: AppShadows.popupShadow,
-              ),
-              child: Row(
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/filter.svg',
-                    width: 16,
-                    height: 16,
-                  ),
-                  const SizedBox(width: 6),
-                  Text('Filters', style: AppTypography.p14()),
-                ],
-              ),
-            ),
-            */
+        // FilterPanel with header and button
+        FilterPanel(
+          pageTitle: 'Request History',
+          pageSubtitle: 'View and filter your leave request history',
+          typeLabel: 'Leave Type',
+          typeOptions: const [
+            'Casual Leave',
+            'Sick Leave',
+            'Annual Leave',
+            'Leave without pay'
           ],
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
