@@ -126,7 +126,15 @@ class AppTypography {
     color: color ?? AppColors.darkText,
     fontFamily: GoogleFonts.dmSans().fontFamily,
   );
-  
+
+  static TextStyle helperTextLarge({Color? color}) => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    height: 20 / 14,
+    color: color ?? AppColors.helperText,
+    fontFamily: GoogleFonts.dmSans().fontFamily,
+  );
+
   static TextStyle helperText({Color? color}) => TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,

@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
 import '../widgets/secondary_app_bar.dart';
+import 'personal_information_page.dart';
+import 'company_overview_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -107,9 +109,11 @@ class ProfilePage extends StatelessWidget {
                   iconPath: 'assets/icons/personal_id.svg',
                   title: 'Personal Information',
                   onTap: () {
-                    // Navigate to Personal Information
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Navigate to Personal Information')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PersonalInformationPage(),
+                      ),
                     );
                   },
                 ),
@@ -146,9 +150,11 @@ class ProfilePage extends StatelessWidget {
                   iconPath: 'assets/icons/company.svg',
                   title: 'Company Overview',
                   onTap: () {
-                    // Navigate to Company Overview
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Navigate to Company Overview')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CompanyOverviewPage(),
+                      ),
                     );
                   },
                 ),
