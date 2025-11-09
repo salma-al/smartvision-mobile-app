@@ -24,7 +24,7 @@ class CompanyOverviewPage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // About Smart Vision Group Section
+                // About Section
                 _buildAboutSection(),
                 const SizedBox(height: 20),
                 
@@ -41,7 +41,7 @@ class CompanyOverviewPage extends StatelessWidget {
                 const SizedBox(height: 20),
                 
                 // Mission Statement Section
-                _buildMissionStatementSection(),
+                _buildMissionSection(),
               ],
             ),
           ),
@@ -73,7 +73,7 @@ class CompanyOverviewPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Icon(
-                  Icons.info_outline,
+                  Icons.business,
                   color: AppColors.white,
                   size: 16,
                 ),
@@ -87,24 +87,24 @@ class CompanyOverviewPage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           
-          // Description Text
+          // Description
           Text(
             'Smart Vision Group for engineering services, established in Sharjah, UAE, in 2013, is an engineering consultancy firm with branches in Dubai, Sharjah, Abu Dhabi, and Egypt. Specializing in comprehensive engineering solutions for various types of properties, our team of professional engineers is dedicated to transforming visions into reality with precision and care. We are committed to excellence and maintain the highest standards in all sectors of engineering consultancy.',
-            style: AppTypography.body14(color: AppColors.darkText),
+            style: AppTypography.body14(),
           ),
           const SizedBox(height: 24),
           
-          // Company Info Grid
+          // Company Stats
           Row(
             children: [
               Expanded(
-                child: _buildInfoColumn(
+                child: _buildStatColumn(
                   label: 'Founded',
                   value: '2015',
                 ),
               ),
               Expanded(
-                child: _buildInfoColumn(
+                child: _buildStatColumn(
                   label: 'Employees',
                   value: '2,500+',
                 ),
@@ -115,13 +115,13 @@ class CompanyOverviewPage extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _buildInfoColumn(
+                child: _buildStatColumn(
                   label: 'Industry',
                   value: 'Engineering',
                 ),
               ),
               Expanded(
-                child: _buildInfoColumn(
+                child: _buildStatColumn(
                   label: 'Headquarters',
                   value: 'San Francisco, CA',
                 ),
@@ -156,7 +156,7 @@ class CompanyOverviewPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Icon(
-                  Icons.phone_outlined,
+                  Icons.phone,
                   color: AppColors.white,
                   size: 16,
                 ),
@@ -171,23 +171,62 @@ class CompanyOverviewPage extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Website
-          _buildContactItem(
-            icon: Icons.language,
-            text: 'www.techcorpsolutions.com',
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.language,
+                color: AppColors.helperText,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'www.techcorpsolutions.com',
+                  style: AppTypography.p16(),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           
           // Phone
-          _buildContactItem(
-            icon: Icons.phone_outlined,
-            text: '+1 (555) 100-2000',
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.phone_outlined,
+                color: AppColors.helperText,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '+1 (555) 100-2000',
+                  style: AppTypography.p16(),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           
           // Email
-          _buildContactItem(
-            icon: Icons.email_outlined,
-            text: 'info@techcorpsolutions.com',
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.email_outlined,
+                color: AppColors.helperText,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'info@techcorpsolutions.com',
+                  style: AppTypography.p16(),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           
@@ -207,17 +246,17 @@ class CompanyOverviewPage extends StatelessWidget {
                   children: [
                     Text(
                       'Global Offices',
-                      style: AppTypography.p16(color: AppColors.darkText),
+                      style: AppTypography.p16(),
                     ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        _buildOfficeTag('San Francisco'),
-                        _buildOfficeTag('New York'),
-                        _buildOfficeTag('London'),
-                        _buildOfficeTag('Tokyo'),
+                        _buildLocationChip('San Francisco'),
+                        _buildLocationChip('New York'),
+                        _buildLocationChip('London'),
+                        _buildLocationChip('Tokyo'),
                       ],
                     ),
                   ],
@@ -253,7 +292,7 @@ class CompanyOverviewPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Icon(
-                  Icons.star_outline,
+                  Icons.star,
                   color: AppColors.white,
                   size: 16,
                 ),
@@ -267,31 +306,25 @@ class CompanyOverviewPage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           
-          // Innovation
+          // Values List
           _buildValueItem(
-            title: 'Innovation',
-            description: 'We push boundaries and embrace new technologies to create cutting-edge solutions.',
+            'Innovation',
+            'We push boundaries and embrace new technologies to create cutting-edge solutions.',
           ),
           const SizedBox(height: 16),
-          
-          // Collaboration
           _buildValueItem(
-            title: 'Collaboration',
-            description: 'We believe in the power of teamwork and open communication across all levels.',
+            'Collaboration',
+            'We believe in the power of teamwork and open communication across all levels.',
           ),
           const SizedBox(height: 16),
-          
-          // Excellence
           _buildValueItem(
-            title: 'Excellence',
-            description: 'We strive for the highest quality in everything we do, from products to service.',
+            'Excellence',
+            'We strive for the highest quality in everything we do, from products to service.',
           ),
           const SizedBox(height: 16),
-          
-          // Integrity
           _buildValueItem(
-            title: 'Integrity',
-            description: 'We conduct business with honesty, transparency, and ethical standards.',
+            'Integrity',
+            'We conduct business with honesty, transparency, and ethical standards.',
           ),
         ],
       ),
@@ -321,7 +354,7 @@ class CompanyOverviewPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Icon(
-                  Icons.card_giftcard_outlined,
+                  Icons.card_giftcard,
                   color: AppColors.white,
                   size: 16,
                 ),
@@ -336,27 +369,20 @@ class CompanyOverviewPage extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Benefits List
-          _buildBulletItem('Comprehensive health insurance'),
-          const SizedBox(height: 8),
-          _buildBulletItem('Flexible work arrangements'),
-          const SizedBox(height: 8),
-          _buildBulletItem('Professional development budget'),
-          const SizedBox(height: 8),
-          _buildBulletItem('Generous paid time off'),
-          const SizedBox(height: 8),
-          _buildBulletItem('Stock option program'),
-          const SizedBox(height: 8),
-          _buildBulletItem('Wellness programs'),
-          const SizedBox(height: 8),
-          _buildBulletItem('Free meals and snacks'),
-          const SizedBox(height: 8),
-          _buildBulletItem('Modern office spaces'),
+          _buildBulletPoint('Comprehensive health insurance'),
+          _buildBulletPoint('Flexible work arrangements'),
+          _buildBulletPoint('Professional development budget'),
+          _buildBulletPoint('Generous paid time off'),
+          _buildBulletPoint('Stock option program'),
+          _buildBulletPoint('Wellness programs'),
+          _buildBulletPoint('Free meals and snacks'),
+          _buildBulletPoint('Modern office spaces'),
         ],
       ),
     );
   }
 
-  Widget _buildMissionStatementSection() {
+  Widget _buildMissionSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16.0),
@@ -379,7 +405,7 @@ class CompanyOverviewPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Icon(
-                  Icons.assignment_outlined,
+                  Icons.flag,
                   color: AppColors.white,
                   size: 16,
                 ),
@@ -393,16 +419,22 @@ class CompanyOverviewPage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           
-          // Mission Quote
+          // Mission Text
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: AppColors.backgroundColor,
+              color: AppColors.lightGrey,
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: AppColors.dividerLight,
+                width: 1,
+              ),
             ),
             child: Text(
               '"To empower businesses worldwide through innovative technology solutions that drive growth, efficiency, and success. We are committed to creating value for our clients, employees, and communities while maintaining the highest standards of integrity and excellence."',
-              style: AppTypography.body14(color: AppColors.darkText),
+              style: AppTypography.body14(color: AppColors.darkText).copyWith(
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ),
         ],
@@ -410,7 +442,7 @@ class CompanyOverviewPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoColumn({
+  Widget _buildStatColumn({
     required String label,
     required String value,
   }) {
@@ -430,53 +462,27 @@ class CompanyOverviewPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContactItem({
-    required IconData icon,
-    required String text,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          color: AppColors.helperText,
-          size: 20,
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTypography.p16(color: AppColors.darkText),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOfficeTag(String location) {
+  Widget _buildLocationChip(String location) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.backgroundColor,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
       ),
       child: Text(
         location,
-        style: AppTypography.p12(color: AppColors.darkText),
+        style: AppTypography.p12(),
       ),
     );
   }
 
-  Widget _buildValueItem({
-    required String title,
-    required String description,
-  }) {
+  Widget _buildValueItem(String title, String description) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: AppTypography.p16(color: AppColors.darkText),
+          style: AppTypography.p16(),
         ),
         const SizedBox(height: 4),
         Text(
@@ -487,27 +493,30 @@ class CompanyOverviewPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBulletItem(String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(top: 6),
-          child: Icon(
-            Icons.circle,
-            size: 6,
-            color: AppColors.darkText,
+  Widget _buildBulletPoint(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 6,
+            height: 6,
+            decoration: const BoxDecoration(
+              color: AppColors.darkText,
+              shape: BoxShape.circle,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTypography.body14(color: AppColors.darkText),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: AppTypography.body14(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
-
