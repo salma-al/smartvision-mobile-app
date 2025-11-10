@@ -14,6 +14,7 @@ enum CompanyTheme {
 
 class AppColors {
   static const Color backgroundColor = Color(0xFFF6F6F6);
+  static const Color darkBackgroundColor = Color(0xFFEFEDED);
   static const Color darkText = Color(0xFF39383C);
   static const Color lightText = Color(0xFF76747B);
   static const Color white = Color(0xFFFFFFFF);

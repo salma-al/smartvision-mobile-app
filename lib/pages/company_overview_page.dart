@@ -100,13 +100,13 @@ class CompanyOverviewPage extends StatelessWidget {
               Expanded(
                 child: _buildStatColumn(
                   label: 'Founded',
-                  value: '2015',
+                  value: '2013',
                 ),
               ),
               Expanded(
                 child: _buildStatColumn(
                   label: 'Employees',
-                  value: '2,500+',
+                  value: '500+',
                 ),
               ),
             ],
@@ -123,7 +123,7 @@ class CompanyOverviewPage extends StatelessWidget {
               Expanded(
                 child: _buildStatColumn(
                   label: 'Headquarters',
-                  value: 'San Francisco, CA',
+                  value: 'Sharjah, UAE',
                 ),
               ),
             ],
@@ -253,10 +253,10 @@ class CompanyOverviewPage extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        _buildLocationChip('San Francisco'),
-                        _buildLocationChip('New York'),
-                        _buildLocationChip('London'),
-                        _buildLocationChip('Tokyo'),
+                        _buildLocationChip('Sharjah'),
+                        _buildLocationChip('Cairo'),
+                        _buildLocationChip('Dubai'),
+                        _buildLocationChip('Abu Dhabi'),
                       ],
                     ),
                   ],

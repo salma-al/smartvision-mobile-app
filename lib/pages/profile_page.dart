@@ -5,6 +5,7 @@ import '../widgets/base_scaffold.dart';
 import '../widgets/secondary_app_bar.dart';
 import 'personal_information_page.dart';
 import 'company_overview_page.dart';
+import 'announcements_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -137,9 +138,11 @@ class ProfilePage extends StatelessWidget {
                   iconPath: 'assets/icons/speaker.svg',
                   title: 'Announcements',
                   onTap: () {
-                    // Navigate to Announcements
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Navigate to Announcements')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AnnouncementsPage(),
+                      ),
                     );
                   },
                 ),
