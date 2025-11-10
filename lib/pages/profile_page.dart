@@ -6,6 +6,7 @@ import '../widgets/secondary_app_bar.dart';
 import 'personal_information_page.dart';
 import 'company_overview_page.dart';
 import 'announcements_page.dart';
+import 'salary_history_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -125,9 +126,11 @@ class ProfilePage extends StatelessWidget {
                   iconPath: 'assets/icons/money.svg',
                   title: 'Salary History',
                   onTap: () {
-                    // Navigate to Salary History
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Navigate to Salary History')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SalaryHistoryPage(),
+                      ),
                     );
                   },
                 ),
