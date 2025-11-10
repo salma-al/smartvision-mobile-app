@@ -28,6 +28,10 @@ class CompanyOverviewPage extends StatelessWidget {
                 _buildAboutSection(),
                 const SizedBox(height: 20),
                 
+                // Company Information Section
+                _buildCompanyInfoSection(),
+                const SizedBox(height: 20),
+                
                 // Contact Information Section
                 _buildContactInfoSection(),
                 const SizedBox(height: 20),
@@ -65,23 +69,19 @@ class CompanyOverviewPage extends StatelessWidget {
           // Section Title with Icon
           Row(
             children: [
-              Container(
+              SvgPicture.asset(
+                'assets/icons/building.svg',
                 width: 24,
                 height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.darkText,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.business,
-                  color: AppColors.white,
-                  size: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.darkText,
+                  BlendMode.srcIn,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 'About Smart Vision Group',
-                style: AppTypography.h4(),
+                style: AppTypography.body16(),
               ),
             ],
           ),
@@ -90,9 +90,45 @@ class CompanyOverviewPage extends StatelessWidget {
           // Description
           Text(
             'Smart Vision Group for engineering services, established in Sharjah, UAE, in 2013, is an engineering consultancy firm with branches in Dubai, Sharjah, Abu Dhabi, and Egypt. Specializing in comprehensive engineering solutions for various types of properties, our team of professional engineers is dedicated to transforming visions into reality with precision and care. We are committed to excellence and maintain the highest standards in all sectors of engineering consultancy.',
-            style: AppTypography.body14(),
+            style: AppTypography.body16(),
           ),
-          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompanyInfoSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+        boxShadow: AppShadows.defaultShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Title with Icon
+          Row(
+            children: [
+              SvgPicture.asset(
+                'assets/icons/company.svg',
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.darkText,
+                  BlendMode.srcIn,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Company Information',
+                style: AppTypography.body16(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           
           // Company Stats
           Row(
@@ -148,23 +184,19 @@ class CompanyOverviewPage extends StatelessWidget {
           // Section Title with Icon
           Row(
             children: [
-              Container(
+              SvgPicture.asset(
+                'assets/icons/phone.svg',
                 width: 24,
                 height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.darkText,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.phone,
-                  color: AppColors.white,
-                  size: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.darkText,
+                  BlendMode.srcIn,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 'Contact Information',
-                style: AppTypography.h4(),
+                style: AppTypography.body16(),
               ),
             ],
           ),
@@ -284,23 +316,19 @@ class CompanyOverviewPage extends StatelessWidget {
           // Section Title with Icon
           Row(
             children: [
-              Container(
+              SvgPicture.asset(
+                'assets/icons/values.svg',
                 width: 24,
                 height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.darkText,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.star,
-                  color: AppColors.white,
-                  size: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.darkText,
+                  BlendMode.srcIn,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 'Our Values',
-                style: AppTypography.h4(),
+                style: AppTypography.body16(),
               ),
             ],
           ),
@@ -346,23 +374,19 @@ class CompanyOverviewPage extends StatelessWidget {
           // Section Title with Icon
           Row(
             children: [
-              Container(
+              SvgPicture.asset(
+                'assets/icons/benefits.svg',
                 width: 24,
                 height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.darkText,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.card_giftcard,
-                  color: AppColors.white,
-                  size: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.darkText,
+                  BlendMode.srcIn,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 'Employee Benefits',
-                style: AppTypography.h4(),
+                style: AppTypography.body16(),
               ),
             ],
           ),
@@ -397,23 +421,19 @@ class CompanyOverviewPage extends StatelessWidget {
           // Section Title with Icon
           Row(
             children: [
-              Container(
+              SvgPicture.asset(
+                'assets/icons/mission.svg',
                 width: 24,
                 height: 24,
-                decoration: BoxDecoration(
-                  color: AppColors.darkText,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.flag,
-                  color: AppColors.white,
-                  size: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.darkText,
+                  BlendMode.srcIn,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 'Mission Statement',
-                style: AppTypography.h4(),
+                style: AppTypography.body16(),
               ),
             ],
           ),
@@ -432,7 +452,7 @@ class CompanyOverviewPage extends StatelessWidget {
             ),
             child: Text(
               '"To empower businesses worldwide through innovative technology solutions that drive growth, efficiency, and success. We are committed to creating value for our clients, employees, and communities while maintaining the highest standards of integrity and excellence."',
-              style: AppTypography.body14(color: AppColors.darkText).copyWith(
+              style: AppTypography.body16(color: AppColors.darkText).copyWith(
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -487,7 +507,7 @@ class CompanyOverviewPage extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           description,
-          style: AppTypography.helperText(),
+          style: AppTypography.body16(),
         ),
       ],
     );
@@ -512,7 +532,7 @@ class CompanyOverviewPage extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: AppTypography.body14(),
+              style: AppTypography.body16(),
             ),
           ),
         ],

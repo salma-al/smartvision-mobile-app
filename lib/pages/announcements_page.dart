@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
 import '../widgets/secondary_app_bar.dart';
+import '../widgets/filter_panel.dart';
 import 'announcement_detail_page.dart';
 
 class AnnouncementsPage extends StatefulWidget {
@@ -13,7 +14,7 @@ class AnnouncementsPage extends StatefulWidget {
 }
 
 class _AnnouncementsPageState extends State<AnnouncementsPage> {
-  String selectedTab = 'All';
+  String selectedCategory = 'All';
 
   final List<Map<String, dynamic>> announcements = [
     {
@@ -67,10 +68,10 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
   ];
 
   List<Map<String, dynamic>> get filteredAnnouncements {
-    if (selectedTab == 'All') {
+    if (selectedCategory == 'All') {
       return announcements;
     }
-    return announcements.where((a) => a['tag'] == selectedTab).toList();
+    return announcements.where((a) => a['tag'] == selectedCategory).toList();
   }
 
   int get newUpdatesCount =>
@@ -114,27 +115,20 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
             ),
           ),
           
-          // Tabs Section
+          // Filter Section
           Container(
             color: AppColors.backgroundColor,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: AppColors.darkBackgroundColor,
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Row(
-                children: [
-                  _buildTabButton('All'),
-                  const SizedBox(width: 4),
-                  _buildTabButton('System'),
-                  const SizedBox(width: 4),
-                  _buildTabButton('HR'),
-                  const SizedBox(width: 4),
-                  _buildTabButton('Benefits'),
-                ],
-              ),
+            child: FilterPanel(
+              pageTitle: 'Announcement Filters',
+              pageSubtitle: 'View and filter your data',
+              typeLabel: 'Category',
+              typeOptions: const ['All', 'System', 'HR', 'Benefits', 'Security'],
+              onFilter: (from, to, type, status, needAction) {
+                setState(() {
+                  selectedCategory = type;
+                });
+              },
             ),
           ),
           
@@ -180,6 +174,11 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
     required String label,
     required int count,
   }) {
+    // Use red color for alert/high priority icon
+    final iconColor = iconPath.contains('alert') 
+        ? AppColors.notificationBadgeColor 
+        : AppColors.darkText;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -193,7 +192,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
             iconPath,
             width: 24,
             height: 24,
-            color: AppColors.darkText,
+            color: iconColor,
           ),
           const SizedBox(height: 8),
           Text(
@@ -207,33 +206,6 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
             style: AppTypography.h3(),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTabButton(String label) {
-    final isSelected = selectedTab == label;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            selectedTab = label;
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Text(
-            label,
-            style: AppTypography.p14(
-              color: isSelected ? AppColors.darkText : AppColors.greyText,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
       ),
     );
   }

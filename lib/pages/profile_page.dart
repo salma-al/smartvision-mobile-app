@@ -254,15 +254,22 @@ class ProfilePage extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(25),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Title
                 Text(
                   'Logout Confirmation',
-                  style: AppTypography.h4(),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    height: 28 / 18,
+                    color: AppColors.darkText,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -290,7 +297,7 @@ class ProfilePage extends StatelessWidget {
                       backgroundColor: AppColors.getAccentColor(CompanyTheme.groupCompany),
                       foregroundColor: AppColors.white,
                       elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
                       ),
@@ -301,7 +308,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 
                 // Cancel Button (White, text style)
                 SizedBox(
@@ -309,9 +316,14 @@ class ProfilePage extends StatelessWidget {
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
+                        side: BorderSide(
+                          color: Colors.black.withOpacity(0.10),
+                          width: 1.173,
+                        ),
                       ),
                     ),
                     child: Text(

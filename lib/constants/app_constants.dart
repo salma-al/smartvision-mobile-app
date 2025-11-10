@@ -118,7 +118,16 @@ class AppTypography {
     color: color ?? AppColors.darkText,
     fontFamily: GoogleFonts.dmSans().fontFamily,
   );
- 
+
+  // 14px, 400, 20px line-height, darkText
+  static TextStyle body16({Color? color}) => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    height: 20 / 14,
+    color: color ?? AppColors.darkText,
+    fontFamily: GoogleFonts.dmSans().fontFamily,
+  );
+
   // 14px, 400, 20px line-height, darkText
   static TextStyle body14({Color? color}) => TextStyle(
     fontSize: 14,

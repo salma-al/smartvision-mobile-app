@@ -86,7 +86,7 @@ class _FilterPanelState extends State<FilterPanel> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (widget.pageTitle != null)
-                      Text(widget.pageTitle!, style: AppTypography.h3()),
+                      Text(widget.pageTitle!, style: AppTypography.p16()),
                     if (widget.pageTitle != null && widget.pageSubtitle != null)
                       const SizedBox(height: 4),
                     if (widget.pageSubtitle != null)
