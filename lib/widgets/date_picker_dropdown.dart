@@ -54,7 +54,7 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
     
     // Get screen height to check if calendar will be cut off
     final screenHeight = MediaQuery.of(context).size.height;
-    const calendarHeight = 360.0;
+    const calendarHeight = 540.0;
     final spaceBelow = screenHeight - offset.dy - size.height;
     final spaceAbove = offset.dy;
     
@@ -67,6 +67,7 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
         behavior: HitTestBehavior.translucent,
         onTap: _closeDropdown,
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
             Positioned(
               width: size.width,
@@ -78,32 +79,94 @@ class _DatePickerDropdownState extends State<DatePickerDropdown> {
                   elevation: 8,
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    constraints: BoxConstraints(
-                      maxHeight: showAbove 
-                          ? spaceAbove - 8 
-                          : (spaceBelow < calendarHeight ? spaceBelow - 8 : calendarHeight),
-                    ),
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: AppShadows.popupShadow,
                     ),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        colorScheme: ColorScheme.light(
-                          primary: AppColors.teal,
-                          onPrimary: Colors.white,
-                          onSurface: AppColors.darkText,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Material(
+                        color: AppColors.white,
+                        child: Theme(
+                          data: ThemeData(
+                            colorScheme: ColorScheme.light(
+                              primary: AppColors.getAccentColor(CompanyTheme.groupCompany),
+                              onPrimary: Colors.white,
+                              onSurface: AppColors.darkText,
+                              surface: AppColors.white,
+                            ),
+                            textButtonTheme: TextButtonThemeData(
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.getAccentColor(CompanyTheme.groupCompany),
+                              ),
+                            ),
+                            datePickerTheme: DatePickerThemeData(
+                              headerHeadlineStyle: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                height: 0.5,
+                                letterSpacing: 0,
+                              ),
+                              headerHelpStyle: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                height: 0.5,
+                                letterSpacing: 0,
+                              ),
+                              dayStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                height: 0.5,
+                                letterSpacing: 0,
+                              ),
+                              yearStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                height: 0.5,
+                                letterSpacing: 0,
+                              ),
+                              headerBackgroundColor: Colors.transparent,
+                              dividerColor: Colors.transparent,
+                              dayOverlayColor: WidgetStateProperty.resolveWith((states) {
+                                if (states.contains(WidgetState.selected)) {
+                                  return AppColors.getAccentColor(CompanyTheme.groupCompany);
+                                }
+                                if (states.contains(WidgetState.hovered)) {
+                                  return AppColors.getAccentColor(CompanyTheme.groupCompany).withOpacity(0.1);
+                                }
+                                return null;
+                              }),
+                              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                                if (states.contains(WidgetState.selected)) {
+                                  return AppColors.getAccentColor(CompanyTheme.groupCompany);
+                                }
+                                return null;
+                              }),
+                              dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                                if (states.contains(WidgetState.selected)) {
+                                  return Colors.white;
+                                }
+                                return AppColors.darkText;
+                              }),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.zero,
+                            child: SizedBox(
+                              width: size.width,
+                              child: CalendarDatePicker(
+                                initialDate: widget.selectedDate ?? DateTime.now(),
+                                firstDate: DateTime(DateTime.now().year - 1),
+                                lastDate: DateTime(DateTime.now().year + 2),
+                                onDateChanged: (date) {
+                                  widget.onDateSelected(date);
+                                  _closeDropdown();
+                                },
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: CalendarDatePicker(
-                        initialDate: widget.selectedDate ?? DateTime.now(),
-                        firstDate: DateTime(DateTime.now().year - 1),
-                        lastDate: DateTime(DateTime.now().year + 2),
-                        onDateChanged: (date) {
-                          widget.onDateSelected(date);
-                          _closeDropdown();
-                        },
                       ),
                     ),
                   ),

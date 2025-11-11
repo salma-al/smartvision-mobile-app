@@ -51,37 +51,43 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   void _handleCheckOut() {
-    if (_checkInTime != null) {
-      // Capture values BEFORE setState to ensure they're preserved
-      final checkInTimestamp = _checkInTime!.millisecondsSinceEpoch;
-      final checkOutTimestamp = DateTime.now().millisecondsSinceEpoch;
-      
-      setState(() {
-        // Create the log entry first with captured timestamps
-        final logEntry = {
-          'checkIn': DateTime.fromMillisecondsSinceEpoch(checkInTimestamp),
-          'checkOut': DateTime.fromMillisecondsSinceEpoch(checkOutTimestamp),
-        };
-        
-        // Add to time logs
-        _timeLogs.add(logEntry);
-        
-        // Debug: Print the logs to verify
-        print('Time logs count: ${_timeLogs.length}');
-        for (var i = 0; i < _timeLogs.length; i++) {
-          print('Log $i: CheckIn=${_timeLogs[i]['checkIn']}, CheckOut=${_timeLogs[i]['checkOut']}');
-        }
-        
-        // Calculate worked duration for this session
-        _workedDuration = Duration(milliseconds: checkOutTimestamp - checkInTimestamp);
-        
-        // Reset for next check-in
-        _isCheckedIn = false;
-        _checkInTime = null;
-        _checkOutTime = null;
+    if (_checkInTime == null) return;
+    
+    // Store the times before any state changes
+    final checkInToStore = _checkInTime!;
+    final checkOutToStore = DateTime.now();
+    
+    setState(() {
+      // Create new log entry with copies of the DateTime objects
+      _timeLogs.add({
+        'checkIn': DateTime(
+          checkInToStore.year,
+          checkInToStore.month,
+          checkInToStore.day,
+          checkInToStore.hour,
+          checkInToStore.minute,
+          checkInToStore.second,
+        ),
+        'checkOut': DateTime(
+          checkOutToStore.year,
+          checkOutToStore.month,
+          checkOutToStore.day,
+          checkOutToStore.hour,
+          checkOutToStore.minute,
+          checkOutToStore.second,
+        ),
       });
-      _timer?.cancel();
-    }
+      
+      // Calculate worked duration for this session
+      _workedDuration = checkOutToStore.difference(checkInToStore);
+      
+      // Reset for next check-in
+      _isCheckedIn = false;
+      _checkInTime = null;
+      _checkOutTime = null;
+    });
+    
+    _timer?.cancel();
   }
 
   String _formatTime(DateTime? time) {
@@ -164,6 +170,10 @@ class _CheckInPageState extends State<CheckInPage> {
 
             // Check In/Out Section
             _buildCheckInOutSection(),
+            const SizedBox(height: 16),
+
+            // Check In/Out Photo Section
+            _buildPhotoSection(),
             const SizedBox(height: 16),
 
             // Today's Progress (always shown)
@@ -326,6 +336,59 @@ class _CheckInPageState extends State<CheckInPage> {
     return '$hour:$minute:$second $amPm';
   }
 
+  Widget _buildPhotoSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+        boxShadow: AppShadows.defaultShadow,
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.camera_alt_outlined,
+            size: 18,
+            color: AppColors.darkText,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _isCheckedIn ? 'Take Check Out Photo' : 'Take Check In Photo',
+              style: AppTypography.p14(),
+            ),
+          ),
+          const SizedBox(width: 12),
+          InkWell(
+            onTap: () {
+              // Handle photo capture
+              final message = _isCheckedIn 
+                  ? 'Check Out photo captured' 
+                  : 'Check In photo captured';
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(message)),
+              );
+            },
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
+                border: Border.all(color: AppColors.dividerLight, width: 1),
+              ),
+              child: Text(
+                'Capture',
+                style: AppTypography.helperTextSmall(color: AppColors.darkText),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTodaysProgress(num progressPercent, Duration remaining, Duration totalWorked) {
     return Container(
       width: double.infinity,
@@ -402,48 +465,8 @@ class _CheckInPageState extends State<CheckInPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Current session (if checked in) - in its own card with title
-        if (_isCheckedIn && _checkInTime != null) ...[
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
-              boxShadow: AppShadows.defaultShadow,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Time Log', style: AppTypography.p16()),
-                const SizedBox(height: 16),
-                _TimeLogItem(
-                  icon: SvgPicture.asset(
-                    'assets/icons/check.svg',
-                    width: 18,
-                    height: 18,
-                    colorFilter: const ColorFilter.mode(AppColors.green, BlendMode.srcIn),
-                  ),
-                  iconColor: AppColors.green,
-                  label: 'Check In Time',
-                  time: _formatTime(_checkInTime),
-                ),
-                const SizedBox(height: 12),
-                _TimeLogItem(
-                  icon: const Icon(Icons.cancel, size: 18, color: AppColors.red),
-                  iconColor: AppColors.red,
-                  label: 'Check Out Time',
-                  time: '--:--',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
-        
-        // Previous time logs (reverse order - most recent first)
-        // Each pair in its own card with title
-        for (int i = _timeLogs.length - 1; i >= 0; i--) ...[
+        // Display all completed time logs (first in, first out - chronological order)
+        for (int i = 0; i < _timeLogs.length; i++) ...[
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -483,8 +506,50 @@ class _CheckInPageState extends State<CheckInPage> {
               ],
             ),
           ),
-          if (i > 0) const SizedBox(height: 12),
+          const SizedBox(height: 12),
         ],
+        
+        // Current session (if checked in) - shown AFTER all completed logs
+        if (_isCheckedIn && _checkInTime != null)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+              boxShadow: AppShadows.defaultShadow,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Time Log', style: AppTypography.p16()),
+                const SizedBox(height: 16),
+                _TimeLogItem(
+                  icon: SvgPicture.asset(
+                    'assets/icons/check_green.svg',
+                    width: 18,
+                    height: 18,
+                    colorFilter: const ColorFilter.mode(AppColors.green, BlendMode.srcIn),
+                  ),
+                  iconColor: AppColors.green,
+                  label: 'Check In Time',
+                  time: _formatTime(_checkInTime),
+                ),
+                const SizedBox(height: 12),
+                _TimeLogItem(
+                  icon: SvgPicture.asset(
+                    'assets/icons/X_red.svg',
+                    width: 18,
+                    height: 18,
+                    colorFilter: const ColorFilter.mode(AppColors.red, BlendMode.srcIn),
+                  ),
+                  iconColor: AppColors.red,
+                  label: 'Check Out Time',
+                  time: '--:--',
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }

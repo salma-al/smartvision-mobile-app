@@ -46,7 +46,7 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
         const horizontalPadding = AppSpacing.pagePaddingHorizontal;
         
         // Calculate available space
-        const calendarHeight = 360.0;
+        const calendarHeight = 540.0;
         final spaceBelow = screenHeight - fieldOffset.dy - fieldSize.height;
         final spaceAbove = fieldOffset.dy;
         
@@ -56,10 +56,11 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
             ? fieldOffset.dy - calendarHeight - 8
             : fieldOffset.dy + fieldSize.height + 8;
         final maxHeight = showAbove 
-            ? (spaceAbove - 16).clamp(280.0, calendarHeight)
-            : (spaceBelow - 16).clamp(280.0, calendarHeight);
+            ? (spaceAbove - 16).clamp(440.0, calendarHeight)
+            : (spaceBelow - 16).clamp(440.0, calendarHeight);
 
         return Stack(
+          clipBehavior: Clip.none,
           children: [
             Positioned.fill(
               child: GestureDetector(
@@ -75,30 +76,96 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
                 color: Colors.transparent,
                 child: Container(
                   width: screenWidth - horizontalPadding * 2,
-                  constraints: BoxConstraints(maxHeight: maxHeight),
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     borderRadius:
                     BorderRadius.circular(AppBorderRadius.radius12),
                     boxShadow: AppShadows.popupShadow,
                   ),
-                  child: Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: ColorScheme.light(
-                        primary: AppColors.getAccentColor(
-                            CompanyTheme.groupCompany),
-                        onPrimary: Colors.white,
-                        onSurface: AppColors.darkText,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                    child: Material(
+                      color: AppColors.white,
+                      child: Theme(
+                        data: ThemeData(
+                          colorScheme: ColorScheme.light(
+                            primary: AppColors.getAccentColor(
+                                CompanyTheme.groupCompany),
+                            onPrimary: Colors.white,
+                            onSurface: AppColors.darkText,
+                            surface: AppColors.white,
+                          ),
+                          textButtonTheme: TextButtonThemeData(
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.getAccentColor(CompanyTheme.groupCompany),
+                            ),
+                          ),
+                          datePickerTheme: DatePickerThemeData(
+                            headerHeadlineStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              height: 0.5,
+                              letterSpacing: 0,
+                            ),
+                            headerHelpStyle: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w400,
+                              height: 0.5,
+                              letterSpacing: 0,
+                            ),
+                            dayStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              height: 0.5,
+                              letterSpacing: 0,
+                            ),
+                            yearStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              height: 0.5,
+                              letterSpacing: 0,
+                            ),
+                            headerBackgroundColor: Colors.transparent,
+                            dividerColor: Colors.transparent,
+                            dayOverlayColor: WidgetStateProperty.resolveWith((states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return AppColors.getAccentColor(CompanyTheme.groupCompany);
+                              }
+                              if (states.contains(WidgetState.hovered)) {
+                                return AppColors.getAccentColor(CompanyTheme.groupCompany).withOpacity(0.1);
+                              }
+                              return null;
+                            }),
+                            dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return AppColors.getAccentColor(CompanyTheme.groupCompany);
+                              }
+                              return null;
+                            }),
+                            dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return Colors.white;
+                              }
+                              return AppColors.darkText;
+                            }),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.zero,
+                          child: SizedBox(
+                            width: screenWidth - horizontalPadding * 2,
+                            child: CalendarDatePicker(
+                              initialDate: _overtimeDate,
+                              firstDate: DateTime(DateTime.now().year - 1),
+                              lastDate: DateTime(DateTime.now().year + 2),
+                              onDateChanged: (picked) {
+                                setState(() => _overtimeDate = picked);
+                                _hideInlineDatePicker();
+                              },
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: CalendarDatePicker(
-                      initialDate: _overtimeDate,
-                      firstDate: DateTime(DateTime.now().year - 1),
-                      lastDate: DateTime(DateTime.now().year + 2),
-                      onDateChanged: (picked) {
-                        setState(() => _overtimeDate = picked);
-                        _hideInlineDatePicker();
-                      },
                     ),
                   ),
                 ),
