@@ -3,6 +3,7 @@ import 'package:untitled1/pages/leave_request_page.dart';
 import 'package:untitled1/pages/overtime_request_page.dart';
 import 'package:untitled1/pages/shift_request_page.dart';
 import 'package:untitled1/pages/request_approval_page.dart';
+import 'package:untitled1/pages/notifications_page.dart';
 import '../constants/app_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/base_scaffold.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 0,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -69,41 +71,52 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            SvgPicture.asset(
-              'assets/icons/bell.svg',
-              width: 16,
-              height: 18.5,
-              color: AppColors.darkText,
-            ),
-            if (notificationCount > 0)
-              Positioned(
-                right: -6,
-                top: -10,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: AppColors.notificationBadgeColor,
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 12,
-                    minHeight: 12,
-                  ),
-                  child: Text(
-                    '$notificationCount',
-                    style: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotificationsPage(),
+                settings: const RouteSettings(name: '/notifications'),
+              ),
+            );
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              SvgPicture.asset(
+                'assets/icons/bell.svg',
+                width: 16,
+                height: 18.5,
+                color: AppColors.darkText,
+              ),
+              if (notificationCount > 0)
+                Positioned(
+                  right: -6,
+                  top: -10,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppColors.notificationBadgeColor,
+                      shape: BoxShape.circle,
                     ),
-                    textAlign: TextAlign.center,
+                    constraints: const BoxConstraints(
+                      minWidth: 12,
+                      minHeight: 12,
+                    ),
+                    child: Text(
+                      '$notificationCount',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -116,69 +129,77 @@ class _HomePageState extends State<HomePage> {
           isCheckedIn = !isCheckedIn;
         });
       },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: isCheckedIn ? const Color(0xFF197744) : const Color(0xFF9C1922),
-          borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-          boxShadow: AppShadows.checkInShadow,
-        ),
-        child: Stack(
-          children: [
-            // Background icon with opacity
-            Positioned(
-              right: 20,
-              top: 20,
-              child: Opacity(
-                opacity: 0.12,
-                child: Icon(
-                  Icons.login_outlined,
-                  color: AppColors.white,
-                  size: 60,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: isCheckedIn ? const Color(0xFF197744) : const Color(0xFF9C1922),
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+            boxShadow: AppShadows.checkInShadow,
+          ),
+          child: Stack(
+            children: [
+              // SVG Background at top right with overflow - edge to edge
+              Positioned(
+                top: -4,
+                right: 0,
+                child: SvgPicture.asset(
+                  'assets/icons/cta_bg.svg',
+                  fit: BoxFit.none,
                 ),
               ),
-            ),
-            Row(
-              children: [
-                Container(
-                  width: 63,
-                  height: 63,
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withOpacity(0.38),
-                    borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
-                  ),
-                  child: const Icon(
-                    Icons.login_outlined,
-                    color: AppColors.white,
-                    size: 40,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isCheckedIn ? 'Checked in' : 'Check in',
-                        style: isCheckedIn ? AppTypography.checkInStatus() : AppTypography.checkInTime(),
+              // Content with padding
+              Padding(
+                padding: const EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 63,
+                      height: 63,
+                      decoration: BoxDecoration(
+                        color: AppColors.white.withOpacity(0.38),
+                        borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
                       ),
-                      if (isCheckedIn)
-                        Text(
-                          checkInTime,
-                          style: AppTypography.checkInTime(),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/icons/check_in.svg',
+                          width: 40,
+                          height: 40,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white,
+                            BlendMode.srcIn,
+                          ),
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isCheckedIn ? 'Checked in' : 'Check in',
+                            style: isCheckedIn ? AppTypography.checkInStatus() : AppTypography.checkInTime(),
+                          ),
+                          if (isCheckedIn)
+                            Text(
+                              checkInTime,
+                              style: AppTypography.checkInTime(),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: AppColors.white,
+                      size: 16,
+                    ),
+                  ],
                 ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: AppColors.white,
-                  size: 16,
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

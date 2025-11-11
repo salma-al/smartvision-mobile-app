@@ -133,6 +133,7 @@ class _CheckInPageState extends State<CheckInPage> {
     final remainingDuration = Duration(minutes: remainingMinutes);
 
     return BaseScaffold(
+      currentNavIndex: 1,
       appBar: const SecondaryAppBar(
         title: 'Check In',
         showBackButton: false,

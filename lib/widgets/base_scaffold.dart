@@ -6,12 +6,14 @@ class BaseScaffold extends StatelessWidget {
   final Widget body;
   final PreferredSizeWidget? appBar;
   final Color? backgroundColor;
+  final int currentNavIndex; // 0 = Home, 1 = Check-in, 2 = Profile
 
   const BaseScaffold({
     super.key,
     required this.body,
     this.appBar,
     this.backgroundColor,
+    this.currentNavIndex = 0,
   });
 
   @override
@@ -22,7 +24,7 @@ class BaseScaffold extends StatelessWidget {
       body: body,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.only(bottom: 12),
-        child: const BottomIsland(),
+        child: BottomIsland(currentIndex: currentNavIndex),
       ),
     );
   }

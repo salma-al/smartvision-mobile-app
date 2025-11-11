@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:untitled1/pages/home_page.dart';
 import '../constants/app_constants.dart';
 import '../pages/check_in_page.dart'; // 👈 make sure this import path is correct
 import '../pages/profile_page.dart';
 
 class BottomIsland extends StatelessWidget {
-  const BottomIsland({super.key});
+  final int currentIndex; // 0 = Home, 1 = Check-in, 2 = Profile
+  
+  const BottomIsland({
+    super.key,
+    this.currentIndex = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,63 +30,91 @@ class BottomIsland extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
 
-          // 🔘 left icon with navigation
+          // 🔘 Home icon with navigation
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HomePage(),
-                ),
-              );
+              if (currentIndex != 0) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomePage(),
+                  ),
+                );
+              }
             },
             child: Container(
               padding: const EdgeInsets.all(12),
-              child: Icon(
-                Icons.apps_outlined,
-                color: AppColors.getAccentColor(CompanyTheme.groupCompany),
-                size: 24,
+              child: SvgPicture.asset(
+                'assets/icons/home.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                  currentIndex == 0
+                      ? AppColors.getAccentColor(CompanyTheme.groupCompany)
+                      : AppColors.darkText,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),
 
-          // 🔘 Middle icon with navigation
+          // 🔘 Check-in icon with navigation
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CheckInPage(),
-                ),
-              );
+              if (currentIndex != 1) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CheckInPage(),
+                  ),
+                );
+              }
             },
             child: Container(
               padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: AppColors.darkText,
+              decoration: BoxDecoration(
+                color: currentIndex == 1
+                    ? AppColors.getAccentColor(CompanyTheme.groupCompany)
+                    : AppColors.darkText,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.login_outlined,
-                color: AppColors.white,
-                size: 20,
+              child: SvgPicture.asset(
+                'assets/icons/check_in.svg',
+                width: 20,
+                height: 20,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.white,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),
 
+          // 🔘 Profile icon with navigation
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProfilePage(),
-                ),
-              );
+              if (currentIndex != 2) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfilePage(),
+                  ),
+                );
+              }
             },
-            child: Icon(
-              Icons.person_outline,
-              color: AppColors.darkText,
-              size: 24,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: SvgPicture.asset(
+                'assets/icons/profile.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                  currentIndex == 2
+                      ? AppColors.getAccentColor(CompanyTheme.groupCompany)
+                      : AppColors.darkText,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
           ),
         ],

@@ -41,6 +41,10 @@ class AppColors {
   static const Color lightYellow = Color(0xFFFEF9C2);
   static const Color lightGrey = Color(0xFFF9FAFB);
   static const Color greyText = Color(0xFF76747B);
+  
+  // Notification colors
+  static const Color unreadBg = Color(0xFFEFF6FF);
+  static const Color unreadDot = Color(0xFF155DFC);
 
   // Dynamic accent color based on company
   static Color getAccentColor(CompanyTheme company) => company.accentColor;
@@ -90,6 +94,14 @@ class AppTypography {
   static TextStyle h4({Color? color}) => TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w500,
+    letterSpacing: 1.0,
+    color: color ?? AppColors.darkText,
+    fontFamily: GoogleFonts.dmSans().fontFamily,
+  );
+
+  static TextStyle h4semiBold({Color? color}) => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
     letterSpacing: 1.0,
     color: color ?? AppColors.darkText,
     fontFamily: GoogleFonts.dmSans().fontFamily,

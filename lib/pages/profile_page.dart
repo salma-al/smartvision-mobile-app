@@ -14,6 +14,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 2,
       appBar: const SecondaryAppBar(
         title: 'Profile',
         showBackButton: false,
