@@ -292,9 +292,11 @@ class ProfilePage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      // Perform logout action
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Logged out successfully')),
+                      // Navigate to login page
+                      Navigator.pushNamedAndRemoveUntil(
+                        context, 
+                        '/login', 
+                        (route) => false,
                       );
                     },
                     style: ElevatedButton.styleFrom(
