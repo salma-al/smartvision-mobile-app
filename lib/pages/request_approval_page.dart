@@ -60,6 +60,8 @@ class _RequestApprovalPageState extends State<RequestApprovalPage> {
                     date: 'Oct 01',
                     description: 'Doctor appointment',
                     submitted: 'Sep 29',
+                    hasAttachment: true,
+                    attachmentName: 'medical_certificate.pdf',
                     onReject: () => _handleReject('Salma Fouad Said'),
                     onApprove: () => _handleApprove('Salma Fouad Said'),
                   ),
@@ -144,6 +146,8 @@ class _ApprovalRecord extends StatelessWidget {
   final String submitted;
   final int? hours;
   final bool showActions;
+  final bool hasAttachment;
+  final String? attachmentName;
   final VoidCallback? onReject;
   final VoidCallback? onApprove;
 
@@ -157,6 +161,8 @@ class _ApprovalRecord extends StatelessWidget {
     required this.submitted,
     this.hours,
     this.showActions = true,
+    this.hasAttachment = false,
+    this.attachmentName,
     this.onReject,
     this.onApprove,
   });
@@ -206,6 +212,47 @@ class _ApprovalRecord extends StatelessWidget {
 
           // Description
           Text(description, style: AppTypography.helperText()),
+
+          // Attachment (if applicable)
+          if (hasAttachment && attachmentName != null) ...[
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Opening $attachmentName')),
+                );
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColors.dividerLight,
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.attach_file,
+                      size: 16,
+                      color: AppColors.blue,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        attachmentName!,
+                        style: AppTypography.p14(color: AppColors.blue),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
 
           // Hours badge (if applicable)
           if (hours != null) ...[
@@ -264,6 +311,63 @@ class _ApprovalRecord extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Helper function to get file extension
+  String _getFileExtension(String filename) {
+    return filename.split('.').last.toLowerCase();
+  }
+
+  // Helper function to get file icon based on extension
+  IconData _getFileIcon(String filename) {
+    final extension = _getFileExtension(filename);
+    switch (extension) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return Icons.image;
+      case 'zip':
+      case 'rar':
+        return Icons.folder_zip;
+      case 'xls':
+      case 'xlsx':
+        return Icons.table_chart;
+      default:
+        return Icons.insert_drive_file;
+    }
+  }
+
+  // Helper function to get file size (mock data for now)
+  String _getFileSize(String filename) {
+    final extension = filename.split('.').last.toLowerCase();
+    // Mock file sizes based on common file types
+    switch (extension) {
+      case 'pdf':
+        return '1.2 MB';
+      case 'doc':
+      case 'docx':
+        return '245 KB';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+        return '3.5 MB';
+      case 'gif':
+        return '1.8 MB';
+      case 'zip':
+      case 'rar':
+        return '5.4 MB';
+      case 'xls':
+      case 'xlsx':
+        return '890 KB';
+      default:
+        return '512 KB';
+    }
   }
 }
 

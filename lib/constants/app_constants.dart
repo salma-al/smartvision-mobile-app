@@ -3,10 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 // Company-specific accent colors
 enum CompanyTheme {
-  groupCompany(Color(0xFFCB1933)),  // Default red
-  companyA(Color(0xFF2563EB)),      // Blue
-  companyB(Color(0xFF059669)),      // Green
-  companyC(Color(0xFF7C3AED));     // Purple
+  groupCompany(Color(0xFFCB1933)),
+  companyA(Color(0xFF2563EB)),
+  companyB(Color(0xFF059669)),
+  companyC(Color(0xFF7C3AED));
 
   const CompanyTheme(this.accentColor);
   final Color accentColor;

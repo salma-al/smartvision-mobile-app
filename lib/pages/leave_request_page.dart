@@ -9,6 +9,7 @@ import '../widgets/pill_tabs.dart';
 import '../widgets/form_label.dart';
 import '../widgets/filter_select_field.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/badge.dart' as badge;
 
 class LeaveRequestPage extends StatefulWidget {
   const LeaveRequestPage({super.key});
@@ -23,6 +24,14 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   DateTime _start = DateTime.now();
   DateTime _end = DateTime.now();
   String? _attachmentFileName;
+
+  // Map of leave types to remaining days
+  final Map<String, int> _leaveDaysRemaining = {
+    'Annual Leave': 12,
+    'Sick Leave': 5,
+    'Unpaid Leave': 0,
+    'Emergency Leave': 3,
+  };
 
   OverlayEntry? _calendarOverlay;
 
@@ -219,8 +228,21 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Leave Type
-        const FormLabel('Leave Type'),
+        // Leave Type with remaining days badge
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const FormLabel('Leave Type'),
+            badge.AppBadge(
+              label: '${_leaveDaysRemaining[_leaveType] ?? 0} Days Left',
+              color: AppColors.red,
+              variant: badge.BadgeVariant.filled,
+              backgroundColor: AppColors.lightRed,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ),
+          ],
+        ),
         const SizedBox(height: AppSpacing.margin12),
         SizedBox(
           width: double.infinity,
