@@ -254,6 +254,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
           pageSubtitle: 'View and filter your leave request history',
           typeLabel: 'Leave Type',
           typeOptions: const [
+            'All',
             'Casual Leave',
             'Sick Leave',
             'Annual Leave',

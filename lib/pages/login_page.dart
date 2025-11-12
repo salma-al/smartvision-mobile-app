@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../constants/app_constants.dart';
 
 class LoginPage extends StatefulWidget {
@@ -29,13 +30,15 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE8ECEF),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                 // Logo
                 Image.asset(
                   'assets/icons/SVEC_logo.png',
@@ -108,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 16,
+                            vertical: 12,
                           ),
                         ),
                         style: TextStyle(
@@ -154,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 16,
+                            vertical: 12,
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -216,8 +219,8 @@ class _LoginPageState extends State<LoginPage> {
                   child: ElevatedButton(
                     onPressed: _handleSignIn,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0D9488),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: AppColors.svecColor,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -247,10 +250,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

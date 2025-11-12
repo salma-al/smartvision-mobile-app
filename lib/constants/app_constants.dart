@@ -42,6 +42,9 @@ class AppColors {
   static const Color lightGrey = Color(0xFFF9FAFB);
   static const Color greyText = Color(0xFF76747B);
   
+  // SVEC Brand Color
+  static const Color svecColor = Color(0xFF19868B);
+  
   // Notification colors
   static const Color unreadBg = Color(0xFFEFF6FF);
   static const Color unreadDot = Color(0xFF155DFC);
@@ -228,6 +231,9 @@ class AppShadows {
 class AppBorderRadius {
   /// x-Small elements like icons or chips
   static const double radius4 = 4.0;
+
+  /// x-Small elements like icons or chips
+  static const double radius6 = 6.0;
 
   /// Small elements like icons or chips
   static const double radius8 = 8.0;

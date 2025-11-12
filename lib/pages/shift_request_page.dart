@@ -22,6 +22,8 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
   String _shiftType = 'Work From Home';
   DateTime _start = DateTime.now();
   DateTime _end = DateTime.now();
+  String _excuseTime = '0.5 hours';
+  String _excuseType = 'Late Arrival';
 
   OverlayEntry? _calendarOverlay;
 
@@ -340,6 +342,53 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
           ],
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
+
+        // Excuse-specific fields
+        if (_shiftType == 'Excuse') ...[
+          // Excuse Time
+          const FormLabel('Excuse Time'),
+          const SizedBox(height: AppSpacing.margin12),
+          SizedBox(
+            width: double.infinity,
+            child: FilterSelectField(
+              label: '',
+              value: _excuseTime,
+              options: const [
+                '0.5 hours',
+                '1.0 hours',
+                '1.5 hours',
+                '2.0 hours',
+                '2.5 hours',
+                '3.0 hours',
+                '3.5 hours',
+                '4.0 hours',
+              ],
+              onChanged: (v) => setState(() => _excuseTime = v),
+              popupMatchScreenWidth: true,
+              screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sectionMargin),
+
+          // Excuse Type
+          const FormLabel('Excuse Time'),
+          const SizedBox(height: AppSpacing.margin12),
+          SizedBox(
+            width: double.infinity,
+            child: FilterSelectField(
+              label: '',
+              value: _excuseType,
+              options: const [
+                'Late Arrival',
+                'Leave Early',
+              ],
+              onChanged: (v) => setState(() => _excuseType = v),
+              popupMatchScreenWidth: true,
+              screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sectionMargin),
+        ],
 
         // Reason
         const FormLabel('Reason'),
