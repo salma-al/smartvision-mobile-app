@@ -6,6 +6,7 @@ import '../../../core/widgets/custom_drop_down_field.dart';
 import '../../../core/widgets/custom_text_form_feild.dart';
 import '../../../core/widgets/loading_widget.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../components/file_picker_component.dart';
 import '../components/leave_date_component.dart';
 // import '../components/request_type_component.dart';
 import '../view_model/cubit/leaves_cubit.dart';
@@ -148,6 +149,14 @@ class LeavesScreen extends StatelessWidget {
                           controller: cubit.reasonController,
                           fillColor: Colors.grey.withValues(alpha: 0.2),
                         ),
+                        const SizedBox(height: 30),
+                        if(cubit.currentRequestType == RequestType.leave)
+                        FilePickerComponent(
+                          onTap: () => cubit.pickFile(),
+                          fileName: cubit.attach != null ? cubit.attach!.path.split('/').last : '',
+                          isLoading: cubit.leavesLoading,
+                          progress: cubit.uploadPercentage,
+                        ),
                         const SizedBox(height: 50),
                     
                         Padding(
@@ -165,7 +174,7 @@ class LeavesScreen extends StatelessWidget {
                   ),
                 ),
                 if (cubit.leavesLoading)
-                const LoadingWidget(),
+                LoadingWidget(progress: cubit.uploadPercentage),
               ],
             ),
           );

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:smart_vision/core/widgets/loading_widget.dart';
-import 'package:smart_vision/features/announcement/model/announcements_model.dart';
-import 'package:smart_vision/features/announcement/view_model/cubit/announcement_cubit.dart';
 
 import '../../../core/utils/colors.dart';
+import '../../../core/widgets/loading_widget.dart';
+import '../model/announcements_model.dart';
+import '../view_model/cubit/announcement_cubit.dart';
 import 'announcement_details_screen.dart';
 
 class AnnouncementMainScreen extends StatelessWidget {
@@ -29,18 +29,18 @@ class AnnouncementMainScreen extends StatelessWidget {
       body: BlocProvider(
         create: (context) => AnnouncementCubit()..getAllAnnouncements(context),
         child: BlocBuilder<AnnouncementCubit, AnnouncementState>(
-          builder: (context, state) {
-            var cubit = AnnouncementCubit.get(context);
+          builder: (ctx, state) {
             return Stack(
               children: [
+                if(state is AnnouncementLoaded)
                 Padding(
                   padding: const EdgeInsets.only(left: 15, right: 15, top: 40),
                   child: RefreshIndicator(
-                    onRefresh: () => cubit.getAllAnnouncements(context),
+                    onRefresh: () => ctx.read<AnnouncementCubit>().getAllAnnouncements(ctx),
                     child: ListView.builder(
-                      itemCount: cubit.announcements.length,
+                      itemCount: state.announcements.length,
                       itemBuilder: (context, index) {
-                        AnnouncementsModel ann = cubit.announcements[index];
+                        AnnouncementsModel ann = state.announcements[index];
                         return Container(
                           decoration: BoxDecoration(
                             color: Colors.grey.shade200,

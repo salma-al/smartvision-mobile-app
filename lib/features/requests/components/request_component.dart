@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:smart_vision/core/widgets/attachment_widget.dart';
 // import 'package:intl/intl.dart';
 
 import '../../../core/helper/data_helper.dart';
@@ -138,6 +139,12 @@ class RequestComponent extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+            ],
+
+            if(request.attachUrl != null)
+            ...[
+              const SizedBox(height: 8),
+              AttachmentWidget(fileUrl: request.attachUrl!),
             ],
             
             // Action buttons for pending requests

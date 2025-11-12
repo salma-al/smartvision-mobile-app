@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:smart_vision/core/utils/media_query_values.dart';
+import 'package:smart_vision/core/widgets/attachment_widget.dart';
+
+import '../../../core/utils/media_query_values.dart';
 import '../../../core/utils/colors.dart';
 import '../model/announcements_model.dart';
 
@@ -64,6 +66,28 @@ class AnnouncementDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 24),
+              if (announcement.attachments.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Attachments',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.mainColor,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: announcement.attachments.length,
+                      itemBuilder: (context, index) => AttachmentWidget(fileUrl: announcement.attachments[index]),
+                    ),
+                  ],
+                ),
             ],
           ),
         ),

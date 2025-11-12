@@ -1,7 +1,9 @@
+import 'package:smart_vision/core/helper/http_helper.dart';
+
 class RequestModel {
   final String id, employeeName, docType, requestType, startDate;
   String status;
-  final String? reason, endDate, duration;
+  final String? reason, endDate, duration, attachUrl;
   bool showActions = false;
 
   RequestModel({
@@ -14,6 +16,7 @@ class RequestModel {
     this.endDate,
     this.reason,
     this.duration,
+    this.attachUrl,
     this.showActions = false,
   });
 
@@ -28,6 +31,7 @@ class RequestModel {
       endDate: json['to_date'],
       reason: json['reason']?? '',
       duration: json['duration']?.toString(),
+      attachUrl: json['attachment'] != null ? '${HTTPHelper.imgBaseUrl}${json['attachment']}' : null,
       showActions: show,
     );
   }

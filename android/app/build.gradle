@@ -40,6 +40,16 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    
+    //for 16kb update
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging false
+        }
+    }
+    buildFeatures {
+        prefab true
+    }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'

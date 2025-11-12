@@ -42,7 +42,7 @@ class NotificationScreen extends StatelessWidget {
                         var fcm = cubit.notifications[index];
                         return InkWell(
                           onTap: fcm.docType.toLowerCase() == 'announcement' ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => AnnouncementDetailsScreen(
-                            announcement: AnnouncementsModel(date: fcm.date, name: fcm.title, description: fcm.message)))) : () {},
+                            announcement: AnnouncementsModel(date: fcm.date, name: fcm.title, description: fcm.message, attachments: [])))) : () {},
                           child: Container(
                           decoration: BoxDecoration(
                             color: Colors.grey.shade200,

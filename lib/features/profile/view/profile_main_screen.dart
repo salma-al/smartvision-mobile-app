@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:smart_vision/core/helper/cache_helper.dart';
 
 import '../../../core/helper/data_helper.dart';
 import '../../../core/utils/colors.dart';
@@ -131,7 +132,11 @@ class ProfileMainScreen extends StatelessWidget {
                   text: 'Logout',
                   color: HexColor('#D9534F'),
                   onTap: () async {
+                    String email = await CacheHelper.getData('email', String) ?? '';
+                    String password = await CacheHelper.getData('password', String) ?? '';
                     await instance.reset();
+                    if(email.isNotEmpty) await CacheHelper.setData('email', email);
+                    if(password.isNotEmpty) await CacheHelper.setData('password', password);
                     // ignore: use_build_context_synchronously
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
                   }

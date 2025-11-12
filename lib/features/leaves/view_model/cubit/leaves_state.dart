@@ -7,6 +7,7 @@ final class LeavesInitial extends LeavesState {}
 
 final class RequestChanged extends LeavesState {}
 final class ReuestTimeChanged extends LeavesState {}
+final class FilePicked extends LeavesState {}
 
 final class LeavesLoadingState extends LeavesState {}
 final class LeavesLoadedState extends LeavesState {}

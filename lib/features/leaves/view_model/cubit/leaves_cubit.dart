@@ -1,5 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +19,7 @@ class LeavesCubit extends Cubit<LeavesState> {
 
   static LeavesCubit get(context) => BlocProvider.of(context);
   bool leavesLoading = false;
+  double? uploadPercentage;
   DateTime? startDate, endDate;
   TimeOfDay? startTime, endTime;
   List<LeaveTypesModel> leaveTypes = [], shiftsTypes = [], selectedTypeList = [];
@@ -29,6 +33,7 @@ class LeavesCubit extends Cubit<LeavesState> {
   final TextEditingController reasonController = TextEditingController();
   List<double> availExcusesTimes = [];
   double? selectedExcuseTime;
+  File? attach;
 
   changeRequestType(RequestType type) {
     currentRequestType = type;
@@ -78,6 +83,12 @@ class LeavesCubit extends Cubit<LeavesState> {
       endTimeController.text = formattedTime;
     }
     emit(ReuestTimeChanged());
+  }
+  pickFile() async {
+    final file = await FilePicker.platform.pickFiles();
+    if(file == null) return;
+    attach = File(file.files.single.path!);
+    emit(FilePicked());
   }
   changeLeaveShiftType(LeaveTypesModel type) {
     currentLeaveType = type;
@@ -130,14 +141,14 @@ class LeavesCubit extends Cubit<LeavesState> {
     }
     final instance = DataHelper.instance;
     final body = {
-      'employee_id': instance.userId,
+      'employee_id': instance.userId ?? '0',
       'sub_type': currentLeaveType!.leaveType,
       'start_date': startDateController.text,
       'end_date': endDateController.text,
       'type': currentRequestType.toString().split('.').last,
       'reason': reasonController.text
     };
-    if(currentLeaveType == null && currentLeaveType!.leaveType.toLowerCase().contains('excuse') && currentRequestType == RequestType.leave) {
+    if(currentLeaveType == null && currentLeaveType!.leaveType.toLowerCase().contains('excuse') && currentRequestType == RequestType.shift) {
       ToastWidget().showToast('Please select excuse time', context);
       return;
     }
@@ -147,16 +158,32 @@ class LeavesCubit extends Cubit<LeavesState> {
     leavesLoading = true;
     emit(LeavesLoadingState());
     try{
-      final data = await HTTPHelper.httpPost(EndPoints.requestLeave, body, context);
-      if(data['message']['status'] == 'success') {
-        leavesLoading = false;
+      dynamic data;
+      if(attach != null) {
+        data = await HTTPHelper.uploadFilesWithProgress(context: context, file: attach!, endPoint: EndPoints.requestLeave, imgKey: 'attachment', body: body, onProgress: (progress) {
+          uploadPercentage = progress;
+          emit(LeavesLoadingState());
+        });
+        uploadPercentage = null;
+        attach = null;
+      } else {
+        data = await HTTPHelper.httpPost(EndPoints.requestLeave, body, context);
+      }
+      leavesLoading = false;
+      final message = data['message'] ?? data['data']?['message'];
+      final status = message?['status'];
+      final msgText = message?['message'] ?? 'Request completed';
+
+      if (status == 'success') {
         emit(LeavesLoadedState());
-        ToastWidget().showToast(data['message']['message'], context);
+        ToastWidget().showToast(msgText, context);
         Navigator.pop(context);
-      }else {
-        leavesLoading = false;
+      } else {
         emit(LeavesErrorState());
-        ToastWidget().showToast((data['message']['message'] == null || data['message']['message'] == '') ? 'failed to submit your request' : data['message']['message'], context);
+        ToastWidget().showToast(
+          msgText.isEmpty ? 'Failed to submit your request' : msgText,
+          context,
+        );
       }
     }catch (e) {
       leavesLoading = false;
