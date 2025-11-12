@@ -37,6 +37,7 @@ class _AttendancePageState extends State<AttendancePage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 0, // Home section
       appBar: const SecondaryAppBar(title: 'Attendance Report'),
       body: SafeArea(
         child: SingleChildScrollView(

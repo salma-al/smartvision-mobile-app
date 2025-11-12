@@ -33,14 +33,14 @@ class BottomIsland extends StatelessWidget {
           // 🔘 Home icon with navigation
           GestureDetector(
             onTap: () {
-              if (currentIndex != 0) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomePage(),
-                  ),
-                );
-              }
+              // Always navigate to HomePage, and pop all routes in between
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+                (route) => false,
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(12),
@@ -61,14 +61,14 @@ class BottomIsland extends StatelessWidget {
           // 🔘 Check-in icon with navigation
           GestureDetector(
             onTap: () {
-              if (currentIndex != 1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CheckInPage(),
-                  ),
-                );
-              }
+              // Always navigate to CheckInPage, and pop all routes in between
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CheckInPage(),
+                ),
+                (route) => false,
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(12),
@@ -93,14 +93,14 @@ class BottomIsland extends StatelessWidget {
           // 🔘 Profile icon with navigation
           GestureDetector(
             onTap: () {
-              if (currentIndex != 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfilePage(),
-                  ),
-                );
-              }
+              // Always navigate to ProfilePage, and pop all routes in between
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfilePage(),
+                ),
+                (route) => false,
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(12),

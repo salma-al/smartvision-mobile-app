@@ -10,6 +10,7 @@ class PersonalInformationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 2, // Profile section
       appBar: const SecondaryAppBar(
         title: 'Personal Information',
         showBackButton: true,

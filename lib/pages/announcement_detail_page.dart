@@ -15,6 +15,7 @@ class AnnouncementDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 2, // Profile section
       appBar: const SecondaryAppBar(
         title: 'Announcement',
         showBackButton: true,

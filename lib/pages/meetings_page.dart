@@ -316,6 +316,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
     final dropdownKey = GlobalKey();
 
     return BaseScaffold(
+      currentNavIndex: 0, // Home section
       appBar: const SecondaryAppBar(title: 'Meetings'),
       body: SafeArea(
         child: SingleChildScrollView(

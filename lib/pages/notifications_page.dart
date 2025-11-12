@@ -10,6 +10,7 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 0, // Home section
       appBar: SecondaryAppBar(
         title: 'Notifications',
         notificationCount: 3,

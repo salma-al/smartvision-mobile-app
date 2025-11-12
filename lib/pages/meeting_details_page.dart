@@ -63,17 +63,20 @@ class MeetingDetailsPage extends StatelessWidget {
     final status = 'Planned'; // This would come from data
 
     return BaseScaffold(
-      backgroundColor: AppColors.white,
+      currentNavIndex: 0, // Home section
       appBar: const SecondaryAppBar(title: 'Meeting Details'),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.pagePaddingHorizontal,
-            vertical: AppSpacing.pagePaddingVertical,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          padding: const EdgeInsets.all(16),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // Title and Status Badge
               Row(
                 children: [
@@ -311,6 +314,7 @@ class MeetingDetailsPage extends StatelessWidget {
                 },
               ),
             ],
+            ),
           ),
         ),
       ),

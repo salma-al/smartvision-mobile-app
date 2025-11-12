@@ -114,6 +114,7 @@ class _SalaryHistoryPageState extends State<SalaryHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 2, // Profile section
       backgroundColor: AppColors.backgroundColor,
       appBar: const SecondaryAppBar(
         title: 'Salary History',

@@ -16,6 +16,7 @@ class SalaryDetailPage extends StatelessWidget {
     final details = salary['details'] as Map<String, dynamic>;
     
     return BaseScaffold(
+      currentNavIndex: 2, // Profile section
       backgroundColor: AppColors.backgroundColor,
       appBar: const SecondaryAppBar(
         title: 'Salary Details',

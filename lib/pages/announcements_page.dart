@@ -82,6 +82,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 2, // Profile section
       backgroundColor: AppColors.backgroundColor,
       appBar: const SecondaryAppBar(
         title: 'Announcement',

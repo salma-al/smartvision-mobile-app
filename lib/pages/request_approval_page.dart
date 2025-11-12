@@ -18,6 +18,7 @@ class _RequestApprovalPageState extends State<RequestApprovalPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 0, // Home section
       appBar: const SecondaryAppBar(title: 'Request Approval'),
       body: SafeArea(
         child: SingleChildScrollView(

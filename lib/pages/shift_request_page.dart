@@ -202,6 +202,7 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 0, // Home section
       appBar: const SecondaryAppBar(title: 'Shift Request'),
       body: SafeArea(
         child: SingleChildScrollView(

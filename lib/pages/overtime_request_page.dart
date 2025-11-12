@@ -218,6 +218,7 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 0, // Home section
       appBar: const SecondaryAppBar(title: 'Overtime Request'),
       body: SafeArea(
         child: SingleChildScrollView(
