@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
 import '../widgets/secondary_app_bar.dart';
+import 'meeting_details_page.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({super.key});
@@ -435,8 +436,18 @@ class _MeetingsPageState extends State<MeetingsPage> {
                           colorIndex: _getColorIndexForMeeting(originalIndex),
                           onEyeTap: () {
                             // Navigate to meeting details page
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Opening ${meeting['title']} details')),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MeetingDetailsPage(
+                                  title: meeting['title'],
+                                  date: meeting['date'],
+                                  time: meeting['time'],
+                                  duration: meeting['duration'],
+                                  attendees: List<String>.from(meeting['attendees']),
+                                  colorIndex: _getColorIndexForMeeting(originalIndex),
+                                ),
+                              ),
                             );
                           },
                         ),

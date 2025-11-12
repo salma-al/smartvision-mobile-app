@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
 import '../widgets/secondary_app_bar.dart';
+import '../widgets/attachment_card.dart';
 
 class AnnouncementDetailPage extends StatelessWidget {
   final Map<String, dynamic> announcement;
@@ -126,62 +127,14 @@ class AnnouncementDetailPage extends StatelessWidget {
   }
 
   Widget _buildAttachmentCard(Map<String, String> attachment) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundColor,
-        borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
-      ),
-      child: Row(
-        children: [
-          // PDF Icon
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.red,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.picture_as_pdf,
-              color: AppColors.white,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 12),
-          
-          // File Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  attachment['name'] ?? '',
-                  style: AppTypography.p14(),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  attachment['type'] ?? '',
-                  style: AppTypography.helperTextSmall(),
-                ),
-              ],
-            ),
-          ),
-          
-          // Download Button
-          IconButton(
-            icon: const Icon(
-              Icons.download_outlined,
-              color: AppColors.darkText,
-              size: 24,
-            ),
-            onPressed: () {
-              // Handle download
-            },
-          ),
-        ],
-      ),
+    return AttachmentCard(
+      fileName: attachment['name'] ?? '',
+      fileType: attachment['type'] ?? '',
+      onDownload: () {
+        // Handle download
+      },
     );
   }
+
 }
 
