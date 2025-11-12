@@ -211,7 +211,10 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       currentNavIndex: 0, // Home section
-      appBar: const SecondaryAppBar(title: 'Leave Request'),
+      appBar: const SecondaryAppBar(
+        title: 'Leave Request',
+        notificationCount: AppColors.globalNotificationCount,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(

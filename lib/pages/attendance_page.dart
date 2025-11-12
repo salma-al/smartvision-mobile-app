@@ -38,7 +38,10 @@ class _AttendancePageState extends State<AttendancePage> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       currentNavIndex: 0, // Home section
-      appBar: const SecondaryAppBar(title: 'Attendance Report'),
+      appBar: const SecondaryAppBar(
+        title: 'Attendance Report',
+        notificationCount: AppColors.globalNotificationCount,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(

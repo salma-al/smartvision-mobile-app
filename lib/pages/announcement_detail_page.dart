@@ -19,7 +19,7 @@ class AnnouncementDetailPage extends StatelessWidget {
       appBar: const SecondaryAppBar(
         title: 'Announcement',
         showBackButton: true,
-        notificationCount: 0,
+        notificationCount: AppColors.globalNotificationCount,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

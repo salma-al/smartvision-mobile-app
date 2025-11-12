@@ -14,7 +14,7 @@ class PersonalInformationPage extends StatelessWidget {
       appBar: const SecondaryAppBar(
         title: 'Personal Information',
         showBackButton: true,
-        notificationCount: 0,
+        notificationCount: AppColors.globalNotificationCount,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

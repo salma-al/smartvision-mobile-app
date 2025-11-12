@@ -14,7 +14,7 @@ class CompanyOverviewPage extends StatelessWidget {
       appBar: const SecondaryAppBar(
         title: 'Company Overview',
         showBackButton: true,
-        notificationCount: 0,
+        notificationCount: AppColors.globalNotificationCount,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

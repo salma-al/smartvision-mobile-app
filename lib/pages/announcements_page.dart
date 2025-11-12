@@ -87,7 +87,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
       appBar: const SecondaryAppBar(
         title: 'Announcement',
         showBackButton: true,
-        notificationCount: 0,
+        notificationCount: AppColors.globalNotificationCount,
       ),
       body: Column(
         children: [

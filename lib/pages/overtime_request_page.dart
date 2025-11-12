@@ -219,7 +219,10 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       currentNavIndex: 0, // Home section
-      appBar: const SecondaryAppBar(title: 'Overtime Request'),
+      appBar: const SecondaryAppBar(
+        title: 'Overtime Request',
+        notificationCount: AppColors.globalNotificationCount,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(

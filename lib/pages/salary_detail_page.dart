@@ -21,7 +21,7 @@ class SalaryDetailPage extends StatelessWidget {
       appBar: const SecondaryAppBar(
         title: 'Salary Details',
         showBackButton: true,
-        notificationCount: 0,
+        notificationCount: AppColors.globalNotificationCount,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

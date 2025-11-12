@@ -18,7 +18,7 @@ class ProfilePage extends StatelessWidget {
       appBar: const SecondaryAppBar(
         title: 'Profile',
         showBackButton: false,
-        notificationCount: 0,
+        notificationCount: AppColors.globalNotificationCount,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

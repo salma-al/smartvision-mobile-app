@@ -19,7 +19,10 @@ class _RequestApprovalPageState extends State<RequestApprovalPage> {
   Widget build(BuildContext context) {
     return BaseScaffold(
       currentNavIndex: 0, // Home section
-      appBar: const SecondaryAppBar(title: 'Request Approval'),
+      appBar: const SecondaryAppBar(
+        title: 'Request Approval',
+        notificationCount: AppColors.globalNotificationCount,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(

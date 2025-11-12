@@ -64,7 +64,10 @@ class MeetingDetailsPage extends StatelessWidget {
 
     return BaseScaffold(
       currentNavIndex: 0, // Home section
-      appBar: const SecondaryAppBar(title: 'Meeting Details'),
+      appBar: const SecondaryAppBar(
+        title: 'Meeting Details',
+        notificationCount: AppColors.globalNotificationCount,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

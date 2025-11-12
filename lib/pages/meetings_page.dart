@@ -317,7 +317,10 @@ class _MeetingsPageState extends State<MeetingsPage> {
 
     return BaseScaffold(
       currentNavIndex: 0, // Home section
-      appBar: const SecondaryAppBar(title: 'Meetings'),
+      appBar: const SecondaryAppBar(
+        title: 'Meetings',
+        notificationCount: AppColors.globalNotificationCount,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(

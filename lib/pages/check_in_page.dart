@@ -143,6 +143,7 @@ class _CheckInPageState extends State<CheckInPage> {
       appBar: const SecondaryAppBar(
         title: 'Check In',
         showBackButton: false,
+        notificationCount: AppColors.globalNotificationCount,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(

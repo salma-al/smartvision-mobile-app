@@ -6,6 +6,7 @@ import 'providers/theme_provider.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
 import 'pages/meetings_page.dart';
+import 'pages/inbox_page.dart';
 
 void main() {
   runApp(const SmartVisionApp());
@@ -32,6 +33,7 @@ class SmartVisionApp extends StatelessWidget {
               '/login': (context) => const LoginPage(),
               '/home': (context) => const HomePage(),
               '/meetings': (context) => const MeetingsPage(),
+              '/inbox': (context) => const InboxPage(),
             },
           );
         },

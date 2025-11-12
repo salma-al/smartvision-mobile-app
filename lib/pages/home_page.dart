@@ -19,7 +19,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isCheckedIn = true;
   String checkInTime = "03:45:33";
-  int notificationCount = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +89,7 @@ class _HomePageState extends State<HomePage> {
                 height: 18.5,
                 color: AppColors.darkText,
               ),
-              if (notificationCount > 0)
+              if (AppColors.globalNotificationCount > 0)
                 Positioned(
                   right: -6,
                   top: -10,
@@ -105,7 +104,7 @@ class _HomePageState extends State<HomePage> {
                       minHeight: 12,
                     ),
                     child: Text(
-                      '$notificationCount',
+                      '${AppColors.globalNotificationCount}',
                       style: const TextStyle(
                         color: AppColors.white,
                         fontSize: 10,
@@ -298,6 +297,7 @@ class _HomePageState extends State<HomePage> {
                      color: const Color(0xFF19868B),
                    ),
                    const Color(0xFF19868B),
+                   badgeCount: AppColors.unreadEmailsCount,
                  ),
                  _buildSizedActivityCard(
                    itemWidth,
@@ -350,6 +350,8 @@ class _HomePageState extends State<HomePage> {
           );
         } else if (title == "Meetings"){
           Navigator.pushNamed(context, '/meetings');
+        } else if (title == "Inbox"){
+          Navigator.pushNamed(context, '/inbox');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Navigate to $title')),

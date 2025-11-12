@@ -13,8 +13,9 @@ class NotificationsPage extends StatelessWidget {
       currentNavIndex: 0, // Home section
       appBar: SecondaryAppBar(
         title: 'Notifications',
-        notificationCount: 3,
+        notificationCount: AppColors.globalNotificationCount,
         showTitleBadge: true,
+        showNotificationIcon: false,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

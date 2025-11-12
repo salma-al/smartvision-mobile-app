@@ -119,7 +119,7 @@ class _SalaryHistoryPageState extends State<SalaryHistoryPage> {
       appBar: const SecondaryAppBar(
         title: 'Salary History',
         showBackButton: true,
-        notificationCount: 0,
+        notificationCount: AppColors.globalNotificationCount,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
