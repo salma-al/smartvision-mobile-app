@@ -50,10 +50,10 @@ class AppColors {
   static const Color unreadDot = Color(0xFF155DFC);
   
   // Global notification count
-  static const int globalNotificationCount = 3;
+  static const int globalNotificationCount = 4;
   
   // Global unread emails count
-  static const int unreadEmailsCount = 4;
+  static const int unreadEmailsCount = globalNotificationCount;
   
   // Meeting colors (dots and record backgrounds)
   static const Color meeting1 = Color(0xFF4ECDC4);

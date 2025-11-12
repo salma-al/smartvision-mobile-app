@@ -489,7 +489,7 @@ class _InboxPageState extends State<InboxPage> {
       currentNavIndex: 0,
       appBar: SecondaryAppBar(
         title: 'Inbox',
-        notificationCount: AppColors.unreadEmailsCount,
+        notificationCount: AppColors.globalNotificationCount,
         showTitleBadge: true,
       ),
       body: SafeArea(

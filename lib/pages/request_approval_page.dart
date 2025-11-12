@@ -298,7 +298,7 @@ class _ApprovalRecord extends StatelessWidget {
                     backgroundColor: AppColors.lightRed,
                     textColor: AppColors.red,
                     onPressed: onReject,
-                    width: 82,
+                    width: 85,
                   ),
                   const SizedBox(width: 8),
                   _ActionButton(
@@ -306,7 +306,7 @@ class _ApprovalRecord extends StatelessWidget {
                     backgroundColor: AppColors.lightGreen,
                     textColor: AppColors.green,
                     onPressed: onApprove,
-                    width: 82,
+                    width: 85,
                   ),
                 ],
               ],

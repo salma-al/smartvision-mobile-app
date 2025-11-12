@@ -126,5 +126,3 @@ class SecondaryAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-
-

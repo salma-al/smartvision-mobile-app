@@ -387,63 +387,68 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
 
-        // Attachment
-        const FormLabel('Attachment (Optional)'),
-        const SizedBox(height: AppSpacing.margin12),
-        GestureDetector(
-          onTap: () {
-            // Simulate file picking
-            setState(() {
-              _attachmentFileName = 'medical_certificate.pdf';
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('File attached successfully')),
-            );
-          },
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-              boxShadow: AppShadows.popupShadow,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  _attachmentFileName != null ? Icons.attach_file : Icons.upload_file_outlined,
-                  size: 20,
-                  color: AppColors.darkText,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _attachmentFileName ?? 'Upload file...',
-                    style: AppTypography.p14(
-                      color: _attachmentFileName != null 
-                          ? AppColors.darkText 
-                          : AppColors.helperText,
+        // Attachment (only for Sick Leave)
+        if (_leaveType == 'Sick Leave') ...[
+          const FormLabel('Attachment (Optional)'),
+          const SizedBox(height: AppSpacing.margin12),
+          GestureDetector(
+            onTap: () {
+              // Simulate file picking
+              setState(() {
+                _attachmentFileName = 'medical_certificate.pdf';
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('File attached successfully')),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                boxShadow: AppShadows.popupShadow,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _attachmentFileName != null
+                        ? Icons.attach_file
+                        : Icons.upload_file_outlined,
+                    size: 20,
+                    color: AppColors.darkText,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _attachmentFileName ?? 'Upload file...',
+                      style: AppTypography.p14(
+                        color: _attachmentFileName != null
+                            ? AppColors.darkText
+                            : AppColors.helperText,
+                      ),
                     ),
                   ),
-                ),
-                if (_attachmentFileName != null)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _attachmentFileName = null;
-                      });
-                    },
-                    child: const Icon(
-                      Icons.close,
-                      size: 20,
-                      color: AppColors.red,
+                  if (_attachmentFileName != null)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _attachmentFileName = null;
+                        });
+                      },
+                      child: const Icon(
+                        Icons.close,
+                        size: 20,
+                        color: AppColors.red,
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.sectionMargin),
+          const SizedBox(height: AppSpacing.sectionMargin),
+        ],
+
 
         // Submit button
         Row(
