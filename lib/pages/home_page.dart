@@ -348,6 +348,8 @@ class _HomePageState extends State<HomePage> {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const RequestApprovalPage())
           );
+        } else if (title == "Meetings"){
+          Navigator.pushNamed(context, '/meetings');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Navigate to $title')),

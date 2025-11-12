@@ -48,6 +48,21 @@ class AppColors {
   // Notification colors
   static const Color unreadBg = Color(0xFFEFF6FF);
   static const Color unreadDot = Color(0xFF155DFC);
+  
+  // Meeting colors (dots and record backgrounds)
+  static const Color meeting1 = Color(0xFF4ECDC4);
+  static const Color meeting2 = Color(0xFFFF6B6B);
+  static const Color meeting3 = Color(0xFF96CEB4);
+  static const Color meeting4 = Color(0xFFFFEAA7);
+  static const Color meeting5 = Color(0xFF45B7D1);
+  
+  static const List<Color> meetingColors = [
+    meeting1,
+    meeting2,
+    meeting3,
+    meeting4,
+    meeting5,
+  ];
 
   // Dynamic accent color based on company
   static Color getAccentColor(CompanyTheme company) => company.accentColor;
