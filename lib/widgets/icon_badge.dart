@@ -115,6 +115,8 @@ class LeaveStatusBadge extends StatelessWidget {
         return {'bg': AppColors.lightYellow, 'text': AppColors.yellow};
       case 'Manager Approved':
         return {'bg': AppColors.lightTeal, 'text': AppColors.teal};
+      case 'Cancelled':
+        return {'bg': AppColors.greyStatusBG, 'text': AppColors.greyStatus};
       case 'Rejected':
       default:
         return {'bg': AppColors.lightRed, 'text': AppColors.red};

@@ -11,6 +11,7 @@ class MeetingDetailsPage extends StatelessWidget {
   final String duration;
   final List<String> attendees;
   final int colorIndex;
+  final String status;
 
   const MeetingDetailsPage({
     super.key,
@@ -20,6 +21,7 @@ class MeetingDetailsPage extends StatelessWidget {
     required this.duration,
     required this.attendees,
     required this.colorIndex,
+    required this.status,
   });
 
   String _formatDate(DateTime date) {
@@ -38,7 +40,8 @@ class MeetingDetailsPage extends StatelessWidget {
       case 'completed':
         return AppColors.green;
       case 'canceled':
-        return AppColors.red;
+      case 'cancelled':
+        return AppColors.greyStatus;
       default:
         return AppColors.unreadDot;
     }
@@ -51,7 +54,8 @@ class MeetingDetailsPage extends StatelessWidget {
       case 'completed':
         return AppColors.lightGreen;
       case 'canceled':
-        return AppColors.lightRed;
+      case 'cancelled':
+        return AppColors.greyStatusBG;
       default:
         return AppColors.unreadBg;
     }
@@ -60,7 +64,6 @@ class MeetingDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final meetingColor = AppColors.meetingColors[colorIndex];
-    final status = 'Planned'; // This would come from data
 
     return BaseScaffold(
       currentNavIndex: 0, // Home section

@@ -20,10 +20,10 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
     {
       'title': 'System Maintenance Scheduled',
       'description': 'Our systems will undergo scheduled maintenance this weekend. Services may',
-      'date': 'Oct 2, 2024',
+      'date': 'Oct 2, 2025',
       'tag': 'System',
       'isNew': true,
-      'fullDescription': 'Our systems will undergo scheduled maintenance this weekend. Services may be temporarily unavailable. We apologize for any inconvenience this may cause. The maintenance window is scheduled for Saturday, October 2nd from 2:00 AM to 6:00 AM EST. During this time, you may experience intermittent service disruptions. All systems are expected to be fully operational by 7:00 AM EST.',
+      'fullDescription': 'Our systems will undergo scheduled maintenance this weekend. Services may be temporarily unavailable...',
       'attachment': {
         'name': 'Maintenance_Schedule.pdf',
         'type': 'PDF Document',
@@ -32,16 +32,16 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
     {
       'title': 'New Employee Benefits',
       'description': 'We\'re excited to announce enhanced health and wellness benefits starting next',
-      'date': 'Oct 1, 2024',
+      'date': 'Oct 1, 2025',
       'tag': 'Benefits',
       'isNew': true,
-      'fullDescription': 'We\'re excited to announce enhanced health and wellness benefits starting next month. These new benefits include improved healthcare coverage, mental health support, and wellness programs.',
+      'fullDescription': 'We\'re excited to announce enhanced health and wellness benefits starting next month...',
       'attachment': null,
     },
     {
       'title': 'Q4 Company All-Hands Meeting',
       'description': 'Join us for our quarterly all-hands meeting to review progress and discuss upcoming',
-      'date': 'Sep 28, 2024',
+      'date': 'Sep 28, 2025',
       'tag': 'HR',
       'isNew': false,
       'fullDescription': 'Join us for our quarterly all-hands meeting to review progress and discuss upcoming initiatives for Q4.',
@@ -50,7 +50,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
     {
       'title': 'Security Policy Updates',
       'description': 'Important updates to our security policies and procedures. All employees must review and',
-      'date': 'Sep 25, 2024',
+      'date': 'Sep 25, 2025',
       'tag': 'Security',
       'isNew': false,
       'fullDescription': 'Important updates to our security policies and procedures. All employees must review and acknowledge these changes.',
@@ -59,7 +59,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
     {
       'title': 'Employee Recognition Program',
       'description': 'Introducing our new peer-to-peer recognition program to celebrate outstanding',
-      'date': 'Sep 20, 2024',
+      'date': 'Sep 20, 2025',
       'tag': 'HR',
       'isNew': false,
       'fullDescription': 'Introducing our new peer-to-peer recognition program to celebrate outstanding contributions and achievements.',
@@ -68,34 +68,30 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
   ];
 
   List<Map<String, dynamic>> get filteredAnnouncements {
-    if (selectedCategory == 'All') {
-      return announcements;
-    }
+    if (selectedCategory == 'All') return announcements;
     return announcements.where((a) => a['tag'] == selectedCategory).toList();
   }
 
-  int get newUpdatesCount =>
-      announcements.where((a) => a['isNew'] == true).length;
-  
+  int get newUpdatesCount => announcements.where((a) => a['isNew']).length;
   int get highPriorityCount => 2; // Mock data
 
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      currentNavIndex: 2, // Profile section
+      currentNavIndex: 2,
       backgroundColor: AppColors.backgroundColor,
       appBar: const SecondaryAppBar(
         title: 'Announcement',
         showBackButton: true,
         notificationCount: AppColors.globalNotificationCount,
       ),
-      body: Column(
-        children: [
-          // Stats Section
-          Container(
-            color: AppColors.backgroundColor,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-            child: Row(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Stats Section
+            Row(
               children: [
                 Expanded(
                   child: _buildStatCard(
@@ -114,13 +110,10 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                 ),
               ],
             ),
-          ),
-          
-          // Filter Section
-          Container(
-            color: AppColors.backgroundColor,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: FilterPanel(
+            const SizedBox(height: 30),
+
+            // Filter Section
+            FilterPanel(
               pageTitle: 'Announcement Filters',
               pageSubtitle: 'View and filter your data',
               typeLabel: 'Category',
@@ -131,41 +124,27 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                 });
               },
             ),
-          ),
-          
-          // List Section
-          Expanded(
-            child: Container(
-              color: AppColors.backgroundColor,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'All Announcements',
-                        style: AppTypography.h4(),
-                      ),
-                      Text(
-                        '${filteredAnnouncements.length} total',
-                        style: AppTypography.helperText(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  ...filteredAnnouncements.map((announcement) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildAnnouncementCard(announcement),
-                    );
-                  }).toList(),
-                ],
-              ),
+            const SizedBox(height: 16),
+
+            // List Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('All Announcements', style: AppTypography.h4()),
+                Text('${filteredAnnouncements.length} total', style: AppTypography.helperText()),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+
+            // Announcements
+            ...filteredAnnouncements.map((announcement) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildAnnouncementCard(announcement),
+              );
+            }).toList(),
+          ],
+        ),
       ),
     );
   }
@@ -175,11 +154,8 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
     required String label,
     required int count,
   }) {
-    // Use red color for alert/high priority icon
-    final iconColor = iconPath.contains('alert') 
-        ? AppColors.notificationBadgeColor 
-        : AppColors.darkText;
-    
+    final iconColor = iconPath.contains('alert') ? AppColors.notificationBadgeColor : AppColors.darkText;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -189,23 +165,11 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
       ),
       child: Column(
         children: [
-          SvgPicture.asset(
-            iconPath,
-            width: 24,
-            height: 24,
-            color: iconColor,
-          ),
+          SvgPicture.asset(iconPath, width: 24, height: 24, color: iconColor),
           const SizedBox(height: 8),
-          Text(
-            label,
-            style: AppTypography.helperText(),
-            textAlign: TextAlign.center,
-          ),
+          Text(label, style: AppTypography.helperText(), textAlign: TextAlign.center),
           const SizedBox(height: 4),
-          Text(
-            '$count',
-            style: AppTypography.h3(),
-          ),
+          Text('$count', style: AppTypography.h3()),
         ],
       ),
     );
@@ -217,9 +181,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AnnouncementDetailPage(
-              announcement: announcement,
-            ),
+            builder: (context) => AnnouncementDetailPage(announcement: announcement),
           ),
         );
       },
@@ -238,29 +200,16 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                 children: [
                   Row(
                     children: [
-                      Expanded(
-                        child: Text(
-                          announcement['title'],
-                          style: AppTypography.p16(),
-                        ),
-                      ),
+                      Expanded(child: Text(announcement['title'], style: AppTypography.p16())),
                       if (announcement['isNew'])
                         Container(
                           margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: AppColors.lightGreen,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
-                            'New',
-                            style: AppTypography.helperTextSmall(
-                              color: AppColors.green,
-                            ),
-                          ),
+                          child: Text('New', style: AppTypography.helperTextSmall(color: AppColors.green)),
                         ),
                     ],
                   ),
@@ -274,16 +223,9 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: AppColors.helperText,
-                      ),
+                      Icon(Icons.access_time, size: 14, color: AppColors.helperText),
                       const SizedBox(width: 4),
-                      Text(
-                        announcement['date'],
-                        style: AppTypography.helperTextSmall(),
-                      ),
+                      Text(announcement['date'], style: AppTypography.helperTextSmall()),
                       const SizedBox(width: 12),
                       _buildTagChip(announcement['tag']),
                     ],
@@ -292,11 +234,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(
-              Icons.chevron_right,
-              color: AppColors.lightText,
-              size: 24,
-            ),
+            const Icon(Icons.chevron_right, color: AppColors.lightText, size: 24),
           ],
         ),
       ),
@@ -331,15 +269,8 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        tag,
-        style: AppTypography.helperTextSmall(color: textColor),
-      ),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(4)),
+      child: Text(tag, style: AppTypography.helperTextSmall(color: textColor)),
     );
   }
 }
-

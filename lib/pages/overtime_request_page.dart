@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:untitled1/widgets/filter_panel.dart';
@@ -26,6 +27,8 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
   TimeOfDay _endTime = TimeOfDay.now();
 
   OverlayEntry? _calendarOverlay;
+
+  OverlayEntry? _timeOverlay;
 
   // ---------- Inline Date Picker ----------
   void _showInlineDatePicker({
@@ -184,24 +187,93 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
     _calendarOverlay = null;
   }
 
-  Future<void> _pickTime({
+  // ---------- Inline Time Picker ----------
+  void _showInlineTimePicker({
+    required BuildContext fieldContext,
     required bool isStart,
-    required BuildContext context,
-  }) async {
+  }) {
+    _hideInlineTimePicker();
+
+    final renderBox = fieldContext.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final fieldSize = renderBox.size;
+    final fieldOffset = renderBox.localToGlobal(Offset.zero);
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    const pickerHeight = 180.0;
+    final spaceBelow = screenHeight - fieldOffset.dy - fieldSize.height;
+    final spaceAbove = fieldOffset.dy;
+
+    final showAbove =
+        spaceBelow < pickerHeight && spaceAbove > spaceBelow;
+
+    final top = showAbove
+        ? fieldOffset.dy - pickerHeight - 8
+        : fieldOffset.dy + fieldSize.height + 8;
+
     final initial = isStart ? _startTime : _endTime;
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: initial,
+
+    _timeOverlay = OverlayEntry(
+      builder: (context) {
+        return Stack(
+          children: [
+            // Close when tapping outside
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: _hideInlineTimePicker,
+                behavior: HitTestBehavior.opaque,
+              ),
+            ),
+
+            Positioned(
+              left: AppSpacing.pagePaddingHorizontal,
+              right: AppSpacing.pagePaddingHorizontal,
+              top: top,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  height: pickerHeight,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: AppShadows.popupShadow,
+                  ),
+                  child: CupertinoTimerPicker(
+                    mode: CupertinoTimerPickerMode.hm,
+                    initialTimerDuration: Duration(
+                      hours: initial.hour,
+                      minutes: initial.minute,
+                    ),
+                    onTimerDurationChanged: (duration) {
+                      final newTime = TimeOfDay(
+                        hour: duration.inHours,
+                        minute: duration.inMinutes % 60,
+                      );
+
+                      setState(() {
+                        if (isStart) {
+                          _startTime = newTime;
+                        } else {
+                          _endTime = newTime;
+                        }
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _startTime = picked;
-        } else {
-          _endTime = picked;
-        }
-      });
-    }
+
+    Overlay.of(context, debugRequiredFor: widget)?.insert(_timeOverlay!);
+  }
+
+  void _hideInlineTimePicker() {
+    _timeOverlay?.remove();
+    _timeOverlay = null;
   }
 
   String _formatDate(DateTime d) =>
@@ -281,7 +353,10 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
                   _DateField(
                     label: _formatTime(_startTime),
                     icon: Icons.access_time,
-                    onTap: (context) => _pickTime(isStart: true, context: context),
+                    onTap: (context) => _showInlineTimePicker(
+                      fieldContext: context,
+                      isStart: true,
+                    ),
                   ),
                 ],
               ),
@@ -296,7 +371,10 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
                   _DateField(
                     label: _formatTime(_endTime),
                     icon: Icons.access_time,
-                    onTap: (context) => _pickTime(isStart: false, context: context),
+                    onTap: (context) => _showInlineTimePicker(
+                      fieldContext: context,
+                      isStart: false,
+                    ),
                   ),
                 ],
               ),

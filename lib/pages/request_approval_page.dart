@@ -44,9 +44,9 @@ class _RequestApprovalPageState extends State<RequestApprovalPage> {
                   'Shift Requests',
                 ],
                 statusOptions: const [
-                  'Request Status',
                   'Requested',
                   'Approved',
+                  'Manager Approved',
                   'Rejected',
                   'Cancelled',
                 ],

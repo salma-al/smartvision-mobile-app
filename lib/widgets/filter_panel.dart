@@ -40,8 +40,13 @@ class _FilterPanelState extends State<FilterPanel> {
   @override
   void initState() {
     super.initState();
+
     _selectedType = widget.typeOptions.first;
     _selectedStatus = widget.statusOptions?.first ?? '';
+
+    final now = DateTime.now();
+    _fromDate = DateTime(now.year, now.month, 1);
+    _toDate = now;
   }
 
   Widget _buildFilterButton() {

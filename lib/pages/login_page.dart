@@ -14,6 +14,8 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
+  bool _rememberMe = true;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -185,33 +187,35 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 12),
 
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      // TODO: Handle forgot password
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Forgot password functionality coming soon')),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(0, 0),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    // Remember Me
+                    Row(
+                      children: [
+                        Transform.translate(
+                          offset: const Offset(-8, 0), // shifts checkbox left to align perfectly
+                          child: Checkbox(
+                            value: _rememberMe,
+                            onChanged: (value) {
+                              setState(() {
+                                _rememberMe = value ?? false;
+                              });
+                            },
+                            activeColor: AppColors.svecColor,
+                            side: BorderSide(color: AppColors.lightText),
+                          ),
+                        ),
+                        Text(
+                          "Remember me",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.darkText,
+                            fontFamily: 'DM Sans',
+                          ),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      'Forgot password?',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.darkText,
-                        fontFamily: 'DM Sans',
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 200),
+
+                    const SizedBox(height: 40),
 
                 // Sign In Button
                 SizedBox(

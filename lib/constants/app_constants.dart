@@ -41,7 +41,9 @@ class AppColors {
   static const Color lightYellow = Color(0xFFFEF9C2);
   static const Color lightGrey = Color(0xFFF9FAFB);
   static const Color greyText = Color(0xFF76747B);
-  
+  static const Color greyStatus = Color(0xFF575D63);
+  static const Color greyStatusBG = Color(0xFFE1E2E4);
+
   // SVEC Brand Color
   static const Color svecColor = Color(0xFF19868B);
   
@@ -79,6 +81,7 @@ class AppSpacing {
   static const double sameSectionMargin = 16.0;
   static const double pagePaddingHorizontal = 16.0;
   static const double pagePaddingVertical = 30.0;
+  static const double pagePaddingVerticalSmall = 15.0;
   static const double margin12 = 12.0;
 }
 

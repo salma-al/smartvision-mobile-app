@@ -49,32 +49,32 @@ class ProfilePage extends StatelessWidget {
                             'Salma Ali',
                             style: AppTypography.h3(),
                           ),
-                          const SizedBox(height: 4),
-                          
+                          const SizedBox(height: 16),
+
                           // ID
-                          Text(
-                            'SVG-014',
-                            style: AppTypography.p12(color: AppColors.lightText),
-                          ),
-                          const SizedBox(height: 24),
+                          // Text(
+                          //   'SVG-014',
+                          //   style: AppTypography.p12(color: AppColors.lightText),
+                          // ),
+                          // const SizedBox(height: 24),
                           
                           // Stats Row
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              _buildStatItem('Heading', 'Lorem Ipsum'),
+                              _buildStatItem('Shift Hours', '9:00 - 18:00'),
                               Container(
                                 width: 1,
                                 height: 40,
                                 color: AppColors.dividerLight,
                               ),
-                              _buildStatItem('Heading', 'Lorem Ipsum'),
+                              _buildStatItem('Employee No.', 'SVG-014'),
                               Container(
                                 width: 1,
                                 height: 40,
                                 color: AppColors.dividerLight,
                               ),
-                              _buildStatItem('Heading', 'Lorem Ipsum'),
+                              _buildStatItem('Joined', '01 Sep 2025'),
                             ],
                           ),
                         ],

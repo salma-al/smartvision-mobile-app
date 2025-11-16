@@ -27,7 +27,7 @@ class SalaryDetailPage extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.pagePaddingHorizontal,
-            vertical: AppSpacing.pagePaddingVertical,
+            vertical: AppSpacing.pagePaddingVerticalSmall,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

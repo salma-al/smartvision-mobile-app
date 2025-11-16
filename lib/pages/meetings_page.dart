@@ -27,6 +27,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
       'time': '09:00 - 09:30',
       'duration': '30 min',
       'attendees': ['JD', 'SM', 'AL'],
+      'status': 'Completed'
     },
     {
       'title': 'Product Review',
@@ -34,20 +35,23 @@ class _MeetingsPageState extends State<MeetingsPage> {
       'time': '14:00 - 15:30',
       'duration': '1h 30 min',
       'attendees': ['TB', 'LG', 'KM', 'AR', 'JS'],
+      'status': 'Cancelled'
     },
     {
       'title': 'Client Call',
-      'date': DateTime(2025, 11, 7),
+      'date': DateTime(2025, 11, 16),
       'time': '11:00 - 12:00',
       'duration': '1h',
       'attendees': ['DL', 'PK'],
+      'status': 'Completed'
     },
     {
       'title': 'Design Workshop',
-      'date': DateTime(2025, 11, 8),
+      'date': DateTime(2025, 11, 17),
       'time': '10:00 - 11:30',
       'duration': '1h 30 min',
       'attendees': ['CT', 'AP', 'RM'],
+      'status': 'Planned'
     },
     {
       'title': 'Sprint Planning',
@@ -55,6 +59,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
       'time': '13:00 - 15:00',
       'duration': '2h',
       'attendees': ['KS', 'NJ', 'MW', 'AB'],
+      'status': 'Completed'
     },
     {
       'title': 'Sprint Planning',
@@ -62,6 +67,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
       'time': '13:00 - 15:00',
       'duration': '2h',
       'attendees': ['KS', 'NJ', 'MW', 'AB'],
+      'status': 'Cancelled'
     },
   ];
 
@@ -450,6 +456,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
                                   duration: meeting['duration'],
                                   attendees: List<String>.from(meeting['attendees']),
                                   colorIndex: _getColorIndexForMeeting(originalIndex),
+                                  status: meeting['status'],
                                 ),
                               ),
                             );
