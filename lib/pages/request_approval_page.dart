@@ -111,6 +111,18 @@ class _RequestApprovalPageState extends State<RequestApprovalPage> {
                     submitted: 'Oct 23',
                     showActions: false,
                   ),
+                  const SizedBox(height: 12),
+                  _ApprovalRecord(
+                    requestType: 'Excuse',
+                    status: 'Manager Approved',
+                    employeeName: 'Omar ELwazeery',
+                    date: 'Oct 03',
+                    description: 'Client meeting in Dubai',
+                    submitted: 'Oct 02',
+                    hoursText: "Leave Early",
+                    onReject: () => _handleReject('Omar ELwazeery'),
+                    onApprove: () => _handleApprove('Omar ELwazeery'),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -149,7 +161,7 @@ class _ApprovalRecord extends StatelessWidget {
   final String description;
   final String submitted;
   final int? hours;
-  final bool showActions;
+  final String? hoursText;  final bool showActions;
   final bool hasAttachment;
   final String? attachmentName;
   final VoidCallback? onReject;
@@ -164,6 +176,7 @@ class _ApprovalRecord extends StatelessWidget {
     required this.description,
     required this.submitted,
     this.hours,
+    this.hoursText,
     this.showActions = true,
     this.hasAttachment = false,
     this.attachmentName,
@@ -259,13 +272,13 @@ class _ApprovalRecord extends StatelessWidget {
           ],
 
           // Hours badge (if applicable)
-          if (hours != null) ...[
+          if (hours != null || hoursText != null) ...[
             const SizedBox(height: 8),
             HoursBadge(
-              number: hours!,
+              number: hours,
+              text: hoursText,
               suffixText: hours == 1 ? 'hour' : 'hours',
-              iconAsset: 'assets/icons/clock_grey.svg',
-            ),
+            )
           ],
           const SizedBox(height: 8),
 

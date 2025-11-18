@@ -135,7 +135,7 @@ class _SalaryHistoryPageState extends State<SalaryHistoryPage> {
                 children: [
                   Expanded(
                     child: _buildStatCard(
-                      icon: Icons.attach_money,
+                      icon: Icons.currency_pound,
                       label: 'Base Salary',
                       value: '£8,500',
                     ),
@@ -144,8 +144,8 @@ class _SalaryHistoryPageState extends State<SalaryHistoryPage> {
                   Expanded(
                     child: _buildStatCard(
                       icon: Icons.trending_up,
-                      label: 'YTD Earnings',
-                      value: '£40,500',
+                      label: 'Latest Salary',
+                      value: '£9,500',
                     ),
                   ),
                 ],

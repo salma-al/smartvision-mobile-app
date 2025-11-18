@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:untitled1/widgets/_date_field.dart';
 import 'package:untitled1/widgets/filter_panel.dart';
+import 'package:untitled1/widgets/hours_badge.dart';
 import 'package:untitled1/widgets/icon_badge.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
@@ -26,164 +28,6 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
   String _excuseType = 'Late Arrival';
 
   OverlayEntry? _calendarOverlay;
-
-  void _showInlineDatePicker({
-    required bool isStart,
-    required BuildContext fieldContext,
-  }) {
-    _hideInlineDatePicker(); // close existing popup if open
-
-    final renderBox = fieldContext.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-
-    final fieldSize = renderBox.size;
-    final fieldOffset = renderBox.localToGlobal(Offset.zero);
-
-    _calendarOverlay = OverlayEntry(
-      builder: (context) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final screenHeight = MediaQuery.of(context).size.height;
-        final horizontalPadding = AppSpacing.pagePaddingHorizontal;
-        
-        // Calculate available space
-        const calendarHeight = 540.0;
-        final spaceBelow = screenHeight - fieldOffset.dy - fieldSize.height;
-        final spaceAbove = fieldOffset.dy;
-        
-        // Determine if calendar should show above or below
-        final showAbove = spaceBelow < calendarHeight && spaceAbove > spaceBelow;
-        final topPosition = showAbove 
-            ? fieldOffset.dy - calendarHeight - 8
-            : fieldOffset.dy + fieldSize.height + 8;
-        final maxHeight = showAbove 
-            ? (spaceAbove - 16).clamp(440.0, calendarHeight)
-            : (spaceBelow - 16).clamp(440.0, calendarHeight);
-
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Close popup when tapping outside
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: _hideInlineDatePicker,
-                behavior: HitTestBehavior.opaque,
-              ),
-            ),
-            Positioned(
-              left: horizontalPadding,
-              right: horizontalPadding,
-              top: topPosition,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: screenWidth - horizontalPadding * 2,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-                    boxShadow: AppShadows.popupShadow,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-                    child: Material(
-                      color: AppColors.white,
-                      child: Theme(
-                        data: ThemeData(
-                          colorScheme: ColorScheme.light(
-                            primary: AppColors.getAccentColor(CompanyTheme.groupCompany),
-                            onPrimary: Colors.white,
-                            onSurface: AppColors.darkText,
-                            surface: AppColors.white,
-                          ),
-                          textButtonTheme: TextButtonThemeData(
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppColors.getAccentColor(CompanyTheme.groupCompany),
-                            ),
-                          ),
-                          datePickerTheme: DatePickerThemeData(
-                            headerHeadlineStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              height: 0.5,
-                              letterSpacing: 0,
-                            ),
-                            headerHelpStyle: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400,
-                              height: 0.5,
-                              letterSpacing: 0,
-                            ),
-                            dayStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              height: 0.5,
-                              letterSpacing: 0,
-                            ),
-                            yearStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              height: 0.5,
-                              letterSpacing: 0,
-                            ),
-                            headerBackgroundColor: Colors.transparent,
-                            dividerColor: Colors.transparent,
-                            dayOverlayColor: WidgetStateProperty.resolveWith((states) {
-                              if (states.contains(WidgetState.selected)) {
-                                return AppColors.getAccentColor(CompanyTheme.groupCompany);
-                              }
-                              if (states.contains(WidgetState.hovered)) {
-                                return AppColors.getAccentColor(CompanyTheme.groupCompany).withOpacity(0.1);
-                              }
-                              return null;
-                            }),
-                            dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
-                              if (states.contains(WidgetState.selected)) {
-                                return AppColors.getAccentColor(CompanyTheme.groupCompany);
-                              }
-                              return null;
-                            }),
-                            dayForegroundColor: WidgetStateProperty.resolveWith((states) {
-                              if (states.contains(WidgetState.selected)) {
-                                return Colors.white;
-                              }
-                              return AppColors.darkText;
-                            }),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.zero,
-                          child: SizedBox(
-                            width: screenWidth - horizontalPadding * 2,
-                            child: CalendarDatePicker(
-                              initialDate: isStart ? _start : _end,
-                              firstDate: DateTime(DateTime.now().year - 1),
-                              lastDate: DateTime(DateTime.now().year + 2),
-                              onDateChanged: (picked) {
-                                setState(() {
-                                  if (isStart) {
-                                    _start = picked;
-                                    if (_end.isBefore(_start)) _end = _start;
-                                  } else {
-                                    _end = picked.isBefore(_start) ? _start : picked;
-                                  }
-                                });
-                                _hideInlineDatePicker();
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    Overlay.of(context, debugRequiredFor: widget)?.insert(_calendarOverlay!);
-  }
 
   void _hideInlineDatePicker() {
     _calendarOverlay?.remove();
@@ -275,6 +119,24 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
               date: 'Sep 25',
               reason: 'Family event',
               submitted: 'Sep 22, 2025',
+              hours: 2,
+            ),
+            const SizedBox(height: 12),
+            _HistoryRecord(
+              shiftType: 'Excuse',
+              status: 'Manager Approved',
+              date: 'Oct 19',
+              reason: 'Family event',
+              submitted: 'Oct 11, 2025',
+              hoursText: "Leave Early",
+            ),
+            const SizedBox(height: 12),
+            _HistoryRecord(
+              shiftType: 'Mission',
+              status: 'Rejected',
+              date: 'Oct 25',
+              reason: 'Family event',
+              submitted: 'Oct 03, 2025',
             ),
           ],
         ),
@@ -320,10 +182,15 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
                 children: [
                   const FormLabel('Start Date'),
                   const SizedBox(height: AppSpacing.margin12),
-                  _DateField(
+                  DateField(
                     label: _formatDate(_start),
-                    onTap: (context) =>
-                        _showInlineDatePicker(isStart: true, fieldContext: context),
+                    selectedDate: _start,
+                    onDateSelected: (picked) {
+                      setState(() {
+                        _start = picked;
+                        if (_end.isBefore(_start)) _end = _start;
+                      });
+                    },
                   ),
                 ],
               ),
@@ -335,11 +202,15 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
                 children: [
                   const FormLabel('End Date'),
                   const SizedBox(height: AppSpacing.margin12),
-                  _DateField(
+                  DateField(
                     label: _formatDate(_end),
-                    onTap: (context) =>
-                        _showInlineDatePicker(isStart: false, fieldContext: context),
-                  ),
+                    selectedDate: _end,
+                    onDateSelected: (picked) {
+                      setState(() {
+                        _end = picked.isBefore(_start) ? _start : picked;
+                      });
+                    },
+                  )
                 ],
               ),
             ),
@@ -435,45 +306,14 @@ class _ShiftRequestPageState extends State<ShiftRequestPage> {
   }
 }
 
-// _DateField for calendar placeholder, re-usable popup migration planned
-class _DateField extends StatelessWidget {
-  final String label;
-  final Function(BuildContext) onTap;
-  const _DateField({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-        onTap: () => onTap(context),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-            boxShadow: AppShadows.popupShadow,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: AppTypography.p14()),
-              const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.darkText),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _HistoryRecord extends StatelessWidget {
   final String shiftType;
   final String status;
   final String date;
   final String reason;
   final String submitted;
+  final int? hours;      // numeric hours
+  final String? hoursText; // arbitrary text like "Leave early"
 
   const _HistoryRecord({
     required this.shiftType,
@@ -481,6 +321,8 @@ class _HistoryRecord extends StatelessWidget {
     required this.date,
     required this.reason,
     required this.submitted,
+    this.hours,
+    this.hoursText,
   });
 
   @override
@@ -516,6 +358,17 @@ class _HistoryRecord extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(reason, style: AppTypography.helperText()),
+          const SizedBox(height: 8),
+
+          // Hours badge (if applicable)
+          if (hours != null || hoursText != null) ...[
+            const SizedBox(height: 8),
+            HoursBadge(
+              number: hours,
+              text: hoursText,
+              suffixText: hours == 1 ? 'hour' : 'hours',
+            )
+          ],
           const SizedBox(height: 8),
 
           // Row 3: Submitted info

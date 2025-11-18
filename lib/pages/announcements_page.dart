@@ -91,26 +91,26 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Stats Section
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    iconPath: 'assets/icons/bell.svg',
-                    label: 'New Updates',
-                    count: newUpdatesCount,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildStatCard(
-                    iconPath: 'assets/icons/alert.svg',
-                    label: 'High Priority',
-                    count: highPriorityCount,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       child: _buildStatCard(
+            //         iconPath: 'assets/icons/bell.svg',
+            //         label: 'New Updates',
+            //         count: newUpdatesCount,
+            //       ),
+            //     ),
+            //     const SizedBox(width: 12),
+            //     Expanded(
+            //       child: _buildStatCard(
+            //         iconPath: 'assets/icons/alert.svg',
+            //         label: 'High Priority',
+            //         count: highPriorityCount,
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(height: 30),
 
             // Filter Section
             FilterPanel(

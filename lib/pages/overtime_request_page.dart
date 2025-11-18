@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:untitled1/widgets/_date_field.dart';
 import 'package:untitled1/widgets/filter_panel.dart';
 import 'package:untitled1/widgets/hours_badge.dart';
 import 'package:untitled1/widgets/icon_badge.dart';
@@ -29,158 +30,6 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
   OverlayEntry? _calendarOverlay;
 
   OverlayEntry? _timeOverlay;
-
-  // ---------- Inline Date Picker ----------
-  void _showInlineDatePicker({
-    required BuildContext fieldContext,
-  }) {
-    _hideInlineDatePicker();
-
-    final renderBox = fieldContext.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-
-    final fieldSize = renderBox.size;
-    final fieldOffset = renderBox.localToGlobal(Offset.zero);
-
-    _calendarOverlay = OverlayEntry(
-      builder: (context) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final screenHeight = MediaQuery.of(context).size.height;
-        const horizontalPadding = AppSpacing.pagePaddingHorizontal;
-        
-        // Calculate available space
-        const calendarHeight = 540.0;
-        final spaceBelow = screenHeight - fieldOffset.dy - fieldSize.height;
-        final spaceAbove = fieldOffset.dy;
-        
-        // Determine if calendar should show above or below
-        final showAbove = spaceBelow < calendarHeight && spaceAbove > spaceBelow;
-        final topPosition = showAbove 
-            ? fieldOffset.dy - calendarHeight - 8
-            : fieldOffset.dy + fieldSize.height + 8;
-        final maxHeight = showAbove 
-            ? (spaceAbove - 16).clamp(440.0, calendarHeight)
-            : (spaceBelow - 16).clamp(440.0, calendarHeight);
-
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: _hideInlineDatePicker,
-                behavior: HitTestBehavior.opaque,
-              ),
-            ),
-            Positioned(
-              left: horizontalPadding,
-              right: horizontalPadding,
-              top: topPosition,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: screenWidth - horizontalPadding * 2,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius:
-                    BorderRadius.circular(AppBorderRadius.radius12),
-                    boxShadow: AppShadows.popupShadow,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-                    child: Material(
-                      color: AppColors.white,
-                      child: Theme(
-                        data: ThemeData(
-                          colorScheme: ColorScheme.light(
-                            primary: AppColors.getAccentColor(
-                                CompanyTheme.groupCompany),
-                            onPrimary: Colors.white,
-                            onSurface: AppColors.darkText,
-                            surface: AppColors.white,
-                          ),
-                          textButtonTheme: TextButtonThemeData(
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppColors.getAccentColor(CompanyTheme.groupCompany),
-                            ),
-                          ),
-                          datePickerTheme: DatePickerThemeData(
-                            headerHeadlineStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              height: 0.5,
-                              letterSpacing: 0,
-                            ),
-                            headerHelpStyle: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400,
-                              height: 0.5,
-                              letterSpacing: 0,
-                            ),
-                            dayStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              height: 0.5,
-                              letterSpacing: 0,
-                            ),
-                            yearStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              height: 0.5,
-                              letterSpacing: 0,
-                            ),
-                            headerBackgroundColor: Colors.transparent,
-                            dividerColor: Colors.transparent,
-                            dayOverlayColor: WidgetStateProperty.resolveWith((states) {
-                              if (states.contains(WidgetState.selected)) {
-                                return AppColors.getAccentColor(CompanyTheme.groupCompany);
-                              }
-                              if (states.contains(WidgetState.hovered)) {
-                                return AppColors.getAccentColor(CompanyTheme.groupCompany).withOpacity(0.1);
-                              }
-                              return null;
-                            }),
-                            dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
-                              if (states.contains(WidgetState.selected)) {
-                                return AppColors.getAccentColor(CompanyTheme.groupCompany);
-                              }
-                              return null;
-                            }),
-                            dayForegroundColor: WidgetStateProperty.resolveWith((states) {
-                              if (states.contains(WidgetState.selected)) {
-                                return Colors.white;
-                              }
-                              return AppColors.darkText;
-                            }),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.zero,
-                          child: SizedBox(
-                            width: screenWidth - horizontalPadding * 2,
-                            child: CalendarDatePicker(
-                              initialDate: _overtimeDate,
-                              firstDate: DateTime(DateTime.now().year - 1),
-                              lastDate: DateTime(DateTime.now().year + 2),
-                              onDateChanged: (picked) {
-                                setState(() => _overtimeDate = picked);
-                                _hideInlineDatePicker();
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    Overlay.of(context, debugRequiredFor: widget)?.insert(_calendarOverlay!);
-  }
 
   void _hideInlineDatePicker() {
     _calendarOverlay?.remove();
@@ -334,14 +183,14 @@ class _OvertimeRequestPageState extends State<OvertimeRequestPage> {
         // Overtime Date
         const FormLabel('Overtime Date'),
         const SizedBox(height: AppSpacing.margin12),
-        _DateField(
+        DateField(
           label: _formatDate(_overtimeDate),
-          icon: Icons.calendar_today_outlined,
-          onTap: (context) => _showInlineDatePicker(fieldContext: context),
+          selectedDate: _overtimeDate,
+          onDateSelected: (picked) => setState(() => _overtimeDate = picked),
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
 
-        // Start / End Time
+        // Start / End Time (keep the existing _DateField for time)
         Row(
           children: [
             Expanded(

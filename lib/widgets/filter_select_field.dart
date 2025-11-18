@@ -105,10 +105,10 @@ class _FilterSelectFieldState extends State<FilterSelectField> {
                     maxWidth: maxWidth,
                   ),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                      borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
                       boxShadow: AppShadows.popupShadow,
                     ),
                     child: Column(
@@ -159,10 +159,10 @@ class _FilterSelectFieldState extends State<FilterSelectField> {
         onTap: _togglePopup,
         borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
             color: widget.backgroundColor ?? AppColors.white,
-            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
             boxShadow: AppShadows.defaultShadow,
           ),
           child: Row(

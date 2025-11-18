@@ -16,7 +16,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
   late DateTime _currentMonth;
   late DateTime _currentWeekStart;
   late DateTime _selectedDay;
-  String _viewMode = 'Weekly';
+  String _viewMode = 'Daily';
   OverlayEntry? _dropdownOverlay;
   
   // Sample meetings data (colorIndex will be auto-assigned)

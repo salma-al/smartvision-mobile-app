@@ -81,6 +81,24 @@ class IconBadge extends StatelessWidget {
           'bg': AppColors.lightOrange,
           'text': AppColors.orange,
         };
+      case 'Work From Home':
+        return {
+          'icon': 'work_from_home.svg',
+          'bg': AppColors.lightPurple,
+          'text': AppColors.purple,
+        };
+      case 'Excuse':
+        return {
+          'icon': 'excuse.svg',
+          'bg': AppColors.lightOrange,
+          'text': AppColors.orange,
+        };
+      case 'Mission':
+        return {
+          'icon': 'mission.svg',
+          'bg': AppColors.lightBlue,
+          'text': AppColors.blue,
+        };
       case 'Annual Leave':
       default:
         return {
