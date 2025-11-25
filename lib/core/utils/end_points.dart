@@ -23,9 +23,6 @@ class EndPoints {
   ///attendance
   static const String getAttendance = 'calculate_employee_monthly_attendance'; //send with day for current day statistics and without day for whole month
 
-  ///follow up
-  static const String getFollowUp = 'make_follow_up';
-
   ///reports
   ///requests report
   static const String getRequestsReport = 'get_employee_data';
