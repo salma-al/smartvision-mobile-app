@@ -11,6 +11,8 @@ class FilterSelectField extends StatefulWidget {
   final String? trailingSvgAsset; // small arrow svg
   final bool popupMatchScreenWidth;
   final double screenHorizontalPadding;
+  final Map<String, String>? optionIcons; // option text → SVG path
+  final Color? backgroundColor; // Optional background color
 
   const FilterSelectField({
     super.key,
@@ -22,6 +24,8 @@ class FilterSelectField extends StatefulWidget {
     this.trailingSvgAsset,
     this.popupMatchScreenWidth = false,
     this.screenHorizontalPadding = 16,
+    this.optionIcons,
+    this.backgroundColor,
   });
 
   @override
@@ -101,10 +105,10 @@ class _FilterSelectFieldState extends State<FilterSelectField> {
                     maxWidth: maxWidth,
                   ),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                      borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
                       boxShadow: AppShadows.popupShadow,
                     ),
                     child: Column(
@@ -115,6 +119,7 @@ class _FilterSelectFieldState extends State<FilterSelectField> {
                           _OptionTile(
                             label: opt,
                             selected: opt == widget.value,
+                            iconAsset: widget.optionIcons != null ? widget.optionIcons![opt] : null, // ✅ new
                             onTap: () {
                               widget.onChanged(opt);
                               _hide();
@@ -154,29 +159,57 @@ class _FilterSelectFieldState extends State<FilterSelectField> {
         onTap: _togglePopup,
         borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+            color: widget.backgroundColor ?? AppColors.white,
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
             boxShadow: AppShadows.defaultShadow,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // space between text & arrow
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (widget.leadingSvgAsset != null) ...[
-                SvgPicture.asset(widget.leadingSvgAsset!, width: 18, height: 18, color: AppColors.darkText),
-                const SizedBox(width: 8),
-              ],
-              Text(widget.label, style: AppTypography.helperText()),
+              // Left side
+              Expanded(
+                child: Row(
+                  children: [
+                    if (widget.leadingSvgAsset != null) ...[
+                      SvgPicture.asset(
+                        widget.leadingSvgAsset!,
+                        width: 18,
+                        height: 18,
+                        color: AppColors.darkText,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    if (widget.label.isNotEmpty) ...[
+                      Text(widget.label, style: AppTypography.helperText()),
+                      const SizedBox(width: 8),
+                    ],
+                    Flexible(
+                      child: Text(
+                        widget.value,
+                        style: AppTypography.p14(),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(width: 8),
-              Text(widget.value, style: AppTypography.body14()),
-              const SizedBox(width: 8),
+              // Right side (arrow)
               if (widget.trailingSvgAsset != null)
-                SvgPicture.asset(widget.trailingSvgAsset!, width: 14, height: 14, color: AppColors.darkText)
+                SvgPicture.asset(
+                  widget.trailingSvgAsset!,
+                  width: 14,
+                  height: 14,
+                  color: AppColors.darkText,
+                )
               else
                 const Icon(Icons.expand_more, size: 16, color: AppColors.darkText),
             ],
           ),
+
         ),
       ),
     );
@@ -187,23 +220,42 @@ class _OptionTile extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _OptionTile({required this.label, required this.selected, required this.onTap});
+  final String? iconAsset; // ✅ new
+
+  const _OptionTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.iconAsset,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppBorderRadius.radius4),
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
         onTap: onTap,
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: selected ? const Color(0xFFEFEDED) : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppBorderRadius.radius4),
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
           ),
-          child: Text(label, style: AppTypography.p12()),
+          child: Row(
+            children: [
+              if (iconAsset != null) ...[
+                SvgPicture.asset(
+                  iconAsset!,
+                  width: 18,
+                  height: 18,
+                ),
+                const SizedBox(width: 8),
+              ],
+              Text(label, style: AppTypography.p14()),
+            ],
+          ),
         ),
       ),
     );

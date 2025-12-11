@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:untitled1/widgets/_date_field.dart';
 import 'package:untitled1/widgets/filter_panel.dart';
+import 'package:untitled1/widgets/hours_badge.dart';
 import 'package:untitled1/widgets/icon_badge.dart';
-import 'package:untitled1/widgets/inline_date_picker.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
 import '../widgets/secondary_app_bar.dart';
@@ -11,29 +11,21 @@ import '../widgets/pill_tabs.dart';
 import '../widgets/form_label.dart';
 import '../widgets/filter_select_field.dart';
 import '../widgets/primary_button.dart';
-import '../widgets/badge.dart' as badge;
 
-class LeaveRequestPage extends StatefulWidget {
-  const LeaveRequestPage({super.key});
+class ShiftRequestPage extends StatefulWidget {
+  const ShiftRequestPage({super.key});
 
   @override
-  State<LeaveRequestPage> createState() => _LeaveRequestPageState();
+  State<ShiftRequestPage> createState() => _ShiftRequestPageState();
 }
 
-class _LeaveRequestPageState extends State<LeaveRequestPage> {
+class _ShiftRequestPageState extends State<ShiftRequestPage> {
   int _tabIndex = 0;
-  String _leaveType = 'Annual Leave';
+  String _shiftType = 'Work From Home';
   DateTime _start = DateTime.now();
   DateTime _end = DateTime.now();
-  String? _attachmentFileName;
-
-  // Map of leave types to remaining days
-  final Map<String, int> _leaveDaysRemaining = {
-    'Annual Leave': 12,
-    'Sick Leave': 5,
-    'Unpaid Leave': 0,
-    'Emergency Leave': 3,
-  };
+  String _excuseTime = '0.5 hours';
+  String _excuseType = 'Late Arrival';
 
   OverlayEntry? _calendarOverlay;
 
@@ -56,7 +48,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     return BaseScaffold(
       currentNavIndex: 0, // Home section
       appBar: const SecondaryAppBar(
-        title: 'Leave Request',
+        title: 'Shift Request',
         notificationCount: AppColors.globalNotificationCount,
       ),
       body: SafeArea(
@@ -99,14 +91,13 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         // FilterPanel with header and button
         FilterPanel(
           pageTitle: 'Request History',
-          pageSubtitle: 'View and filter your leave request history',
-          typeLabel: 'Leave Type',
+          pageSubtitle: 'View and filter your shift request history',
+          typeLabel: 'Shift Type',
           typeOptions: const [
             'All',
-            'Casual Leave',
-            'Sick Leave',
-            'Annual Leave',
-            'Leave without pay'
+            'Work From Home',
+            'Excuse',
+            'Mission',
           ],
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
@@ -115,7 +106,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         Column(
           children: [
             _HistoryRecord(
-              leaveType: 'Sick Leave',
+              shiftType: 'Work From Home',
               status: 'Approved',
               date: 'Oct 01',
               reason: 'Doctor appointment',
@@ -123,11 +114,29 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
             ),
             const SizedBox(height: 12),
             _HistoryRecord(
-              leaveType: 'Casual Leave',
+              shiftType: 'Excuse',
               status: 'Requested',
               date: 'Sep 25',
               reason: 'Family event',
               submitted: 'Sep 22, 2025',
+              hours: 2,
+            ),
+            const SizedBox(height: 12),
+            _HistoryRecord(
+              shiftType: 'Excuse',
+              status: 'Manager Approved',
+              date: 'Oct 19',
+              reason: 'Family event',
+              submitted: 'Oct 11, 2025',
+              hoursText: "Leave Early",
+            ),
+            const SizedBox(height: 12),
+            _HistoryRecord(
+              shiftType: 'Mission',
+              status: 'Rejected',
+              date: 'Oct 25',
+              reason: 'Family event',
+              submitted: 'Oct 03, 2025',
             ),
           ],
         ),
@@ -139,34 +148,25 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Leave Type with remaining days badge
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const FormLabel('Leave Type'),
-            badge.AppBadge(
-              label: '${_leaveDaysRemaining[_leaveType] ?? 0} Days Left',
-              color: AppColors.red,
-              variant: badge.BadgeVariant.filled,
-              backgroundColor: AppColors.lightRed,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            ),
-          ],
-        ),
+        // Shift Type
+        const FormLabel('Shift Type'),
         const SizedBox(height: AppSpacing.margin12),
         SizedBox(
           width: double.infinity,
           child: FilterSelectField(
             label: '',
-            value: _leaveType,
+            value: _shiftType,
             options: const [
-              'Annual Leave',
-              'Sick Leave',
-              'Unpaid Leave',
-              'Emergency Leave',
+              'Work From Home',
+              'Excuse',
+              'Mission',
             ],
-            onChanged: (v) => setState(() => _leaveType = v),
+            optionIcons: const {
+              'Work From Home': 'assets/icons/work_from_home.svg',
+              'Excuse': 'assets/icons/excuse.svg',
+              'Mission': 'assets/icons/mission.svg',
+            },
+            onChanged: (v) => setState(() => _shiftType = v),
             popupMatchScreenWidth: true,
             screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
           ),
@@ -218,6 +218,53 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
 
+        // Excuse-specific fields
+        if (_shiftType == 'Excuse') ...[
+          // Excuse Time
+          const FormLabel('Excuse Time'),
+          const SizedBox(height: AppSpacing.margin12),
+          SizedBox(
+            width: double.infinity,
+            child: FilterSelectField(
+              label: '',
+              value: _excuseTime,
+              options: const [
+                '0.5 hours',
+                '1.0 hours',
+                '1.5 hours',
+                '2.0 hours',
+                '2.5 hours',
+                '3.0 hours',
+                '3.5 hours',
+                '4.0 hours',
+              ],
+              onChanged: (v) => setState(() => _excuseTime = v),
+              popupMatchScreenWidth: true,
+              screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sectionMargin),
+
+          // Excuse Type
+          const FormLabel('Excuse Time'),
+          const SizedBox(height: AppSpacing.margin12),
+          SizedBox(
+            width: double.infinity,
+            child: FilterSelectField(
+              label: '',
+              value: _excuseType,
+              options: const [
+                'Late Arrival',
+                'Leave Early',
+              ],
+              onChanged: (v) => setState(() => _excuseType = v),
+              popupMatchScreenWidth: true,
+              screenHorizontalPadding: AppSpacing.pagePaddingHorizontal,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sectionMargin),
+        ],
+
         // Reason
         const FormLabel('Reason'),
         const SizedBox(height: AppSpacing.margin12),
@@ -240,69 +287,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         ),
         const SizedBox(height: AppSpacing.sectionMargin),
 
-        // Attachment (only for Sick Leave)
-        if (_leaveType == 'Sick Leave') ...[
-          const FormLabel('Attachment (Optional)'),
-          const SizedBox(height: AppSpacing.margin12),
-          GestureDetector(
-            onTap: () {
-              // Simulate file picking
-              setState(() {
-                _attachmentFileName = 'medical_certificate.pdf';
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('File attached successfully')),
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-                boxShadow: AppShadows.popupShadow,
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _attachmentFileName != null
-                        ? Icons.attach_file
-                        : Icons.upload_file_outlined,
-                    size: 20,
-                    color: AppColors.darkText,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _attachmentFileName ?? 'Upload file...',
-                      style: AppTypography.p14(
-                        color: _attachmentFileName != null
-                            ? AppColors.darkText
-                            : AppColors.helperText,
-                      ),
-                    ),
-                  ),
-                  if (_attachmentFileName != null)
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _attachmentFileName = null;
-                        });
-                      },
-                      child: const Icon(
-                        Icons.close,
-                        size: 20,
-                        color: AppColors.red,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sectionMargin),
-        ],
-
-
         // Submit button
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -311,7 +295,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               label: 'Submit',
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Leave request submitted')),
+                  const SnackBar(content: Text('Shift request submitted')),
                 );
               },
             ),
@@ -323,18 +307,22 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 }
 
 class _HistoryRecord extends StatelessWidget {
-  final String leaveType;
+  final String shiftType;
   final String status;
   final String date;
   final String reason;
   final String submitted;
+  final int? hours;      // numeric hours
+  final String? hoursText; // arbitrary text like "Leave early"
 
   const _HistoryRecord({
-    required this.leaveType,
+    required this.shiftType,
     required this.status,
     required this.date,
     required this.reason,
     required this.submitted,
+    this.hours,
+    this.hoursText,
   });
 
   @override
@@ -354,7 +342,7 @@ class _HistoryRecord extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconBadge(name: leaveType),
+              IconBadge(name: shiftType),
               LeaveStatusBadge(status: status),
             ],
           ),
@@ -370,6 +358,17 @@ class _HistoryRecord extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(reason, style: AppTypography.helperText()),
+          const SizedBox(height: 8),
+
+          // Hours badge (if applicable)
+          if (hours != null || hoursText != null) ...[
+            const SizedBox(height: 8),
+            HoursBadge(
+              number: hours,
+              text: hoursText,
+              suffixText: hours == 1 ? 'hour' : 'hours',
+            )
+          ],
           const SizedBox(height: 8),
 
           // Row 3: Submitted info

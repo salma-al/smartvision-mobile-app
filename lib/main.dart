@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'constants/app_constants.dart';
 import 'providers/theme_provider.dart';
 import 'pages/home_page.dart';
+import 'pages/login_page.dart';
+import 'pages/meetings_page.dart';
+import 'pages/inbox_page.dart';
 
 void main() {
   runApp(const SmartVisionApp());
@@ -26,6 +29,12 @@ class SmartVisionApp extends StatelessWidget {
               scaffoldBackgroundColor: AppColors.backgroundColor,
             ),
             home: const HomePage(),
+            routes: {
+              '/login': (context) => const LoginPage(),
+              '/home': (context) => const HomePage(),
+              '/meetings': (context) => const MeetingsPage(),
+              '/inbox': (context) => const InboxPage(),
+            },
           );
         },
       ),

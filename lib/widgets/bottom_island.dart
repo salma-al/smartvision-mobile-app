@@ -1,51 +1,124 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:untitled1/pages/home_page.dart';
 import '../constants/app_constants.dart';
+import '../pages/check_in_page.dart'; // 👈 make sure this import path is correct
+import '../pages/profile_page.dart';
 
 class BottomIsland extends StatelessWidget {
-  const BottomIsland({super.key});
+  final int currentIndex; // 0 = Home, 1 = Check-in, 2 = Profile
+  
+  const BottomIsland({
+    super.key,
+    this.currentIndex = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(
-        vertical: 7, // block
-        horizontal: 35, // inline
+        vertical: 7,
+        horizontal: 35,
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(9999), // 100% radius pill
+        borderRadius: BorderRadius.circular(9999),
         boxShadow: AppShadows.defaultShadow,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            Icons.apps_outlined,
-            color: AppColors.getAccentColor(CompanyTheme.groupCompany),
-            size: 24,
-          ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: AppColors.darkText,
-              shape: BoxShape.circle, // 100% radius
+
+          // 🔘 Home icon with navigation
+          GestureDetector(
+            onTap: () {
+              // Always navigate to HomePage, and pop all routes in between
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+                (route) => false,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: SvgPicture.asset(
+                'assets/icons/home.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                  currentIndex == 0
+                      ? AppColors.getAccentColor(CompanyTheme.groupCompany)
+                      : AppColors.darkText,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
-            child: const Icon(
-              Icons.login_outlined,
-              color: AppColors.white,
-              size: 20,
+          ),
+
+          // 🔘 Check-in icon with navigation
+          GestureDetector(
+            onTap: () {
+              // Always navigate to CheckInPage, and pop all routes in between
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CheckInPage(),
+                ),
+                (route) => false,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: currentIndex == 1
+                    ? AppColors.getAccentColor(CompanyTheme.groupCompany)
+                    : AppColors.darkText,
+                shape: BoxShape.circle,
+              ),
+              child: SvgPicture.asset(
+                'assets/icons/check_in.svg',
+                width: 20,
+                height: 20,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.white,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
           ),
-          Icon(
-            Icons.person_outline,
-            color: AppColors.darkText,
-            size: 24,
+
+          // 🔘 Profile icon with navigation
+          GestureDetector(
+            onTap: () {
+              // Always navigate to ProfilePage, and pop all routes in between
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfilePage(),
+                ),
+                (route) => false,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: SvgPicture.asset(
+                'assets/icons/profile.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                  currentIndex == 2
+                      ? AppColors.getAccentColor(CompanyTheme.groupCompany)
+                      : AppColors.darkText,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 }
-
-

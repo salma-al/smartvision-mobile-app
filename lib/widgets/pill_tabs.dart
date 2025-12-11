@@ -19,7 +19,7 @@ class PillTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = AppColors.getAccentColor(companyTheme);
     return Container(
-      padding: const EdgeInsets.all(4),
+      // padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(9999),

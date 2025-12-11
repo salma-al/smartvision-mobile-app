@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:untitled1/pages/leave_request_page.dart';
+import 'package:untitled1/pages/overtime_request_page.dart';
+import 'package:untitled1/pages/shift_request_page.dart';
+import 'package:untitled1/pages/request_approval_page.dart';
+import 'package:untitled1/pages/notifications_page.dart';
 import '../constants/app_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/base_scaffold.dart';
@@ -15,11 +19,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isCheckedIn = true;
   String checkInTime = "03:45:33";
-  int notificationCount = 2;
 
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      currentNavIndex: 0,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -66,41 +70,52 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            SvgPicture.asset(
-              'assets/icons/bell.svg',
-              width: 16,
-              height: 18.5,
-              color: AppColors.darkText,
-            ),
-            if (notificationCount > 0)
-              Positioned(
-                right: -6,
-                top: -10,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: AppColors.notificationBadgeColor,
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 12,
-                    minHeight: 12,
-                  ),
-                  child: Text(
-                    '$notificationCount',
-                    style: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotificationsPage(),
+                settings: const RouteSettings(name: '/notifications'),
+              ),
+            );
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              SvgPicture.asset(
+                'assets/icons/bell.svg',
+                width: 16,
+                height: 18.5,
+                color: AppColors.darkText,
+              ),
+              if (AppColors.globalNotificationCount > 0)
+                Positioned(
+                  right: -6,
+                  top: -10,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppColors.notificationBadgeColor,
+                      shape: BoxShape.circle,
                     ),
-                    textAlign: TextAlign.center,
+                    constraints: const BoxConstraints(
+                      minWidth: 12,
+                      minHeight: 12,
+                    ),
+                    child: Text(
+                      '${AppColors.globalNotificationCount}',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -113,69 +128,77 @@ class _HomePageState extends State<HomePage> {
           isCheckedIn = !isCheckedIn;
         });
       },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: AppColors.getAccentColor(CompanyTheme.groupCompany),
-          borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
-          boxShadow: AppShadows.checkInShadow,
-        ),
-        child: Stack(
-          children: [
-            // Background icon with opacity
-            Positioned(
-              right: 20,
-              top: 20,
-              child: Opacity(
-                opacity: 0.12,
-                child: Icon(
-                  Icons.login_outlined,
-                  color: AppColors.white,
-                  size: 60,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: isCheckedIn ? const Color(0xFF197744) : const Color(0xFF9C1922),
+            borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+            boxShadow: AppShadows.checkInShadow,
+          ),
+          child: Stack(
+            children: [
+              // SVG Background at top right with overflow - edge to edge
+              Positioned(
+                top: -4,
+                right: 0,
+                child: SvgPicture.asset(
+                  'assets/icons/cta_bg.svg',
+                  fit: BoxFit.none,
                 ),
               ),
-            ),
-            Row(
-              children: [
-                Container(
-                  width: 63,
-                  height: 63,
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withOpacity(0.38),
-                    borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
-                  ),
-                  child: const Icon(
-                    Icons.login_outlined,
-                    color: AppColors.white,
-                    size: 40,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isCheckedIn ? 'Checked in' : 'Check in',
-                        style: isCheckedIn ? AppTypography.checkInStatus() : AppTypography.checkInTime(),
+              // Content with padding
+              Padding(
+                padding: const EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 63,
+                      height: 63,
+                      decoration: BoxDecoration(
+                        color: AppColors.white.withOpacity(0.38),
+                        borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
                       ),
-                      if (isCheckedIn)
-                        Text(
-                          checkInTime,
-                          style: AppTypography.checkInTime(),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/icons/check_in.svg',
+                          width: 40,
+                          height: 40,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white,
+                            BlendMode.srcIn,
+                          ),
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isCheckedIn ? 'Checked in' : 'Check in',
+                            style: isCheckedIn ? AppTypography.checkInStatus() : AppTypography.checkInTime(),
+                          ),
+                          if (isCheckedIn)
+                            Text(
+                              checkInTime,
+                              style: AppTypography.checkInTime(),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: AppColors.white,
+                      size: 16,
+                    ),
+                  ],
                 ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: AppColors.white,
-                  size: 16,
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -204,9 +227,9 @@ class _HomePageState extends State<HomePage> {
                      'assets/icons/calendar.svg',
                      width: 32,
                      height: 32,
-                     color: AppColors.green,
+                     color: const Color(0xFF19868B),
                    ),
-                   AppColors.green,
+                   const Color(0xFF19868B),
                  ),
                  _buildSizedActivityCard(
                    itemWidth,
@@ -215,9 +238,9 @@ class _HomePageState extends State<HomePage> {
                      'assets/icons/palm_tree.svg',
                      width: 32,
                      height: 32,
-                     color: AppColors.blue,
+                     color: const Color(0xFF19868B),
                    ),
-                   AppColors.blue,
+                   const Color(0xFF19868B),
                  ),
                  _buildSizedActivityCard(
                    itemWidth,
@@ -226,9 +249,9 @@ class _HomePageState extends State<HomePage> {
                      'assets/icons/clock_plus.svg',
                      width: 32,
                      height: 32,
-                     color: AppColors.purple,
+                     color: const Color(0xFF19868B),
                    ),
-                   AppColors.purple,
+                   const Color(0xFF19868B),
                  ),
                  _buildSizedActivityCard(
                    itemWidth,
@@ -237,9 +260,9 @@ class _HomePageState extends State<HomePage> {
                      'assets/icons/case.svg',
                      width: 35,
                      height: 35,
-                     color: AppColors.pink,
+                     color: const Color(0xFF19868B),
                    ),
-                   AppColors.pink,
+                   const Color(0xFF19868B),
                  ),
                  _buildSizedActivityCard(
                    itemWidth,
@@ -248,9 +271,9 @@ class _HomePageState extends State<HomePage> {
                      'assets/icons/check.svg',
                      width: 32,
                      height: 32,
-                     color: AppColors.orange,
+                     color: const Color(0xFF19868B),
                    ),
-                   AppColors.orange,
+                   const Color(0xFF19868B),
                    badgeCount: 2,
                  ),
                  _buildSizedActivityCard(
@@ -260,9 +283,9 @@ class _HomePageState extends State<HomePage> {
                      'assets/icons/note.svg',
                      width: 32,
                      height: 32,
-                     color: AppColors.teal,
+                     color: const Color(0xFF19868B),
                    ),
-                   AppColors.teal,
+                   const Color(0xFF19868B),
                  ),
                  _buildSizedActivityCard(
                    itemWidth,
@@ -271,9 +294,10 @@ class _HomePageState extends State<HomePage> {
                      'assets/icons/mail.svg',
                      width: 27,
                      height: 27,
-                     color: AppColors.mint,
+                     color: const Color(0xFF19868B),
                    ),
-                   AppColors.mint,
+                   const Color(0xFF19868B),
+                   badgeCount: AppColors.unreadEmailsCount,
                  ),
                  _buildSizedActivityCard(
                    itemWidth,
@@ -282,9 +306,9 @@ class _HomePageState extends State<HomePage> {
                      'assets/icons/camera.svg',
                      width: 27,
                      height: 27,
-                     color: AppColors.redOrange,
+                     color: const Color(0xFF19868B),
                    ),
-                   AppColors.redOrange,
+                   const Color(0xFF19868B),
                  ),
                ],
              );
@@ -312,6 +336,22 @@ class _HomePageState extends State<HomePage> {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const LeaveRequestPage()),
           );
+        } else if (title == "Overtime Requests"){
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OvertimeRequestPage())
+          );
+        } else if (title == "Shift Requests"){
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ShiftRequestPage())
+          );
+        } else if (title == "Requests Approval"){
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const RequestApprovalPage())
+          );
+        } else if (title == "Meetings"){
+          Navigator.pushNamed(context, '/meetings');
+        } else if (title == "Inbox"){
+          Navigator.pushNamed(context, '/inbox');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Navigate to $title')),
@@ -338,7 +378,7 @@ class _HomePageState extends State<HomePage> {
                   width: 53,
                   height: 53,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
                   ),
                   child: Stack(
