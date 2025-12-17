@@ -4,6 +4,7 @@ import 'package:untitled1/pages/overtime_request_page.dart';
 import 'package:untitled1/pages/shift_request_page.dart';
 import 'package:untitled1/pages/request_approval_page.dart';
 import 'package:untitled1/pages/notifications_page.dart';
+import 'package:untitled1/pages/email_allocations_page.dart';
 import '../constants/app_constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/base_scaffold.dart';
@@ -301,6 +302,17 @@ class _HomePageState extends State<HomePage> {
                  ),
                  _buildSizedActivityCard(
                    itemWidth,
+                   'Allocations',
+                   SvgPicture.asset(
+                     'assets/icons/allocation.svg',
+                     width: 32,
+                     height: 32,
+                     color: const Color(0xFF19868B),
+                   ),
+                   const Color(0xFF19868B),
+                 ),
+                 _buildSizedActivityCard(
+                   itemWidth,
                    'Meetings',
                    SvgPicture.asset(
                      'assets/icons/camera.svg',
@@ -352,6 +364,10 @@ class _HomePageState extends State<HomePage> {
           Navigator.pushNamed(context, '/meetings');
         } else if (title == "Inbox"){
           Navigator.pushNamed(context, '/inbox');
+        } else if (title == "Allocations"){
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const EmailAllocationsPage())
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Navigate to $title')),

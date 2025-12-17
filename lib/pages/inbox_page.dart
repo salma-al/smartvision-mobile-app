@@ -3,7 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../constants/app_constants.dart';
 import '../widgets/base_scaffold.dart';
 import '../widgets/secondary_app_bar.dart';
-
+import 'email_detail_page.dart';
+ 
 class InboxPage extends StatefulWidget {
   const InboxPage({super.key});
 
@@ -25,6 +26,11 @@ class _InboxPageState extends State<InboxPage> {
   final TextEditingController _toController = TextEditingController();
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
+  
+  final FocusNode _fromFocusNode = FocusNode();
+  final FocusNode _toFocusNode = FocusNode();
+  final FocusNode _subjectFocusNode = FocusNode();
+  final FocusNode _contentFocusNode = FocusNode();
 
   final List<String> _availableTags = [
     'Approval',
@@ -47,6 +53,10 @@ class _InboxPageState extends State<InboxPage> {
     _toController.dispose();
     _subjectController.dispose();
     _contentController.dispose();
+    _fromFocusNode.dispose();
+    _toFocusNode.dispose();
+    _subjectFocusNode.dispose();
+    _contentFocusNode.dispose();
     super.dispose();
   }
 
@@ -123,19 +133,25 @@ class _InboxPageState extends State<InboxPage> {
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    child: GestureDetector(
+                    onTap: () {
+                      // Unfocus all text fields when tapping outside
+                      FocusScope.of(context).unfocus();
+                    },
+                    behavior: HitTestBehavior.translucent,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                       // Search Section
                       Text('Search', style: AppTypography.p16()),
                       const SizedBox(height: 12),
-                      _buildTextField('Subject', _subjectController, setModalState),
+                      _buildTextField('Subject', _subjectController, _subjectFocusNode, setModalState),
                       const SizedBox(height: 10),
-                      _buildTextField('Content', _contentController, setModalState),
+                      _buildTextField('Content', _contentController, _contentFocusNode, setModalState),
                       const SizedBox(height: 10),
-                      _buildTextField('From', _fromController, setModalState),
+                      _buildTextField('From', _fromController, _fromFocusNode, setModalState),
                       const SizedBox(height: 10),
-                      _buildTextField('To', _toController, setModalState),
+                      _buildTextField('To', _toController, _toFocusNode, setModalState),
                       const SizedBox(height: 20),
 
                       // Status & Date Section
@@ -268,7 +284,8 @@ class _InboxPageState extends State<InboxPage> {
                         },
                       ),
                       const SizedBox(height: 70), // Space for apply button
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -313,31 +330,53 @@ class _InboxPageState extends State<InboxPage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, StateSetter setModalState) {
-    return TextField(
-      controller: controller,
-      onChanged: (value) {
-        setModalState(() {});
-        setState(() {});
-      },
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: AppTypography.helperText().copyWith(fontSize: 13),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.dividerLight),
+  Widget _buildTextField(String label, TextEditingController controller, FocusNode focusNode, StateSetter setModalState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTypography.helperText().copyWith(fontSize: 13)),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: AppShadows.defaultShadow,
+          ),
+          child: TextField(
+            controller: controller,
+            focusNode: focusNode,
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
+            onChanged: (value) {
+              setModalState(() {});
+              setState(() {});
+            },
+            decoration: InputDecoration(
+              hintText: 'Enter $label',
+              hintStyle: AppTypography.helperText().copyWith(fontSize: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.getAccentColor(CompanyTheme.groupCompany),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              filled: true,
+              fillColor: AppColors.white,
+            ),
+            style: AppTypography.p14(),
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.dividerLight),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.getAccentColor(CompanyTheme.groupCompany), width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      style: AppTypography.p14(),
+      ],
     );
   }
 
@@ -351,21 +390,41 @@ class _InboxPageState extends State<InboxPage> {
         ],
         PopupMenuButton<String>(
           onSelected: onChanged,
-          offset: const Offset(0, 40),
+          offset: const Offset(0, 50),
           color: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           itemBuilder: (context) {
             return options.map((option) {
+              final isSelected = option == value;
               return PopupMenuItem<String>(
                 value: option,
-                child: Text(option, style: AppTypography.p14()),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        option,
+                        style: AppTypography.p14(
+                          color: isSelected ? AppColors.getAccentColor(CompanyTheme.groupCompany) : AppColors.darkText,
+                        ).copyWith(
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                    if (isSelected)
+                      Icon(
+                        Icons.check,
+                        size: 18,
+                        color: AppColors.getAccentColor(CompanyTheme.groupCompany),
+                      ),
+                  ],
+                ),
               );
             }).toList();
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
@@ -375,7 +434,7 @@ class _InboxPageState extends State<InboxPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(value, style: AppTypography.p14()),
-                const Icon(Icons.expand_more, size: 16, color: AppColors.darkText),
+                Icon(Icons.expand_more, size: 20, color: AppColors.darkText),
               ],
             ),
           ),
@@ -493,67 +552,68 @@ class _InboxPageState extends State<InboxPage> {
         showTitleBadge: true,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Filter Header
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.pagePaddingHorizontal,
-                vertical: 16,
-              ),
-              decoration: const BoxDecoration(
-                color: AppColors.backgroundColor,
-                border: Border(
-                  bottom: BorderSide(color: AppColors.dividerLight, width: 1),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Filter Header
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.pagePaddingHorizontal,
+                  // vertical: 16,
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Inbox Filters', style: AppTypography.p16()),
-                      const SizedBox(height: 4),
-                      Text(
-                        'View and filter your emails',
-                        style: AppTypography.helperTextSmall(),
-                      ),
-                    ],
+                decoration: const BoxDecoration(
+                  color: AppColors.backgroundColor,
+                  border: Border(
+                    bottom: BorderSide(color: AppColors.dividerLight, width: 1),
                   ),
-                  GestureDetector(
-                    onTap: _showFilterDrawer,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.dividerLight),
-                      ),
-                      child: Row(
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/filter.svg',
-                            width: 14,
-                            height: 14,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.darkText,
-                              BlendMode.srcIn,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Inbox Filters', style: AppTypography.p16()),
+                        // const SizedBox(height: 4),
+                        Text(
+                          'View and filter your emails',
+                          style: AppTypography.helperTextSmall(),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: _showFilterDrawer,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.dividerLight),
+                        ),
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/filter.svg',
+                              width: 14,
+                              height: 14,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.darkText,
+                                BlendMode.srcIn,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text('Filters', style: AppTypography.p14()),
-                        ],
+                            const SizedBox(width: 6),
+                            Text('Filters', style: AppTypography.p14()),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-
-            // Email List
-            Expanded(
-              child: SingleChildScrollView(
+              
+              // Email List Content
+              Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.pagePaddingHorizontal,
                   vertical: AppSpacing.pagePaddingVertical,
@@ -561,95 +621,242 @@ class _InboxPageState extends State<InboxPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Today Section
-                    Text('Today', style: AppTypography.p14()),
-                    const SizedBox(height: 12),
-                    _EmailItem(
-                      sender: 'Sarah Johnson',
-                      senderInitials: 'SJ',
-                      subject: 'Q4 Marketing Campaign Review',
-                      preview: 'Hi team, I wanted to share the preliminary results from our Q4 marketing campaign. The engagement...',
-                      time: 'Mon 9:00 AM',
-                      isUnread: true,
-                      hasAttachment: true,
-                      tags: ['Approval'],
-                    ),
-                    const SizedBox(height: 12),
-                    _EmailItem(
-                      sender: 'Michael Chen',
-                      senderInitials: 'MC',
-                      subject: 'Project Update – Mobile App Launch',
-                      preview: 'Hi everyone, The mobile app beta testing phase has been completed successfully. We received feedback...',
-                      time: 'Mon 8:30 AM',
-                      isUnread: true,
-                      tags: ['Project Schedule'],
-                    ),
-                    const SizedBox(height: 12),
-                    _EmailItem(
-                      sender: 'Alex Kumar',
-                      senderInitials: 'AK',
-                      subject: 'API Integration Documentation',
-                      preview: 'Following up on our discussion about the API integration. I\'ve prepared comprehensive...',
-                      time: 'Mon 9/8',
-                      isUnread: false,
-                      tags: [],
-                    ),
-                    const SizedBox(height: 24),
 
-                    // Yesterday Section
-                    Text('Yesterday', style: AppTypography.p14()),
-                    const SizedBox(height: 12),
-                    _EmailItem(
-                      sender: 'Emma Rodriguez',
-                      senderInitials: 'ER',
-                      subject: 'New Design System Guidelines',
-                      preview: 'I hope this message finds you well. I\'m excited to share our updated design system guidelines with the...',
-                      time: 'Sun 10/5',
-                      isUnread: true,
-                      hasAttachment: true,
-                      tags: [],
+              // Today Section
+              Text('Today', style: AppTypography.p14()),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmailDetailPage(
+                              sender: 'Sarah Johnson',
+                              senderEmail: 'sarah.johnson@techcorp.com',
+                              senderInitials: 'SJ',
+                              subject: 'Q4 Marketing Campaign Review',
+                              content: 'Hi team,\n\nI wanted to share the preliminary results from our Q4 marketing campaign. The engagement rates have exceeded our expectations by 25%, and we\'ve seen a significant increase in conversions across all channels.\n\nThe social media campaigns performed particularly well, with Instagram showing a 40% increase in engagement compared to Q3. Our email marketing efforts also delivered strong results with a 15% open rate improvement.\n\nI\'ve attached the detailed analytics report for your review. Let\'s schedule a meeting next week to discuss the findings and plan for Q1 2024.\n\nBest regards,\nSarah',
+                              time: 'Mon 9:00 AM',
+                              tags: ['Approval'],
+                              hasAttachment: true,
+                              attachments: [
+                                {'name': 'Q4_Marketing_Report.pdf', 'type': 'PDF Document'},
+                                {'name': 'Analytics_Data.xlsx', 'type': 'Excel Spreadsheet'},
+                              ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    _EmailItem(
-                      sender: 'David Park',
-                      senderInitials: 'DP',
-                      subject: 'Investment Proposal Meeting',
-                      preview: 'Thank you for taking the time to meet with us yesterday. I wanted to follow up on our discussion...',
-                      time: 'Sun 10/5',
-                      isUnread: false,
-                      tags: ['Down Payment'],
+                  );
+                },
+                child: const _EmailItem(
+                  sender: 'Sarah Johnson',
+                        senderInitials: 'SJ',
+                        subject: 'Q4 Marketing Campaign Review',
+                        preview: 'Hi team, I wanted to share the preliminary results from our Q4 marketing campaign. The engagement...',
+                        time: 'Mon 9:00 AM',
+                        isUnread: true,
+                        hasAttachment: true,
+                        tags: ['Approval'],
+                      ),
                     ),
-                    const SizedBox(height: 24),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmailDetailPage(
+                              sender: 'Michael Chen',
+                              senderEmail: 'mike.chen@techcorp.com',
+                              senderInitials: 'MC',
+                              subject: 'Project Update – Mobile App Launch',
+                              content: 'Hi everyone,\n\nThe mobile app beta testing phase has been completed successfully. We received feedback from over 500 beta testers and the overall satisfaction score is 4.7/5.\n\nNext steps:\n1. Address critical bugs identified in testing\n2. Implement UI/UX improvements\n3. Prepare for production release\n\nExpected launch date: November 15th\n\nThanks for your hard work!\nMike',
+                              time: 'Mon 8:30 AM',
+                              tags: ['Project Schedule'],
+                              hasAttachment: false,
+                      ),
+                    ),
+                  );
+                },
+                child: const _EmailItem(
+                  sender: 'Michael Chen',
+                        senderInitials: 'MC',
+                        subject: 'Project Update – Mobile App Launch',
+                        preview: 'Hi everyone, The mobile app beta testing phase has been completed successfully. We received feedback...',
+                        time: 'Mon 8:30 AM',
+                        isUnread: true,
+                        tags: ['Project Schedule'],
+                      ),
+                    ),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmailDetailPage(
+                              sender: 'Alex Kumar',
+                              senderEmail: 'alex.kumar@techcorp.com',
+                              senderInitials: 'AK',
+                              subject: 'API Integration Documentation',
+                              content: 'Hi team,\n\nFollowing up on our discussion about the API integration. I\'ve prepared comprehensive documentation covering all endpoints, authentication methods, and example use cases.\n\nThe documentation includes:\n- Getting started guide\n- API reference\n- Code examples in multiple languages\n- Best practices and common pitfalls\n\nPlease review and let me know if you need any clarifications.\n\nBest,\nAlex',
+                              time: 'Mon 9/8',
+                              tags: [],
+                              hasAttachment: false,
+                      ),
+                    ),
+                  );
+                },
+                child: const _EmailItem(
+                  sender: 'Alex Kumar',
+                        senderInitials: 'AK',
+                        subject: 'API Integration Documentation',
+                        preview: 'Following up on our discussion about the API integration. I\'ve prepared comprehensive...',
+                        time: 'Mon 9/8',
+                        isUnread: false,
+                        tags: [],
+                      ),
+                    ),
+              const SizedBox(height: 24),
 
-                    // Last Week Section
-                    Text('Last Week', style: AppTypography.p14()),
-                    const SizedBox(height: 12),
-                    _EmailItem(
-                      sender: 'Lisa Thompson',
-                      senderInitials: 'LT',
-                      subject: 'Client Feedback Summary',
-                      preview: 'I wanted to provide you with a comprehensive summary of the client feedback we received this...',
-                      time: 'Tue 9/9',
-                      isUnread: false,
-                      hasAttachment: true,
-                      tags: ['Final Payment'],
+              // Yesterday Section
+              Text('Yesterday', style: AppTypography.p14()),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmailDetailPage(
+                              sender: 'Emma Rodriguez',
+                              senderEmail: 'emma.rodriguez@techcorp.com',
+                              senderInitials: 'ER',
+                              subject: 'New Design System Guidelines',
+                              content: 'Hi team,\n\nI hope this message finds you well. I\'m excited to share our updated design system guidelines with the entire team.\n\nWe\'ve made significant improvements to:\n- Color palette and accessibility\n- Typography scales\n- Component library\n- Spacing system\n- Icon guidelines\n\nPlease review the attached documentation and feel free to reach out if you have any questions or suggestions.\n\nBest regards,\nEmma',
+                              time: 'Sun 10/5',
+                              tags: [],
+                              hasAttachment: true,
+                              attachments: [
+                                {'name': 'Design_System_v2.pdf', 'type': 'PDF Document'},
+                              ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    _EmailItem(
-                      sender: 'John Martinez',
-                      senderInitials: 'JM',
-                      subject: 'Budget Review Q4 2025',
-                      preview: 'Please find attached the budget review for Q4 2025. We need to discuss some adjustments...',
-                      time: 'Mon 9/8',
-                      isUnread: false,
-                      hasAttachment: true,
-                      tags: ['Approval'],
+                  );
+                },
+                child: const _EmailItem(
+                  sender: 'Emma Rodriguez',
+                        senderInitials: 'ER',
+                        subject: 'New Design System Guidelines',
+                        preview: 'I hope this message finds you well. I\'m excited to share our updated design system guidelines with the...',
+                        time: 'Sun 10/5',
+                        isUnread: true,
+                        hasAttachment: true,
+                        tags: [],
+                      ),
+                    ),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmailDetailPage(
+                              sender: 'David Park',
+                              senderEmail: 'david.park@investments.com',
+                              senderInitials: 'DP',
+                              subject: 'Investment Proposal Meeting',
+                              content: 'Hi there,\n\nThank you for taking the time to meet with us yesterday. I wanted to follow up on our discussion regarding the investment proposal.\n\nAs discussed, we\'re proposing an initial investment of \$500,000 with the following terms:\n- 15% equity stake\n- Board seat\n- Quarterly reporting\n\nPlease review the attached proposal document and let me know if you have any questions. I\'m available for a follow-up call next week.\n\nBest regards,\nDavid',
+                              time: 'Sun 10/5',
+                              tags: ['Down Payment'],
+                              hasAttachment: false,
+                      ),
+                    ),
+                  );
+                },
+                child: const _EmailItem(
+                  sender: 'David Park',
+                        senderInitials: 'DP',
+                        subject: 'Investment Proposal Meeting',
+                        preview: 'Thank you for taking the time to meet with us yesterday. I wanted to follow up on our discussion...',
+                        time: 'Sun 10/5',
+                        isUnread: false,
+                        tags: ['Down Payment'],
+                      ),
+                    ),
+              const SizedBox(height: 24),
+
+              // Last Week Section
+              Text('Last Week', style: AppTypography.p14()),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmailDetailPage(
+                              sender: 'Lisa Thompson',
+                              senderEmail: 'lisa.thompson@techcorp.com',
+                              senderInitials: 'LT',
+                              subject: 'Client Feedback Summary',
+                              content: 'Hi team,\n\nI wanted to provide you with a comprehensive summary of the client feedback we received this quarter.\n\nOverall satisfaction: 4.5/5\nKey highlights:\n- 95% would recommend our services\n- Response time improved by 30%\n- Product quality consistently rated excellent\n\nAreas for improvement:\n- Documentation clarity\n- Onboarding process\n- Support hours expansion\n\nI\'ve attached the detailed report with all client comments and recommendations.\n\nBest,\nLisa',
+                              time: 'Tue 9/9',
+                              tags: ['Final Payment'],
+                              hasAttachment: true,
+                              attachments: [
+                                {'name': 'Client_Feedback_Q4.pdf', 'type': 'PDF Document'},
+                              ],
+                      ),
+                    ),
+                  );
+                },
+                child: const _EmailItem(
+                  sender: 'Lisa Thompson',
+                        senderInitials: 'LT',
+                        subject: 'Client Feedback Summary',
+                        preview: 'I wanted to provide you with a comprehensive summary of the client feedback we received this...',
+                        time: 'Tue 9/9',
+                        isUnread: false,
+                        hasAttachment: true,
+                        tags: ['Final Payment'],
+                      ),
+                    ),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmailDetailPage(
+                              sender: 'John Martinez',
+                              senderEmail: 'john.martinez@techcorp.com',
+                              senderInitials: 'JM',
+                              subject: 'Budget Review Q4 2025',
+                              content: 'Hi team,\n\nPlease find attached the budget review for Q4 2025. We need to discuss some adjustments based on the recent market changes and revenue projections.\n\nKey points:\n- Marketing budget increase of 15%\n- R&D investment adjustment\n- Operational cost optimization\n- New hire budget review\n\nLet\'s schedule a meeting to go through these changes in detail. I\'m available Tuesday or Thursday afternoon.\n\nBest regards,\nJohn',
+                              time: 'Mon 9/8',
+                              tags: ['Approval'],
+                              hasAttachment: true,
+                              attachments: [
+                                {'name': 'Budget_Review_Q4_2025.xlsx', 'type': 'Excel Spreadsheet'},
+                              ],
+                      ),
+                    ),
+                  );
+                },
+                child: const _EmailItem(
+                  sender: 'John Martinez',
+                        senderInitials: 'JM',
+                        subject: 'Budget Review Q4 2025',
+                        preview: 'Please find attached the budget review for Q4 2025. We need to discuss some adjustments...',
+                        time: 'Mon 9/8',
+                        isUnread: false,
+                        hasAttachment: true,
+                        tags: ['Approval'],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
