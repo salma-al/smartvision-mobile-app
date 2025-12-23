@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../helper/data_helper.dart';
 import '../utils/media_query_values.dart';
 import '../utils/colors.dart';
 
@@ -30,8 +31,9 @@ class LoadingWidget extends StatelessWidget {
                     strokeWidth: 4,
                   ),
                 ),
+                if(DataHelper.instance.comp != null)
                 Image.asset(
-                  'assets/images/home_logo.png',
+                  DataHelper.instance.comp!.logoAsset,
                   width: 40,
                   height: 40,
                 ),

@@ -77,8 +77,6 @@ class EmailInboxScreen extends StatelessWidget {
                                   child: PrimaryButton(
                                     text: cubit.fromDate != null ? cubit.fromDate! : 'From Date',
                                     onTap: () => cubit.selectDate(context, true),
-                                    color: Colors.grey.withValues(alpha: 0.2),
-                                    textColor: Colors.grey,
                                   ),
                                 ),
                                 const SizedBox(width: 20),
@@ -86,8 +84,6 @@ class EmailInboxScreen extends StatelessWidget {
                                   child: PrimaryButton(
                                     text: cubit.toDate != null ? cubit.toDate! : 'To Date',
                                     onTap: () => cubit.selectDate(context, false),
-                                    color: Colors.grey.withValues(alpha: 0.2),
-                                    textColor: Colors.grey,
                                   ),
                                 ),
                               ],
@@ -159,7 +155,6 @@ class EmailInboxScreen extends StatelessWidget {
                               child: PrimaryButton(
                                 text: 'Apply Filters',
                                 onTap: () => cubit.applyFilters(context),
-                                color: AppColors.mainColor.withValues(alpha: 0.8),
                               ),
                             ),
                           ],

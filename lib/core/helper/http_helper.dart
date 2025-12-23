@@ -7,15 +7,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:smart_vision/core/helper/cache_helper.dart';
 
 import '../../features/login/view/login_screen.dart';
 import 'data_helper.dart';
 
 class HTTPHelper {
-  static const String baseUrl = 'https://erp.smartvgroup.com/api/method/svg_mobile_app.api.';
-  static const String imgBaseUrl = 'https://erp.smartvgroup.com';
+  // Production (behind reverse proxy): 'https://erp.smartvgroup.com/api/method/svg_mobile_app.svg_apis.'
+  static const String baseUrl = 'http://84.247.165.136:8003/api/method/svg_mobile_app.svg_apis.';
+  static const String fileBaseUrl = 'http://84.247.165.136:8003';
+  // static const String fileBaseUrl = 'https://erp.smartvgroup.com';
   static bool isRequestRunning = false;
-  // static const String baseUrl = 'https://f739-41-234-86-182.ngrok-free.app/api/method/frappe.www.api.';
 
   static Future login(String endPoint, dynamic body, BuildContext context, {Map<String, String>? headers}) async{
     Uri url = Uri.parse(baseUrl + endPoint);
@@ -27,15 +29,42 @@ class HTTPHelper {
     return utf8ResponseBody;
   }
 
+  static Future<void> forceLogout(BuildContext context) async {
+    final instance = DataHelper.instance;
+    String? email = CacheHelper.getData('email', String);
+    String? pass = CacheHelper.getData('password', String);
+    await instance.reset();
+    await CacheHelper.setData('email', email);
+    await CacheHelper.setData('password', pass);
+
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
+    }
+  }
+  
+  static dynamic parseResponse(String body) {
+    try {
+      return jsonDecode(body);
+    } catch (_) {
+      return {
+        'status': 'fail',
+        'message': body,
+      };
+    }
+  }
+
   static Future<dynamic> httpPost(String endPoint, Map<String, dynamic> body, BuildContext context, {Map<String, String>? headers}) async {
     if(isRequestRunning) return null;
     isRequestRunning = true;
     Uri url = Uri.parse(baseUrl + endPoint);
     final instance = DataHelper.instance;
-    if (instance.token == null) {
-      await instance.reset();
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-      return;
+    if(instance.token == null) {
+      await forceLogout(context);
+      return null;
     }
     String encodedBody = jsonEncode(body);
     headers = headers ?? <String, String>{};
@@ -45,11 +74,38 @@ class HTTPHelper {
       final response = await http.post(url, body: encodedBody, headers: headers);
       final utf8ResponseBody = utf8.decode(response.bodyBytes);
       if (response.statusCode == 401 || utf8ResponseBody.contains('"session_expired":1')) {
-        await instance.reset();
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
+        await forceLogout(context);
+        return null;
+      }
+      return parseResponse(utf8ResponseBody);
+    } catch (e) {
+      return {'status': 'fail', 'message': 'Something went wrong'};
+    } finally {
+      isRequestRunning = false;
+    }
+  }
+
+  static Future<dynamic> httpGet(String endPoint, BuildContext context, {Map<String, String>? headers}) async {
+    if (isRequestRunning) return null;
+    isRequestRunning = true;
+
+    final instance = DataHelper.instance;
+    if (instance.token == null) {
+      await forceLogout(context);
+      return;
+    }
+    Uri url = Uri.parse(baseUrl + endPoint);
+    headers = headers ?? <String, String>{};
+    headers['Content-Type'] = 'application/json';
+    headers['Cookie'] = 'sid=${instance.token}';
+    try {
+      final response = await http.get(url, headers: headers);
+      final utf8ResponseBody = utf8.decode(response.bodyBytes);
+      if (response.statusCode == 401 || utf8ResponseBody.contains('"session_expired":1')) {
+        await forceLogout(context);
         return;
       }
-      return jsonDecode(utf8ResponseBody);
+      return parseResponse(utf8ResponseBody);
     } catch (e) {
       return {'status': 'fail', 'message': 'Something went wrong'};
     } finally {

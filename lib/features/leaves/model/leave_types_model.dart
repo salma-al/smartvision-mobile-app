@@ -7,7 +7,7 @@ class LeaveTypesModel {
   factory LeaveTypesModel.fromJson(Map<String, dynamic> json) {
     return LeaveTypesModel(
       leaveType: json['leave_type'],
-      availableLeaves: json['remaining_leaves'].toInt(),
+      availableLeaves: int.tryParse(json['remaining_leaves'].toString().split('.')[0]) ?? 0,
     );
   }
 }

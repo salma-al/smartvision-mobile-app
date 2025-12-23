@@ -1,110 +1,95 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:smart_vision/core/helper/data_helper.dart';
+import 'package:smart_vision/core/widgets/toast_widget.dart';
+import '../constants/app_constants.dart';
 
 class AttachmentWidget extends StatelessWidget {
-  final String fileUrl;
-  const AttachmentWidget({super.key, required this.fileUrl});
+  final String url;
+
+  const AttachmentWidget({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {
-    final fileType = _getFileType(fileUrl);
-    return GestureDetector(
-      onTap: () => openFileUrl(fileUrl),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade300),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.2),
-              blurRadius: 6,
-              offset: const Offset(2, 3),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundColor,
+        borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
+      ),
+      child: Row(
+        children: [
+          // Attachment Icon
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.greyText,
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: _getFileTypeColor(fileType).withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+            child: const Center(
               child: Icon(
-                _getFileTypeIcon(fileType),
-                color: _getFileTypeColor(fileType),
-                size: 36,
+                Icons.attach_file,
+                color: AppColors.white,
+                size: 24,
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                fileUrl.split('/').last,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14),
-                maxLines: 2,
+          ),
+          const SizedBox(width: 12),
+          
+          // File Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  url.split('/').last,
+                  style: AppTypography.p14(),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  url.split('.').last,
+                  style: AppTypography.helperTextSmall(),
+                ),
+              ],
+            ),
+          ),
+          
+          // Download Button
+          IconButton(
+            icon: SvgPicture.asset(
+              'assets/images/download.svg',
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(
+                AppColors.unreadDot,
+                BlendMode.srcIn,
               ),
             ),
-          ],
-        ),
+            onPressed: () => openFileUrl(context, url),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
       ),
     );
   }
 
-  String _getFileType(String url) {
-    final lower = url.toLowerCase();
-    if (lower.endsWith('.pdf')) return 'pdf';
-    if (lower.endsWith('.jpg') ||
-        lower.endsWith('.jpeg') ||
-        lower.endsWith('.png') ||
-        lower.endsWith('.gif') ||
-        lower.endsWith('.webp')) { return 'image'; }
-    if (lower.endsWith('.doc') || lower.endsWith('.docx')) return 'doc';
-    if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) return 'excel';
-    return 'other';
-  }
-
-  IconData _getFileTypeIcon(String type) {
-    switch (type) {
-      case 'pdf':
-        return Icons.picture_as_pdf_rounded;
-      case 'image':
-        return Icons.image_rounded;
-      case 'doc':
-        return Icons.description_rounded;
-      case 'excel':
-        return Icons.table_chart_rounded;
-      default:
-        return Icons.insert_drive_file_rounded;
-    }
-  }
-
-  Color _getFileTypeColor(String type) {
-    switch (type) {
-      case 'pdf':
-        return Colors.redAccent;
-      case 'image':
-        return Colors.blueAccent;
-      case 'doc':
-        return Colors.indigoAccent;
-      case 'excel':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Future<void> openFileUrl(String url) async {
+  Future<void> openFileUrl(BuildContext context, String url) async {
     try {
       final uri = Uri.parse(url);
-      final response = await http.get(uri);
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Cookie' : 'sid=${DataHelper.instance.token}'
+      };
+      final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
         final dir = await getTemporaryDirectory();
@@ -114,10 +99,10 @@ class AttachmentWidget extends StatelessWidget {
 
         await OpenFilex.open(file.path);
       } else {
-        throw 'Failed to download file';
+        ToastWidget().showToast('Failed to download file', context);
       }
     } catch (e) {
-      debugPrint('Error opening file: $e');
+      ToastWidget().showToast('Can\'t open this file', context);
     }
   }
 }

@@ -35,6 +35,8 @@ dependencies:
   package_info_plus: ^8.1.1
   new_version_plus: ^0.0.12
   open_filex: ^4.7.0
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.2.0
 
 dev_dependencies:
   flutter_test:

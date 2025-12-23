@@ -23,17 +23,38 @@ class SignInOutCubit extends Cubit<SignInOutState> {
   static SignInOutCubit get(context) => BlocProvider.of(context);
   
   File? imageFile;
-  List<CheckRecordsModel> checkRecords = [];
+  CheckModel? checkModel;
   String currentLocation = '';
-  String startHour = '---', endHour = '---';
-  bool checkLoading = false, availableCheck = true, isCheckedIn = true, requiredImg = false;
+  bool availableCheck = true, isCheckedIn = true;
   Timer? timer;
   Duration elapsedDuration = Duration.zero;
-  String companyAddress = '';
   double compLat = 0.0, compLong = 0.0;
   double currLat = 0.0, currLong = 0.0;
   double? uploadProgress;
 
+  Duration getTotalWorked() {
+    Duration totalWork = Duration.zero;
+    DateTime current = DateTime.now();
+    if(checkModel != null) {
+      for(var check in checkModel!.records) {
+        if(check.checkInTime != '---') {
+          DateTime inTime = DateTime.parse('${current.year}-${current.month}-${current.day} ${check.checkInTime}');
+          if(check.checkOutTime != '---') {
+            DateTime outTime = DateTime.parse('${current.year}-${current.month}-${current.day} ${check.checkOutTime}');
+            totalWork += outTime.difference(inTime);
+          } else {
+            totalWork += current.difference(inTime);
+          }
+        }
+      }
+    }
+    return totalWork;
+  }
+  String formatDurationShort(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    return '$hours:${minutes.toString().padLeft(2, '0')}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+  }
   String formatTime(String time) {
     if(time == '---') return '---';
     final parts = time.split(':');
@@ -44,73 +65,19 @@ class SignInOutCubit extends Cubit<SignInOutState> {
     hour = hour % 12 == 0 ? 12 : hour % 12;
 
     final period = isPM ? 'PM' : 'AM';
-    return '$hour:${parts[1]} $period';
+    return '$hour $period';
   }
-  String getFormattedDate() {
-    final now = DateTime.now();
-    final day = now.day;
-    final month = getMonthName(now.month);
-    final suffix = getDaySuffix(day);
-    
-    return '$month $day$suffix';
-  }
-  String getMonthName(int month) {
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    return monthNames[month - 1];
-  }
-  String getDaySuffix(int day) {
-    if (day >= 11 && day <= 13) {
-      return 'th';
-    }
-    switch (day % 10) {
-      case 1:
-        return 'st';
-      case 2:
-        return 'nd';
-      case 3:
-        return 'rd';
-      default:
-        return 'th';
-    }
-  }
-  String calculateHours(String inTime, String outTime) {
-    DateTime now = DateTime.now();
-    List<String> timeInParts = inTime.split(':');
-    int hourIn = int.parse(timeInParts[0]);
-    int minuteIn = int.parse(timeInParts[1]);
-    int secondIn = int.parse(timeInParts[2]);
-    DateTime checkIn = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      hourIn,
-      minuteIn,
-      secondIn,
-    );
-    List<String> timeOutParts = outTime.split(':');
-    int hourOut = int.parse(timeOutParts[0]);
-    int minuteOut = int.parse(timeOutParts[1]);
-    int secondOut = int.parse(timeOutParts[2]);
-    DateTime checkOut = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      hourOut,
-      minuteOut,
-      secondOut,
-    );
+  String formatFullTime(String time) {
+    if(time == '---') return '---';
+    final parts = time.split(':');
+    int hour = int.parse(parts[0]);
 
-    // Calculate the difference
-    Duration difference = checkOut.difference(checkIn);
+    // Determine AM/PM and adjust hour for 12-hour format
+    final isPM = hour >= 12;
+    hour = hour % 12 == 0 ? 12 : hour % 12;
 
-    // Extract hours and minutes
-    int hours = difference.inHours;
-    int minutes = difference.inMinutes % 60;
-
-    return '$hours hours $minutes minutes';
+    final period = isPM ? 'PM' : 'AM';
+    return '${hour.toString().padLeft(2, '0')}:${parts[1].toString().padLeft(2, '0')} $period';
   }
   Future<void> getCurrentLocation(context) async {
     ///handle permission
@@ -142,17 +109,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
     currLat = position.latitude;
     currLong = position.longitude;
   }
-  String formatDuration() {
-    int hours = elapsedDuration.inHours;
-    int minutes = elapsedDuration.inMinutes.remainder(60);
-    int seconds = elapsedDuration.inSeconds.remainder(60);
-    
-    // Format to ensure two digits for each time component
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    
-    return '${twoDigits(hours)} : ${twoDigits(minutes)} : ${twoDigits(seconds)}';
-  }
-  startTimer(DateTime lastCheckIn) {
+  void startTimer(DateTime lastCheckIn) {
     stopTimer(); // Ensure the previous timer is stopped
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final now = DateTime.now();
@@ -164,47 +121,36 @@ class SignInOutCubit extends Cubit<SignInOutState> {
       emit(UpdateElapsedTime());
     });
   }
-  stopTimer() {
+  void stopTimer() {
     timer?.cancel();
     timer = null;
     elapsedDuration = Duration.zero;
   }
-  getLastChecks(BuildContext context) async{
+  Future<void> getLastChecks(BuildContext context) async {
     final instance = DataHelper.instance;
     final body = {'employee_id': instance.userId};
-    checkLoading = true;
     emit(CheckInOutLoading());
     try {
       final data = await HTTPHelper.httpPost(EndPoints.lastCheckInOut, body, context);
       if(data['message']['status'] == 'success') {
-        String start = data['message']['data']['shift']['start_time'] ?? '---';
-        String end = data['message']['data']['shift']['end_time'] ?? '---';
-        companyAddress = data['message']['data']['company_details']['address'] ?? 'unavailable';
+        checkModel = CheckModel.fromJson(data['message']['data']);
         String lat = data['message']['data']['company_details']['latitude'] ?? '';
         String long = data['message']['data']['company_details']['longitude'] ?? '';
-        requiredImg = data['message']['data']['company_details']['log_with_image'] ?? false;
-        availableCheck = data['message']['data']['shift status'] ?? false;
         if(lat.isNotEmpty && long.isNotEmpty) {
           compLat = double.parse(lat);
           compLong = double.parse(long);
         }
-        startHour = formatTime(start);
-        endHour = formatTime(end);
-        checkRecords = [];
-        for(var check in data['message']['data']['checkins']) {
-          checkRecords.add(CheckRecordsModel.fromJson(check));
+        if(checkModel != null && checkModel!.records.isEmpty) {
+          checkModel!.records.add(CheckRecordsModel(checkInTime: '---', checkOutTime: '---'));
         }
-        if(checkRecords.isEmpty) {
-          checkRecords.add(CheckRecordsModel(checkInTime: '---', checkOutTime: '---'));
-        }
-        isCheckedIn = checkRecords.isEmpty || checkRecords.last.checkInTime == '---' || checkRecords.last.checkOutTime != '---';
+        isCheckedIn = checkModel != null && (checkModel!.records.isEmpty || checkModel!.records.last.checkInTime == '---' || checkModel!.records.last.checkOutTime != '---');
         if(!availableCheck) {
           stopTimer();
           ToastWidget().showToast('You are out of shift.', context);
         } else {
-          if(checkRecords.isNotEmpty && checkRecords.last.checkInTime != '---' && checkRecords.last.checkOutTime == '---') {
+          if(checkModel != null && checkModel!.records.isNotEmpty && checkModel!.records.last.checkInTime != '---' && checkModel!.records.last.checkOutTime == '---') {
             DateTime now = DateTime.now();
-            List<String> timeParts = checkRecords.last.checkInTime.split(':');
+            List<String> timeParts = checkModel!.records.last.checkInTime.split(':');
             int hour = int.parse(timeParts[0]);
             int minute = int.parse(timeParts[1]);
             int second = int.parse(timeParts[2]);
@@ -223,20 +169,17 @@ class SignInOutCubit extends Cubit<SignInOutState> {
             stopTimer();
           }
         }
-        checkLoading = false;
         emit(GetLastCheckSuccess());
       } else {
         ToastWidget().showToast(data['message']['message'], context);
-        checkLoading = false;
         emit(GetLastCheckError());
       }
     }catch(e) {
       ToastWidget().showToast('Something went wrong', context);
-      checkLoading = false;
       emit(GetLastCheckError());
     }
   }
-  launchMap(context) async {
+  Future<void> launchMap(context) async {
     final String googleMapsUrl = 'https://www.google.com/maps?q=$compLat,$compLong';
     
     try {
@@ -256,9 +199,9 @@ class SignInOutCubit extends Cubit<SignInOutState> {
       
       if (image != null) {
         imageFile = File(image.path);
-        if(checkRecords.isEmpty || 
-           checkRecords.last.checkInTime == '---' || 
-           checkRecords.last.checkOutTime != '---') {
+        if(checkModel != null && (checkModel!.records.isEmpty || 
+           checkModel!.records.last.checkInTime == '---' || 
+           checkModel!.records.last.checkOutTime != '---')) {
           await checkFunction(context, true);
         } else {
           await checkFunction(context, false);
@@ -268,13 +211,11 @@ class SignInOutCubit extends Cubit<SignInOutState> {
       ToastWidget().showToast('Failed to capture image', context);
     }
   }  
-  checkFunction(context, bool isCheckIn) async {
-    checkLoading = true;
+  Future<void> checkFunction(context, bool isCheckIn) async {
     emit(CheckInOutLoading());
     await getCurrentLocation(context);
     if(currLat == 0.0 || currLong == 0.0) {
       ToastWidget().showToast('Please enable your location permissions and try again', context);
-      checkLoading = false;
       emit(CheckInOutError());
       return;
     }
@@ -304,29 +245,25 @@ class SignInOutCubit extends Cubit<SignInOutState> {
         if(data['status'] == 200) {
           imageFile = null;
           ToastWidget().showToast(data['data']['message']['message'], context);
-          checkLoading = false;
           uploadProgress = null;
-          emit(CheckInOutSuccess());
           if(data['data']['message']['status'] == 'success') await getLastChecks(context);
           return;
+        } else {
+          ToastWidget().showToast(data['message']['message'] ?? 'Something went wrong', context);
+          emit(CheckInOutError());
         }
         return;
       }
       final data = await HTTPHelper.httpPost(EndPoints.checkInOut, body, context);
       if (data['message']['status'] == 'success') {
-        imageFile = null;
         ToastWidget().showToast(data['message']['message'], context);
-        checkLoading = false;
-        emit(CheckInOutSuccess());
         await getLastChecks(context);
       } else {
         ToastWidget().showToast(data['message']['message'], context);
-        checkLoading = false;
         emit(CheckInOutError());
       }
     } catch(e) {
       ToastWidget().showToast('Something went wrong', context);
-      checkLoading = false;
       emit(CheckInOutError());
     }
   }

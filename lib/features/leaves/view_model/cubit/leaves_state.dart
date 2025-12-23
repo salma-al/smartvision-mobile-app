@@ -8,6 +8,13 @@ final class LeavesInitial extends LeavesState {}
 final class RequestChanged extends LeavesState {}
 final class ReuestTimeChanged extends LeavesState {}
 final class FilePicked extends LeavesState {}
+final class TabChanged extends LeavesState {}
+final class ShiftChanged extends LeavesState {}
+final class DateChanged extends LeavesState {}
+final class ExcuseTimeChanged extends LeavesState {}
+final class ExcuseTypeChanged extends LeavesState {}
+final class TimeChanged extends LeavesState {}
+final class LeaveTypeChanged extends LeavesState {}
 
 final class LeavesLoadingState extends LeavesState {}
 final class LeavesLoadedState extends LeavesState {}

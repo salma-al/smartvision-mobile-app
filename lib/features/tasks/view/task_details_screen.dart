@@ -283,8 +283,6 @@ class TaskDetailsScreen extends StatelessWidget {
                                   const SnackBar(content: Text('Comments feature coming soon')),
                                 );
                               },
-                              color: AppColors.mainColor.withValues(alpha: 0.8),
-                              width: double.infinity,
                             ),
                           ],
                         ),

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:smart_vision/core/widgets/attachment_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/utils/media_query_values.dart';
-import '../../../core/utils/colors.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/helper/data_helper.dart';
+import '../../../core/widgets/base_scaffold.dart';
+import '../../../core/widgets/secondary_app_bar.dart';
 import '../model/announcements_model.dart';
 
 class AnnouncementDetailsScreen extends StatelessWidget {
@@ -12,83 +15,72 @@ class AnnouncementDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text('Announcement Details', style: TextStyle(color: AppColors.mainColor)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: AppColors.mainColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        backgroundColor: Colors.white,
-        actions: [
-          Image.asset('assets/images/home_logo.png', width: 40, height: 40),
-          const SizedBox(width: 15),
-        ],
+    return BaseScaffold(
+      currentNavIndex: 2,
+      appBar: SecondaryAppBar(
+        title: 'Announcement',
+        showBackButton: true,
+        notificationCount: DataHelper.unreadNotificationCount,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                boxShadow: AppShadows.defaultShadow,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: Text(announcement.name, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.mainColor))),
-                  const SizedBox(width: 16),
-                  Text(announcement.date, style: TextStyle(fontSize: 16, color: AppColors.darkColor)),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                width: context.width,
-                alignment: Alignment.centerLeft,
-                decoration: BoxDecoration(
-                  color: Colors.white70,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade300,
-                      spreadRadius: 0,
-                      blurRadius: 6,
-                      offset: const Offset(2, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    Text('Content', style: TextStyle(fontSize: 16, color: AppColors.mainColor)),
-                    const SizedBox(height: 24),
-                    Html(data: announcement.description),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              if (announcement.attachments.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Attachments',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.mainColor,
+                  Text(
+                    announcement.name,
+                    style: AppTypography.h3(),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: AppColors.helperText,
                       ),
+                      const SizedBox(width: 6),
+                      Text(
+                        announcement.date,
+                        style: AppTypography.helperText(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Html(
+                    data: announcement.description,
+                    onLinkTap: (url, attributes, element) async {
+                      if(url == null) return;
+                      final uri = Uri.parse(url);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      }
+                    },
+                  ),
+                  if (announcement.attachments.isNotEmpty) ...[
+                    const SizedBox(height: 32),
+                    Text(
+                      'Attachment',
+                      style: AppTypography.h4(),
                     ),
                     const SizedBox(height: 12),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: announcement.attachments.length,
-                      itemBuilder: (context, index) => AttachmentWidget(fileUrl: announcement.attachments[index]),
-                    ),
+                    ...announcement.attachments.map((attach) => AttachmentWidget(url: attach)),
                   ],
-                ),
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

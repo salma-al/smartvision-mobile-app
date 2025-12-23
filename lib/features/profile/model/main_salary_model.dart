@@ -1,13 +1,36 @@
-class MainSalaryModel {
-  final String id, month;
+import '../../../core/helper/shared_functions.dart';
 
-  MainSalaryModel({required this.id, required this.month});
+class MainSalaryModel {
+  final List<SingleSalaryModel> salaries;
+
+  MainSalaryModel({required this.salaries});
 
   factory MainSalaryModel.fromJson(Map<String, dynamic> json) {
-    DateTime date = DateTime.tryParse(json['end_date']) ?? DateTime.now();
     return MainSalaryModel(
+      salaries: List<SingleSalaryModel>.from((json['salaries'] as List).map((e) => SingleSalaryModel.fromJson(e))), 
+    );
+  }
+}
+
+class SingleSalaryModel {
+  final String id, month, netPay;
+  final bool isLatest;
+
+  SingleSalaryModel({
+    required this.id, 
+    required this.month,
+    required this.netPay,
+    required this.isLatest
+  });
+
+  factory SingleSalaryModel.fromJson(Map<String, dynamic> json) {
+    DateTime curr = DateTime.now();
+    DateTime date = DateTime.tryParse(json['end_date']) ?? curr;
+    return SingleSalaryModel(
       id: json['name'], 
-      month: getMonthStrOfDate(date),
+      month: '${getFullMonthName(date.month)} ${date.year}',
+      netPay: '£${json['net_pay']}',
+      isLatest: curr.month == date.month,
     );
   }
 }

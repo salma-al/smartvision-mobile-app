@@ -1,35 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:hexcolor/hexcolor.dart';
-import 'package:smart_vision/core/utils/media_query_values.dart';
+import '../constants/app_constants.dart';
+import '../helper/data_helper.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
-  final Function()? onTap;
-  final Color? color, textColor;
-  final double? width;
-  final double? height;
+  final VoidCallback onTap;
 
-  const PrimaryButton({super.key, required this.text, this.onTap, this.color, this.width, this.height, this.textColor});
+  const PrimaryButton({
+    super.key,
+    required this.text,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(9999),
       child: Container(
-        height: height ?? 52,
-        width: width ?? context.width * 0.5,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 35),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(40),
-          color: color ?? HexColor('#FFF8DB').withValues(alpha: 0.65),
+          color: DataHelper.instance.comp!.primaryColor,
+          borderRadius: BorderRadius.circular(9999),
+          boxShadow: AppShadows.defaultShadow,
         ),
         child: Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 16,
-              color: textColor ?? Colors.white,
-            ),
-          ),
+          child: Text(text, style: AppTypography.p14(color: AppColors.white)),
         ),
       ),
     );

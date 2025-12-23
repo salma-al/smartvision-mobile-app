@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 
-import '../../../core/utils/colors.dart';
+import '../../../core/helper/shared_functions.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/helper/data_helper.dart';
+import '../../../core/widgets/base_scaffold.dart';
 import '../../../core/widgets/loading_widget.dart';
-import '../components/check_buttons.dart';
-import '../components/check_times_card.dart';
-import '../components/sign_in_out_component.dart';
+import '../../../core/widgets/secondary_app_bar.dart';
+import '../components/info_item.dart';
+import '../components/time_log_item.dart';
+import '../components/time_state_item.dart';
 import '../view_model/cubit/sign_in_out_cubit.dart';
 
 class SignInOutScreen extends StatelessWidget {
@@ -13,136 +18,313 @@ class SignInOutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DateTime current = DateTime.now();
     return BlocProvider(
       create: (context) => SignInOutCubit()..getLastChecks(context),
       child: BlocBuilder<SignInOutCubit, SignInOutState>(
         builder: (context, state) {
           var cubit = SignInOutCubit.get(context);
-          return Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              title: Text('Check in / out', style: TextStyle(color: AppColors.mainColor)),
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios, color: AppColors.mainColor),
-                onPressed: () => Navigator.pop(context),
-              ),
-              backgroundColor: Colors.white,
-              elevation: 0,
-              actions: [
-                Image.asset('assets/images/home_logo.png', width: 40, height: 40),
-                const SizedBox(width: 15),
-              ],
-            ),
+          return BaseScaffold(
+            currentNavIndex: 1,
+            appBar: SecondaryAppBar(title: 'Check In', showBackButton: false, notificationCount: DataHelper.unreadNotificationCount),
             body: Stack(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 24, right: 24),
-                  child: RefreshIndicator(
-                    onRefresh: () => cubit.getLastChecks(context),
-                    child: ListView(
+                RefreshIndicator(
+                  onRefresh: () => cubit.getLastChecks(context),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pagePaddingHorizontal),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 50),
-                        // Information Section
+                        const SizedBox(height: 3),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.lightText),
+                            const SizedBox(width: 6),
+                            Text('${getDayName(current.weekday)}, ${getFullMonthName(current.month)} ${current.day}, ${current.year}', style: AppTypography.helperText()),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Company Info Cards
                         Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 5),
                           decoration: BoxDecoration(
-                            color: Colors.white70,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.shade300,
-                                spreadRadius: 0,
-                                blurRadius: 6,
-                                offset: const Offset(2, 3),
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+                            boxShadow: AppShadows.defaultShadow,
+                          ),
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: InfoItem(
+                                  icon: 'assets/images/case.svg',
+                                  iconColor: AppColors.red,
+                                  iconBg: Color(0x14CB1933),
+                                  label: 'Company',
+                                  value: 'SVG',
+                                ),
+                              ),
+                              Expanded(
+                                child: InfoItem(
+                                  icon: 'assets/images/clock_grey.svg',
+                                  iconColor: AppColors.red,
+                                  iconBg: const Color(0x14CB1933),
+                                  label: 'Shift Hours',
+                                  value: cubit.checkModel != null ? '${cubit.checkModel!.startTime} - ${cubit.checkModel!.endTime}' : '--- - ---',
+                                ),
+                              ),
+                              const Expanded(
+                                child: InfoItem(
+                                  icon: 'assets/images/note.svg',
+                                  iconColor: AppColors.red,
+                                  iconBg: Color(0x14CB1933),
+                                  label: 'Break Hours',
+                                  value: '1 PM - 2 PM',
+                                ),
                               ),
                             ],
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Check In/Out Section
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+                            boxShadow: AppShadows.defaultShadow,
+                          ),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              SignInOutComponent(title: 'Date', value: cubit.getFormattedDate()),
-                              SignInOutComponent(title: 'Time', value: '${cubit.startHour} - ${cubit.endHour}'),
-                              SignInOutComponent(title: 'Location', value: cubit.companyAddress),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: () => cubit.launchMap(context),
-                                icon: const Icon(Icons.location_on, color: Colors.white),
-                                label: const Text(
-                                  'Get Directions',
-                                  style: TextStyle(color: Colors.white),
+                              // Icon and title
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.access_time,
+                                    size: 20,
+                                    color: AppColors.darkText,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    cubit.isCheckedIn ? 'Check In Time' : 'Tap to Check In',
+                                    style: AppTypography.p16(),
+                                  ),
+                                ],
+                              ),
+                              // Time display
+                              if (cubit.availableCheck && cubit.checkModel != null && cubit.checkModel!.records.isNotEmpty) ...[
+                                const SizedBox(height: 16),
+                                Text(
+                                  cubit.checkModel!.records.last.checkInTime,
+                                  style: const TextStyle(
+                                    color: Color(0xFF0A0A0A),
+                                    fontFamily: 'DM Sans',
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.w400,
+                                    height: 40 / 36,
+                                    letterSpacing: 5,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.mainColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
+                              ],
+                              const SizedBox(height: 24),
+                              // Check In/Out button
+                              if(cubit.availableCheck && cubit.checkModel != null && !cubit.checkModel!.requiredImage)
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: cubit.isCheckedIn ? 
+                                    () => cubit.checkFunction(context, true) : 
+                                    () => cubit.checkFunction(context, false),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: !cubit.isCheckedIn 
+                                        ? const Color(0xFF991B1B)
+                                        : const Color(0xFF065F46),
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.check_circle_outline, size: 20, color: AppColors.white),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        cubit.isCheckedIn ? 'Check In' : 'Check Out',
+                                        style: AppTypography.p16(color: AppColors.white),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        // Image Capture Section
+                        const SizedBox(height: 16),
+                        // Check In/Out Photo Section
                         if(cubit.availableCheck)
-                        GestureDetector(
-                          onTap: () => cubit.pickImage(context),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            decoration: BoxDecoration(
-                              color: cubit.isCheckedIn ? AppColors.mainColor : AppColors.redColor,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.shade300,
-                                  spreadRadius: 0,
-                                  blurRadius: 6,
-                                  offset: const Offset(2, 3),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+                            boxShadow: AppShadows.defaultShadow,
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.camera_alt_outlined,
+                                size: 18,
+                                color: AppColors.darkText,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  cubit.isCheckedIn ? 'Take Check In Photo' : 'Take Check OUT Photo',
+                                  style: AppTypography.p14(),
                                 ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.add_a_photo_rounded, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Take ${cubit.isCheckedIn ? 'checkin' : 'checkout'} photo',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                              ),
+                              const SizedBox(width: 12),
+                              InkWell(
+                                onTap: () => cubit.pickImage(context),
+                                borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF9FAFB),
+                                    borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
+                                    border: Border.all(color: AppColors.dividerLight, width: 1),
+                                  ),
+                                  child: Text(
+                                    'Capture',
+                                    style: AppTypography.helperTextSmall(color: AppColors.darkText),
+                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        // Check-In and Check-Out Buttons
-                        if(cubit.availableCheck && cubit.isCheckedIn && !cubit.requiredImg)
-                        CheckButtons(onTap: () => cubit.checkFunction(context, true), title: 'Check In')
-                        else if(cubit.availableCheck && !cubit.isCheckedIn && !cubit.requiredImg)
-                        CheckButtons(onTap: () => cubit.checkFunction(context, false), title: 'Check Out'),
-                        const SizedBox(height: 30),
-                        // Display Check-In and Check-Out Times with Hours Worked
-                        cubit.checkRecords.isEmpty ?
-                        const CheckTimesCard(inTime: '---', outTime: '---', hours: '00 : 00 : 00') :
-                        Column(
-                          children: cubit.checkRecords.map((e) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: CheckTimesCard(
-                              inTime: e.checkInTime,
-                              outTime: e.checkOutTime,
-                              hours: (e.checkInTime != '---' && e.checkOutTime == '---') 
-                                  ? cubit.formatDuration()
-                                  : (e.checkInTime == '---' && e.checkOutTime == '---') 
-                                      ? '00 : 00 : 00' 
-                                      : cubit.calculateHours(e.checkInTime, e.checkOutTime),
-                            ),
-                          )).toList(),
+                        const SizedBox(height: 16),
+                        // Today's Progress (always shown)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+                            boxShadow: AppShadows.defaultShadow,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Today\'s Progress', style: AppTypography.p16()),
+                              const SizedBox(height: 16),
+                              // Progress label and percentage
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Work Progress', style: AppTypography.helperTextSmall()),
+                                  Text('${cubit.formatDurationShort(cubit.getTotalWorked())}%', style: AppTypography.helperTextSmall()),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              // Progress bar
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: cubit.getTotalWorked().inMinutes / 540,
+                                  minHeight: 8,
+                                  backgroundColor: const Color(0xFFE5E7EB),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.darkText),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              // Time stats
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TimeStateItem(
+                                      label: 'Worked',
+                                      value: (cubit.isCheckedIn || (cubit.checkModel != null && cubit.checkModel!.records.isNotEmpty))
+                                          ? cubit.formatDurationShort(cubit.getTotalWorked()) : '--:--:--',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: TimeStateItem(
+                                      label: 'Remaining',
+                                      value: (cubit.isCheckedIn || (cubit.checkModel != null && cubit.checkModel!.records.isNotEmpty))
+                                          ? cubit.formatDurationShort(Duration(seconds: (32400 - cubit.getTotalWorked().inSeconds).clamp(0, 32400))) : '--:--:--',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Expanded(child: TimeStateItem(label: 'Total', value: '9:00:00')),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: 16),
+                        // Time Log (shown when checked in or has logs)
+                        if (cubit.checkModel != null && cubit.checkModel!.records.isNotEmpty) ...[
+                          for (int i = 0; i < cubit.checkModel!.records.length; i++) ...[
+                            if (cubit.checkModel!.records[i].checkInTime != '---')
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+                                  boxShadow: AppShadows.defaultShadow,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Time Log', style: AppTypography.p16()),
+                                    const SizedBox(height: 16),
+                                    TimeLogItem(
+                                      icon: SvgPicture.asset(
+                                        'assets/images/check_green.svg',
+                                        width: 18,
+                                        height: 18,
+                                        colorFilter: const ColorFilter.mode(AppColors.green, BlendMode.srcIn),
+                                      ),
+                                      iconColor: AppColors.green,
+                                      label: 'Check In Time',
+                                      time: cubit.formatFullTime(cubit.checkModel!.records[i].checkInTime),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    TimeLogItem(
+                                      icon: SvgPicture.asset(
+                                        'assets/images/X_red.svg',
+                                        width: 18,
+                                        height: 18,
+                                        colorFilter: const ColorFilter.mode(AppColors.red, BlendMode.srcIn),
+                                      ),
+                                      iconColor: AppColors.red,
+                                      label: 'Check Out Time',
+                                      time: (cubit.checkModel!.records[i].checkOutTime != '---') ? 
+                                       cubit.formatFullTime(cubit.checkModel!.records[i].checkOutTime) : '--:--',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ],
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
                 ),
-                if (cubit.checkLoading)
-                LoadingWidget(progress: cubit.uploadProgress),
+                if(state is CheckInOutLoading) LoadingWidget(progress: cubit.uploadProgress),
               ],
             ),
           );

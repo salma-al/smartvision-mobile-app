@@ -31,7 +31,7 @@ class RequestModel {
       endDate: json['to_date'],
       reason: json['reason']?? '',
       duration: json['duration']?.toString(),
-      attachUrl: json['attachment'] != null ? '${HTTPHelper.imgBaseUrl}${json['attachment']}' : null,
+      attachUrl: json['attachment'] != null ? '${HTTPHelper.fileBaseUrl}${json['attachment']}' : null,
       showActions: show,
     );
   }

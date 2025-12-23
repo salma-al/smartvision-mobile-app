@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_vision/core/utils/colors.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:smart_vision/features/attendance/components/state_item.dart';
 
-import '../../../core/utils/media_query_values.dart';
-import '../../../core/widgets/charts_widgets.dart';
-import '../../../core/widgets/custom_drop_down_field.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/helper/data_helper.dart';
+import '../../../core/widgets/app_badge.dart';
+import '../../../core/widgets/base_scaffold.dart';
+import '../../../core/widgets/filter_select_field.dart';
 import '../../../core/widgets/loading_widget.dart';
-import '../../../core/widgets/primary_button.dart';
+import '../../../core/widgets/secondary_app_bar.dart';
 import '../../attendance/view_model/cubit/attendance_cubit.dart';
 
 class AttendanceScreen extends StatelessWidget {
@@ -15,178 +18,229 @@ class AttendanceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AttendanceCubit()..initializeDays()..getAttendaceStatistics(context),
+      create: (context) => AttendanceCubit()..getAttendaceStatistics(context),
       child: BlocBuilder<AttendanceCubit, AttendanceState>(
         builder: (context, state) {
           var cubit = AttendanceCubit.get(context);
-          return Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              title: Text('Attendance', style: TextStyle(color: AppColors.mainColor)),
-              leading: IconButton(
-                  icon: Icon(Icons.arrow_back_ios, color: AppColors.mainColor),
-                  onPressed: () => Navigator.pop(context)),
-              backgroundColor: Colors.white,
-              actions: [
-                Image.asset('assets/images/home_logo.png', width: 40, height: 40),
-                const SizedBox(width: 15),
-              ],
+          return BaseScaffold(
+            currentNavIndex: 0, // Home section
+            appBar: SecondaryAppBar(
+              title: 'Attendance Report',
+              notificationCount: DataHelper.unreadNotificationCount,
             ),
-            body: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: RefreshIndicator(
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  RefreshIndicator(
                     onRefresh: () => cubit.getAttendaceStatistics(context),
-                    child: ListView(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.pagePaddingHorizontal,
+                        vertical: AppSpacing.pagePaddingVertical,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              SizedBox(
-                                width: context.width * 0.3,
-                                child: CustomDropdownFormField(
-                                  raduis: 35,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                                  hintText: 'Months',
-                                  items: cubit.monthNames.map((e) => DropdownMenuItem(
-                                    alignment: AlignmentDirectional.center,
-                                    value: cubit.monthNames.indexOf(e) + 1,
-                                    child: Text(e, textAlign: TextAlign.center)),
-                                  ).toList(),
-                                  value: cubit.selectedMonth,
-                                  onChanged: (val) => cubit.changeMonth(val!),
+                              const Icon(Icons.calendar_today_outlined, color: AppColors.darkText, size: 18),
+                              const SizedBox(width: 8),
+                              Text('Period', style: AppTypography.helperText()),
+                              const SizedBox(width: 12),
+                              Flexible(
+                                child: FilterSelectField(
+                                  label: '',
+                                  value: cubit.monthNames[cubit.selectedMonth - 1],
+                                  options: cubit.monthNames,
+                                  onChanged: (month) {
+                                    cubit.changeMonth(month);
+                                    cubit.getAttendaceStatistics(context);
+                                  },
+                                  leadingSvgAsset: null,
                                 ),
                               ),
-                              SizedBox(
-                                width: context.width * 0.3,
-                                child: CustomDropdownFormField(
-                                  raduis: 35,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                                  hintText: 'Years',
-                                  items: cubit.availableYears.map((e) => DropdownMenuItem(
-                                    alignment: AlignmentDirectional.center,
-                                    value: e,
-                                    child: Text(e.toString(), textAlign: TextAlign.center),),
-                                  ).toList(),
-                                  value: cubit.selectedYear,
-                                  onChanged: (val) => cubit.selectedYear = val!,
+                              const SizedBox(width: 16),
+                              SvgPicture.asset(
+                                'assets/images/filter.svg',
+                                width: 18,
+                                height: 18,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.darkText,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text('Type', style: AppTypography.helperText()),
+                              const SizedBox(width: 12),
+                              Flexible(
+                                child: FilterSelectField(
+                                  label: '',
+                                  value: cubit.selectedType,
+                                  options: const ['All', 'Present', 'Absent', 'Leave'],
+                                  onChanged: (v) {
+                                    cubit.changeType(v);
+                                    cubit.getAttendaceStatistics(context);
+                                  },
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          width: context.width,
-                          child: Wrap(
-                            alignment: WrapAlignment.center,
-                            children: cubit.days!.map((day) {
-                              return GestureDetector(
-                                onTap: () => cubit.changeDay(day),
-                                child: Container(
-                                  width: 40,
-                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-                                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: cubit.selectedDay == day
-                                        ? const Color.fromARGB(255, 174, 12, 0).withValues(alpha: 0.7)
-                                        : AppColors.mainColor.withValues(alpha: 0.7),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      day.toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                          const SizedBox(height: AppSpacing.sectionMargin),
+                          if(cubit.attendance != null) ...[
+                            Row(
+                              children: [
+                                StateItem(
+                                  bg: const Color(0xFFDCFCE7), color: AppColors.green, label: 'Present',
+                                  iconWidget: SvgPicture.asset(
+                                    'assets/images/arrow_up.svg',
+                                    width: 28,
+                                    height: 24.7,
+                                    colorFilter: const ColorFilter.mode(
+                                      AppColors.green,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ), 
+                                  trend: cubit.attendance!.present.toString(),
+                                ),
+                                const SizedBox(width: 12),
+                                StateItem(
+                                  bg: const Color(0xFFFFE2E2), color: AppColors.red, label: 'Absent',
+                                  iconWidget: SvgPicture.asset(
+                                    'assets/images/arrow_down.svg',
+                                    width: 28,
+                                    height: 24.7,
+                                    colorFilter: const ColorFilter.mode(
+                                      AppColors.red,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ), 
+                                  trend: cubit.attendance!.absent.toString(),
+                                ),
+                                const SizedBox(width: 12),
+                                StateItem(
+                                  bg: const Color(0xFFDBEAFE), color: AppColors.blue, label: 'Leaves',
+                                  iconWidget: SvgPicture.asset(
+                                    'assets/images/palm_tree.svg',
+                                    width: 26,
+                                    height: 24.7,
+                                    colorFilter: const ColorFilter.mode(
+                                      AppColors.blue,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ), 
+                                  trend: cubit.attendance!.leave.toString(),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.sectionMargin),
+                            Text('Daily Attendance', style: AppTypography.h3()),
+                            const SizedBox(height: AppSpacing.sameSectionMargin),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(AppBorderRadius.radius14),
+                                boxShadow: AppShadows.defaultShadow,
+                              ),
+                              child: Column(
+                                children: [
+                                  for (int i = 0; i < cubit.attendance!.dailyData.length; i++)
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        border: i == cubit.attendance!.dailyData.length - 1
+                                          ? null
+                                          : const Border(bottom: BorderSide(color: AppColors.dividerLight, width: 1.173)),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Row 1: date tile, badges, total hours
+                                          Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(6),
+                                                width: 49.0,
+                                                height: 49.0,
+                                                decoration: BoxDecoration(
+                                                  color: cubit.statusBgColor(cubit.attendance!.dailyData[i].status),
+                                                  borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Text('${cubit.attendance!.dailyData[i].dayNum}', style: AppTypography.p14(color: AppColors.darkText)),
+                                                    Text(cubit.attendance!.dailyData[i].dayName.substring(0, 3), style: AppTypography.p12(color: AppColors.lightText)),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Wrap(
+                                                  spacing: 8,
+                                                  runSpacing: 6,
+                                                  children: [
+                                                    AppBadge(
+                                                      label: cubit.attendance!.dailyData[i].status,
+                                                      color: cubit.statusColor(cubit.attendance!.dailyData[i].status),
+                                                      variant: BadgeVariant.filled,
+                                                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                                                      backgroundColor: cubit.statusBgColor(cubit.attendance!.dailyData[i].status),
+                                                    ),
+                                                    if (cubit.attendance!.dailyData[i].reason != null) 
+                                                      AppBadge(
+                                                        label: cubit.attendance!.dailyData[i].reason ?? '', 
+                                                        color: cubit.reasonColor(cubit.attendance!.dailyData[i].reason ?? ''),
+                                                        variant: BadgeVariant.outline,
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                              if (cubit.attendance!.dailyData[i].hasChecked)
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                  children: [
+                                                    Text(cubit.attendance!.dailyData[i].totalHours ?? '', style: AppTypography.p14()),
+                                                    Text('Total Hours', style: AppTypography.helperTextSmall()),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12),
+                                          // Row 2: in/out or message
+                                          if (!cubit.attendance!.dailyData[i].hasChecked)
+                                            Text('No check-in recorded', style: AppTypography.helperText(), textAlign: TextAlign.left)
+                                          else
+                                            Row(
+                                              children: [
+                                                const Icon(Icons.access_time, size: 16, color: AppColors.helperText),
+                                                const SizedBox(width: 6),
+                                                Text('In:', style: AppTypography.helperText()),
+                                                const SizedBox(width: 4),
+                                                Text(cubit.attendance!.dailyData[i].inTime ?? '', style: AppTypography.helperText()),
+                                                const SizedBox(width: 16),
+                                                const Icon(Icons.access_time, size: 16, color: AppColors.helperText),
+                                                const SizedBox(width: 6),
+                                                Text('Out:', style: AppTypography.helperText()),
+                                                const SizedBox(width: 4),
+                                                Text(cubit.attendance!.dailyData[i].outTime ?? '', style: AppTypography.helperText()),
+                                              ],
+                                            ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: context.width * 0.2),
-                          child: PrimaryButton(
-                            text: 'Show Data',
-                            color: Colors.grey,
-                            onTap: () => cubit.getAttendaceStatistics(context),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          margin: const EdgeInsets.all(8.0),
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Text('Check In: ', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.mainColor)),
-                                  Text(cubit.dailyAttendance.checkIn),
                                 ],
                               ),
-                              Row(
-                                children: [
-                                  Text('Check Out: ', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.mainColor)),
-                                  Text(cubit.dailyAttendance.checkOut),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          margin: const EdgeInsets.all(8.0),
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Month Total Working Hours: ', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.mainColor)),
-                              Text(cubit.dailyAttendance.totalHours),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          // color: HexColor('#FFF8DB').withValues(alpha: 0.5),
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              PieChartWidget(
-                                values: [cubit.dailyAttendance.early, cubit.dailyAttendance.onTime, cubit.dailyAttendance.late], // Early, On-Time, Late counts
-                                labels: const ['Early', 'On-Time', 'Late'],
-                                title: 'Arrival',
-                              ),
-                              PieChartWidget(
-                                values: [cubit.dailyAttendance.present, cubit.dailyAttendance.leave, cubit.dailyAttendance.abscent], // Attendance, Vacation, Absences
-                                labels: const ['Attendance', 'Leaves', 'Absences'],
-                                title: 'Monthly Stats',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                if (cubit.attendanceLoading)
-                const LoadingWidget(),
-              ],
+                  if(state is AttendanceLoading) const LoadingWidget(),
+                ],
+              ),
             ),
           );
         },

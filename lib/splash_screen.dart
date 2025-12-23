@@ -64,7 +64,12 @@ class _SplashScreenState extends State<SplashScreen> {
     instance.showRequests = data['message']['has_access'] ?? false;
     instance.isHr = data['message']['is_hr'] ?? false;
     instance.isManager = data['message']['is_direct_manager'] ?? false;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen(saveToken: true)));
+    DataHelper.unreadEmailsCount = data['message']['unseen_emails_count'] ?? 0;
+    DataHelper.unreadNotificationCount = data['message']['unseen_notifications_count'] ?? 0;
+    DataHelper.unreadRequestsCount = data['message']['pending_requests_count'] ?? 0;
+    DataHelper.isCheckedIn = data['message']['last_checkin'] != null;
+    DataHelper.checkInTime = data['message']['last_checkin'] ?? '';
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
   }
 
   @override

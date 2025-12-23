@@ -1,37 +1,33 @@
 class SalaryDetailsModel {
-  final String bankName, bankAccountNo, grossAmount, netAmount;
-  final List<SalarySubList> deductionList, earningList;
+  final List<PaymentsModel> earnings, deductions;
+  final String grossPay, netPay;
+  final DateTime payDate;
 
   SalaryDetailsModel({
-    required this.bankName, 
-    required this.bankAccountNo, 
-    required this.grossAmount, 
-    required this.netAmount, 
-    required this.deductionList, 
-    required this.earningList,
+    required this.earnings, 
+    required this.deductions, 
+    required this.grossPay,
+    required this.netPay,
+    required this.payDate,
   });
 
   factory SalaryDetailsModel.fromJson(Map<String, dynamic> json) {
     return SalaryDetailsModel(
-      bankName: json['bank_name'] ?? 'not set',
-      bankAccountNo: json['bank_account_no'] ?? 'not set',
-      grossAmount: json['gross_pay'].toString(),
-      netAmount: json['net_pay'].toString(),
-      deductionList: List<SalarySubList>.from(json['deductions'].map((x) => SalarySubList.fromJson(x))),
-      earningList: List<SalarySubList>.from(json['earnings'].map((x) => SalarySubList.fromJson(x))),
+      earnings: json['earnings'] == null ? [] : List<PaymentsModel>.from(json['earnings'].map((e) => PaymentsModel.fromJson(e))),
+      deductions: json['deductions'] == null ? [] : List<PaymentsModel>.from(json['deductions'].map((e) => PaymentsModel.fromJson(e))),
+      grossPay: '£${json['gross_pay']}',
+      netPay: '£${json['net_pay']}',
+      payDate: (json['posting_date'] != null) ? DateTime.tryParse(json['posting_date'] ?? 'not set') ?? DateTime.now() : DateTime.now(),
     );
   }
 }
 
-class SalarySubList {
-  final String name, amount;
+class PaymentsModel {
+  final String type, value;
 
-  SalarySubList({required this.name, required this.amount});
+  PaymentsModel({required this.type, required this.value});
 
-  factory SalarySubList.fromJson(Map<String, dynamic> json) {
-    return SalarySubList(
-      name: json['salary_component'],
-      amount: json['amount'].toString(),
-    );
+  factory PaymentsModel.fromJson(Map json) {
+    return PaymentsModel(type: json['salary_component'], value: '£${json['amount']}');
   }
 }

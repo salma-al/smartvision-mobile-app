@@ -5,12 +5,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_vision/core/helper/shared_functions.dart';
 
-import '../../model/leave_types_model.dart';
 import '../../../../core/utils/end_points.dart';
 import '../../../../core/widgets/toast_widget.dart';
 import '../../../../core/helper/data_helper.dart';
 import '../../../../core/helper/http_helper.dart';
+import '../../model/overtime_model.dart';
+import '../../model/shift_model.dart';
+import '../../model/leave_model.dart';
+import '../../model/leave_types_model.dart';
 
 part 'leaves_state.dart';
 
@@ -18,157 +22,65 @@ class LeavesCubit extends Cubit<LeavesState> {
   LeavesCubit() : super(LeavesInitial());
 
   static LeavesCubit get(context) => BlocProvider.of(context);
+
   bool leavesLoading = false;
-  double? uploadPercentage;
-  DateTime? startDate, endDate;
-  TimeOfDay? startTime, endTime;
-  List<LeaveTypesModel> leaveTypes = [], shiftsTypes = [], selectedTypeList = [];
-  LeaveTypesModel? currentLeaveType;
-  RequestType currentRequestType = RequestType.leave;
-  String shownRequestType = 'Leave Type';
-  final TextEditingController startDateController = TextEditingController();
-  final TextEditingController endDateController = TextEditingController();
-  final TextEditingController startTimeController = TextEditingController();
-  final TextEditingController endTimeController = TextEditingController();
-  final TextEditingController reasonController = TextEditingController();
-  List<double> availExcusesTimes = [];
-  double? selectedExcuseTime;
-  File? attach;
+  int tabIndex = 0;
+  TextEditingController reasonController = TextEditingController();
+  DateTime startDate = DateTime.now(), endDate = DateTime.now();
+  String lastFromDate = generateDateString(DateTime(DateTime.now().year, DateTime.now().month, 1)), lastToDate = generateDateString(DateTime.now());
+  String lastSelectedFilter = '';
 
-  changeRequestType(RequestType type) {
-    currentRequestType = type;
-    shownRequestType = type == RequestType.leave ? 'Leave Type' : 'Shift Type';
-    selectedTypeList = type == RequestType.leave ? leaveTypes : shiftsTypes;
-    currentLeaveType = null;
-    emit(RequestChanged());
+  String generateDate(DateTime date) => '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  changeDate(DateTime picked, bool isStart) {
+    isStart ? startDate = picked : endDate = picked;
+    emit(DateChanged());
   }
-  pickDate(bool start, BuildContext context) async {
-    DateTime now = DateTime.now();
-    DateTime initial = (currentRequestType == RequestType.overtime) ? now.subtract(const Duration(days: 100)) : now;
-    if(start) {
-      startDate = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: initial, lastDate: DateTime.now().add(const Duration(days: 7000)));
-      startDateController.text = startDate == null ? '' : startDate.toString().split(' ')[0];
-    }else {
-      endDate = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: initial, lastDate: DateTime.now().add(const Duration(days: 7000)));
-      endDateController.text = endDate == null ? '' : endDate.toString().split(' ')[0];
-    }
+  changeTab(int tab) {
+    tabIndex = tab;
+    emit(TabChanged());
   }
-  pickTime(bool start, BuildContext context) async {
-    // int currentDay = DateTime.now().day;
-    TimeOfDay minTime = const TimeOfDay(hour: 0, minute: 0);
-    TimeOfDay maxTime = const TimeOfDay(hour: 23, minute: 59);
+  //shift screen
+  List<String> excuseTimes = [];
+  String selectedShift = 'Work From Home', excuseTime = '', excuseType = '';
+  List<ShiftModel> shiftRecords = [];
 
-    // if (currentDay == DateTime.friday || currentDay == DateTime.saturday) {
-    //   minTime = const TimeOfDay(hour: 0, minute: 0);
-    //   maxTime = const TimeOfDay(hour: 23, minute: 59);
-    // }
-
-    TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    ///first time validation if null
-    if(time == null) return;
-    ///second time validation if in the available range
-    bool isValidTime = (time.hour > minTime.hour || (time.hour == minTime.hour && time.minute >= minTime.minute)) &&
-                     (time.hour < maxTime.hour || (time.hour == maxTime.hour && time.minute <= maxTime.minute));
-
-    if (!isValidTime) {
-      ToastWidget().showToast('Time must be between ${minTime.hour}:${minTime.minute} and ${maxTime.hour}:${maxTime.minute}', context);
-      return;
-    }
-    String formattedTime = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-    if(start) {
-      startTime = time;
-      startTimeController.text = formattedTime;
-    }else {
-      endTime = time;
-      endTimeController.text = formattedTime;
-    }
-    emit(ReuestTimeChanged());
+  changeShift(String shift) {
+    selectedShift = shift;
+    emit(ShiftChanged());
   }
-  pickFile() async {
-    final file = await FilePicker.platform.pickFiles();
-    if(file == null) return;
-    attach = File(file.files.single.path!);
-    emit(FilePicked());
+  changeExcuseTime(String time) {
+    excuseTime = time;
+    emit(ExcuseTimeChanged());
   }
-  changeLeaveShiftType(LeaveTypesModel type) {
-    currentLeaveType = type;
-    emit(RequestChanged());
+  changeExcuseType(String type) {
+    excuseType = type;
+    emit(ExcuseTypeChanged());
   }
-  changeExcuseTime(double? time) {
-    selectedExcuseTime = time;
-    emit(RequestChanged());
-  }
-  getAvailableLeaves(context) async {
-    final instance = DataHelper.instance;
-    final body = {'employee_id': instance.userId};
-    leavesLoading = true;
-    emit(LeavesLoadingState());
-    try {
-      final data = await HTTPHelper.httpPost(EndPoints.getLeaves, body, context);
-      if(data['message']['status'] == 'success') {
-        leaveTypes.clear();
-        shiftsTypes.clear();
-        currentRequestType = RequestType.leave;
-        shownRequestType = 'Leave Type';
-        leaveTypes.add(LeaveTypesModel(leaveType: 'Leave Without Pay', availableLeaves: 0));
-        for (var leave in data['message']['data']) {
-          leaveTypes.add(LeaveTypesModel.fromJson(leave));
-        }
-        for (var shift in data['message']['shifts']) {
-          shiftsTypes.add(LeaveTypesModel(leaveType: shift['name'], availableLeaves: 0));
-        }
-        for(var time in data['message']['excuse_times']) {
-          availExcusesTimes.add(double.tryParse(time.toString()) ?? 0);
-        }
-        selectedTypeList = leaveTypes;
-        leavesLoading = false;
-        emit(LeavesLoadedState());
-      }else {
-        leavesLoading = false;
-        emit(LeavesErrorState());
-        ToastWidget().showToast('Something went wrong', context);
-      }
-    }catch (e) {
-      leavesLoading = false;
-      emit(LeavesErrorState());
-      ToastWidget().showToast('Something went wrong', context);
-    }
-  }
-  submitRequest(context) async {
-    if(startDateController.text.isEmpty || endDateController.text.isEmpty || reasonController.text.isEmpty || currentLeaveType == null) {
+  submitShift(BuildContext context) async {
+    if(reasonController.text.isEmpty || selectedShift.isEmpty) {
       ToastWidget().showToast('Please fill all the fields', context);
       return;
     }
     final instance = DataHelper.instance;
     final body = {
       'employee_id': instance.userId ?? '0',
-      'sub_type': currentLeaveType!.leaveType,
-      'start_date': startDateController.text,
-      'end_date': endDateController.text,
-      'type': currentRequestType.toString().split('.').last,
-      'reason': reasonController.text
+      'shift_type': selectedShift,
+      'start_date': startDate.toIso8601String(),
+      'end_date': endDate.toIso8601String(),
+      'reason': reasonController.text,
     };
-    if(currentLeaveType == null && currentLeaveType!.leaveType.toLowerCase().contains('excuse') && currentRequestType == RequestType.shift) {
-      ToastWidget().showToast('Please select excuse time', context);
+    if((excuseTime.isEmpty || excuseType.isEmpty) && selectedShift.toLowerCase().contains('excuse')) {
+      ToastWidget().showToast('Please select excuse', context);
       return;
     }
-    if(currentLeaveType != null && currentLeaveType!.leaveType.toLowerCase().contains('excuse') && currentRequestType == RequestType.shift) {
-      body['excuse_time'] = selectedExcuseTime.toString();
+    if(excuseTime.isNotEmpty && excuseType.isNotEmpty && selectedShift.toLowerCase().contains('excuse')) {
+      body['excuse_time'] = excuseTime.split(' ')[0];
+      body['excuse_type'] = excuseType;
     }
     leavesLoading = true;
     emit(LeavesLoadingState());
     try{
-      dynamic data;
-      if(attach != null) {
-        data = await HTTPHelper.uploadFilesWithProgress(context: context, file: attach!, endPoint: EndPoints.requestLeave, imgKey: 'attachment', body: body, onProgress: (progress) {
-          uploadPercentage = progress;
-          emit(LeavesLoadingState());
-        });
-        uploadPercentage = null;
-        attach = null;
-      } else {
-        data = await HTTPHelper.httpPost(EndPoints.requestLeave, body, context);
-      }
+      dynamic data = await HTTPHelper.httpPost(EndPoints.shiftCreate, body, context);
       leavesLoading = false;
       final message = data['message'] ?? data['data']?['message'];
       final status = message?['status'];
@@ -177,7 +89,7 @@ class LeavesCubit extends Cubit<LeavesState> {
       if (status == 'success') {
         emit(LeavesLoadedState());
         ToastWidget().showToast(msgText, context);
-        Navigator.pop(context);
+        changeTab(1);
       } else {
         emit(LeavesErrorState());
         ToastWidget().showToast(
@@ -191,37 +103,117 @@ class LeavesCubit extends Cubit<LeavesState> {
       ToastWidget().showToast('Something went wrong', context);
     }
   }
-  submitRequestOvertime(context) async {
-    if(startDateController.text.isEmpty || startTimeController.text.isEmpty || endTimeController.text.isEmpty || reasonController.text.isEmpty) {
-      ToastWidget().showToast('Please fill all the fields', context);
-      return;
+  filterShiftHistory(BuildContext context, [String? type, String? from, String? to]) async {
+    if(from != null) lastFromDate = from;
+    if(to != null) lastToDate = to;
+    if(type != null) lastSelectedFilter = type;
+    leavesLoading = true;
+    final body = {
+      'employee_id': DataHelper.instance.userId ?? '0',
+      'from_date': lastFromDate,
+      'to_date': lastToDate,
+    };
+    if(lastSelectedFilter.toLowerCase() != 'all' && lastSelectedFilter.isNotEmpty) body['shift_type'] = lastSelectedFilter;
+    emit(LeavesLoadingState());
+    try{
+      dynamic data = await HTTPHelper.httpPost(EndPoints.shiftHistory, body, context);
+      excuseTimes = List<String>.from(data['message']['excuse_times'].map((e) => e.toString()));
+      shiftRecords = List<ShiftModel>.from(data['message']['data'].map((e) => ShiftModel.fromJson(e)));
+      leavesLoading = false;
+      emit(LeavesLoadedState());
+    }catch (e) {
+      leavesLoading = false;
+      emit(LeavesErrorState());
+      ToastWidget().showToast('Something went wrong', context);
     }
-    ///check if start time is before end time
-    if(startTime!.hour > endTime!.hour || (startTime!.hour == endTime!.hour && startTime!.minute > endTime!.minute)) {
-      ToastWidget().showToast('Start time must be before end time', context);
+  }
+  //leave screen
+  List<LeaveTypesModel> leaveTypes = [];
+  List<LeaveModel> leaveRecords = [];
+  LeaveTypesModel? selectedLeaveType;
+  File? attach;
+  double? uploadPercentage;
+
+  changeLeaveType(String type) {
+    selectedLeaveType = leaveTypes.where((e) => e.leaveType == type).first;
+    emit(LeaveTypeChanged());
+  }
+  pickFile() async {
+    final file = await FilePicker.platform.pickFiles();
+    if(file == null) return;
+    attach = File(file.files.single.path!);
+    emit(FilePicked());
+  }
+  removeFile() {
+    attach = null;
+    emit(FilePicked());
+  }
+  filterLeaveHistory(BuildContext context, [String? type, String? from, String? to]) async {
+    leavesLoading = true;
+    if(from != null) lastFromDate = from;
+    if(to != null) lastToDate = to;
+    if(type != null) lastSelectedFilter = type;
+    String path = '?employee_id=${DataHelper.instance.userId}';
+    path += '&from_date=$lastFromDate';
+    path += '&to_date=$lastToDate';
+    if(lastSelectedFilter.isNotEmpty && lastSelectedFilter.toLowerCase() != 'all') path += '&leave_type=$type';
+    emit(LeavesLoadingState());
+    try{
+      final data = await HTTPHelper.httpGet('${EndPoints.leaveHistory}$path', context);
+      if(data != null) {
+        leaveRecords = List<LeaveModel>.from(data['message']['data'].map((e) => LeaveModel.fromJson(e)));
+        leaveTypes = List<LeaveTypesModel>.from(data['message']['available_leaves']['data'].map((e) => LeaveTypesModel.fromJson(e)));
+      }
+      leavesLoading = false;
+      emit(LeavesLoadedState());
+    }catch (e) {
+      leavesLoading = false;
+      emit(LeavesErrorState());
+      ToastWidget().showToast('Something went wrong', context);
+    }
+  }
+  submitLeave(BuildContext context) async {
+    if(reasonController.text.isEmpty || selectedLeaveType == null) {
+      ToastWidget().showToast('Please fill all the fields', context);
       return;
     }
     final instance = DataHelper.instance;
     final body = {
-      'employee_id': instance.userId,
-      'date': startDateController.text,
-      'start_time': startTimeController.text,
-      'end_time': endTimeController.text,
-      'reason': reasonController.text
+      'employee_id': instance.userId ?? '0',
+      'leave_type': selectedLeaveType!.leaveType,
+      'start_date': generateDateString(startDate),
+      'end_date': generateDateString(endDate),
+      'reason': reasonController.text,
     };
     leavesLoading = true;
     emit(LeavesLoadingState());
     try{
-      final data = await HTTPHelper.httpPost(EndPoints.requestOvertime, body, context);
-      if(data['message']['status'] == 'success') {
-        leavesLoading = false;
+      dynamic data;
+      if(attach != null) {
+        data = await HTTPHelper.uploadFilesWithProgress(context: context, file: attach!, endPoint: EndPoints.leaveCreate, imgKey: 'attachment', body: body, onProgress: (progress) {
+          uploadPercentage = progress;
+          emit(LeavesLoadingState());
+        });
+        uploadPercentage = null;
+        attach = null;
+      } else {
+        data = await HTTPHelper.httpPost(EndPoints.leaveCreate, body, context);
+      }
+      leavesLoading = false;
+      final message = data['message'] ?? data['data']?['message'];
+      final status = message?['status'];
+      final msgText = message?['message'] ?? 'Request completed';
+
+      if (status == 'success') {
         emit(LeavesLoadedState());
-        ToastWidget().showToast(data['message']['message'], context);
-        Navigator.pop(context);
-      }else {
-        leavesLoading = false;
+        ToastWidget().showToast(msgText, context);
+        changeTab(1);
+      } else {
         emit(LeavesErrorState());
-        ToastWidget().showToast(data['message']['message'], context);
+        ToastWidget().showToast(
+          msgText.isEmpty ? 'Failed to submit your request' : msgText,
+          context,
+        );
       }
     }catch (e) {
       leavesLoading = false;
@@ -229,10 +221,70 @@ class LeavesCubit extends Cubit<LeavesState> {
       ToastWidget().showToast('Something went wrong', context);
     }
   }
-}
+  //overtime screen
+  TimeOfDay overtimeStartTime = TimeOfDay.now(), overtimeEndTime = TimeOfDay.now();
+  List<OvertimeModel> overtimeRecords = [];
 
-enum RequestType {
-  leave,
-  overtime,
-  shift
+  changeOvertimeTime(TimeOfDay time, bool isStart) {
+    isStart ? overtimeStartTime = time : overtimeEndTime = time;
+    emit(TimeChanged());
+  }
+  filterOvertimeHistory(BuildContext context, [String? status, String? from, String? to]) async {
+    if(from != null) lastFromDate = from;
+    if(to != null) lastToDate = to;
+    if(status != null) lastSelectedFilter = status;
+    leavesLoading = true;
+    final body = {
+      'employee_id': DataHelper.instance.userId ?? '0',
+      'start_date': lastFromDate,
+      'end_date': lastToDate,
+    };
+    if(lastSelectedFilter.isNotEmpty && lastSelectedFilter.toLowerCase() != 'all') body['status'] = lastSelectedFilter;
+    emit(LeavesLoadingState());
+    try{
+      dynamic data = await HTTPHelper.httpPost(EndPoints.overtimeHistory, body, context);
+      overtimeRecords = List<OvertimeModel>.from(data['message']['overtimes'].map((e) => OvertimeModel.fromJson(e)));
+      leavesLoading = false;
+      emit(LeavesLoadedState());
+    }catch (e) {
+      leavesLoading = false;
+      emit(LeavesErrorState());
+      ToastWidget().showToast('Something went wrong', context);
+    }
+  }
+  submitOvertime(BuildContext context) async {
+    final instance = DataHelper.instance;
+    final body = {
+      'employee_id': instance.userId ?? '0',
+      'date': '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}',
+      'start_time': overtimeStartTime.format(context).substring(0, 5),
+      'end_time': overtimeEndTime.format(context).substring(0, 5),
+      'reason': reasonController.text,
+    };
+    leavesLoading = true;
+    emit(LeavesLoadingState());
+    try{
+      dynamic data = await HTTPHelper.httpPost(EndPoints.overtimeCreate, body, context);
+      leavesLoading = false;
+      final message = data['message'] ?? data['data']?['message'];
+      final status = message?['status'];
+      final msgText = message?['message'] ?? 'Request completed';
+
+      if (status == 'success') {
+        emit(LeavesLoadedState());
+        ToastWidget().showToast(msgText, context);
+        changeTab(1);
+      } else {
+        emit(LeavesErrorState());
+        ToastWidget().showToast(
+          msgText.isEmpty ? 'Failed to submit your request' : msgText,
+          context,
+        );
+      }
+    }catch (e) {
+      leavesLoading = false;
+      emit(LeavesErrorState());
+      ToastWidget().showToast('Something went wrong', context);
+    }
+  }
 }

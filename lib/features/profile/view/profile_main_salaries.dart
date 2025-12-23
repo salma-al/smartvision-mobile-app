@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_vision/core/utils/media_query_values.dart';
-import 'package:smart_vision/core/widgets/loading_widget.dart';
+import 'package:flutter_svg/svg.dart';
 
-import '../../../core/utils/colors.dart';
-import '../../../core/widgets/custom_drop_down_field.dart';
+import '../../../core/widgets/loading_widget.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/helper/data_helper.dart';
+import '../../../core/widgets/base_scaffold.dart';
+import '../../../core/widgets/filter_select_field.dart';
+import '../../../core/widgets/secondary_app_bar.dart';
+import '../components/main_salaries_component.dart';
 import '../view_model/cubit/profile_cubit.dart';
 
 class ProfileMainSalary extends StatelessWidget {
@@ -12,137 +16,97 @@ class ProfileMainSalary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Salaries', style: TextStyle(color: AppColors.mainColor)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: AppColors.mainColor),
-          onPressed: () => Navigator.pop(context),
+    return BlocProvider(
+      create: (context) => ProfileCubit()..getSalriesProfile(context),
+      child: BaseScaffold(
+        currentNavIndex: 2, // Profile section
+        backgroundColor: AppColors.backgroundColor,
+        appBar: SecondaryAppBar(
+          title: 'Salary History',
+          showBackButton: true,
+          notificationCount: DataHelper.unreadNotificationCount,
         ),
-        actions: [
-          Image.asset('assets/images/home_logo.png', width: 40, height: 40),
-          const SizedBox(width: 15),
-        ],
-        backgroundColor: Colors.white,
-      ),
-      body: BlocProvider(
-        create: (context) => ProfileCubit()..getSalriesProfile(context),
-        child: BlocBuilder<ProfileCubit, ProfileState>(
+        body: BlocBuilder<ProfileCubit, ProfileState>(
           builder: (context, state) {
             var cubit = ProfileCubit.get(context);
-            return Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16, top: 50),
-                  child: SizedBox(
-                    width: context.width,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          width: context.width * 0.3,
-                          child: CustomDropdownFormField(
-                            raduis: 35,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                            hintText: 'Years',
-                            items: cubit.availableYears.map((e) => DropdownMenuItem(
-                              alignment: AlignmentDirectional.center,
-                              value: e,
-                              child: Text(e.toString(), textAlign: TextAlign.center),),
-                            ).toList(),
-                            value: cubit.selectedYear,
-                            onChanged: (val) => cubit.changeSalaryYear(val!, context),
+            return SafeArea(
+              child: Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () => cubit.getSalriesProfile(context),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.pagePaddingHorizontal,
+                        vertical: AppSpacing.pagePaddingVertical,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: AppSpacing.sectionMargin),
+                          // Month Filter
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today_outlined,
+                                color: AppColors.darkText,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Text('Select Year', style: AppTypography.helperText()),
+                              const SizedBox(width: 12),
+                              Flexible(
+                                child: FilterSelectField(
+                                  label: '',
+                                  value: cubit.selectedYear,
+                                  options: cubit.availableYears,
+                                  onChanged: (value) => cubit.changeSalaryYear(value, context),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 50),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Text('Year', style: TextStyle(color: AppColors.mainColor, fontSize: 18)),
-                                  const SizedBox(height: 6),
-                                  Divider(color: AppColors.mainColor),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Text('Month', style: TextStyle(color: AppColors.mainColor, fontSize: 18)),
-                                  const SizedBox(height: 6),
-                                  Divider(color: AppColors.mainColor),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Text('Actions', style: TextStyle(color: AppColors.mainColor, fontSize: 18)),
-                                  const SizedBox(height: 6),
-                                  Divider(color: AppColors.mainColor),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        ...cubit.salaryList.map((e) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 24),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(cubit.selectedYear.toString(), style: TextStyle(color: AppColors.darkColor, fontSize: 18)),
-                                      const SizedBox(height: 6),
-                                      Divider(color: AppColors.mainColor),
-                                    ],
-                                  ),
+                          const SizedBox(height: AppSpacing.sectionMargin),
+                          // Past Salaries Section
+                          Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/images/money.svg',
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.darkText, 
+                                  BlendMode.srcIn,
                                 ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(e.month, style: TextStyle(color: AppColors.darkColor, fontSize: 18)),
-                                      const SizedBox(height: 6),
-                                      Divider(color: AppColors.mainColor),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      InkWell(
-                                        onTap: () => cubit.getSalryDetails(context, e.id),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.mainColor.withValues(alpha: 0.8),
-                                            borderRadius: BorderRadius.circular(16),
-                                          ),
-                                          child: const Text('Details', style: TextStyle(color: Colors.white, fontSize: 14))),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Divider(color: AppColors.mainColor),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        })
-                      ],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Past Salaries',
+                                style: AppTypography.p16(),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // Salary List
+                          if(cubit.salary != null)
+                          ...cubit.salary!.salaries.map((salary) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: MainSalariesComponent(
+                                salary: salary,
+                                viewMore: () => cubit.getSalryDetails(context, salary.id),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                if(cubit.profileLoading)
-                const LoadingWidget(),
-              ],
+                  if(state is ProfileLoading) const LoadingWidget(),
+                ],
+              ),
             );
           },
-        )
+        ),
       ),
     );
   }

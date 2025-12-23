@@ -2,116 +2,175 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hexcolor/hexcolor.dart';
-import 'package:smart_vision/core/utils/colors.dart';
-import 'package:smart_vision/core/utils/media_query_values.dart';
-import 'package:smart_vision/core/widgets/loading_widget.dart';
-import 'package:smart_vision/core/widgets/primary_button.dart';
-import 'package:smart_vision/features/profile/components/profile_container.dart';
-import 'package:smart_vision/features/profile/view_model/cubit/profile_cubit.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_svg/svg.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/helper/data_helper.dart';
-import '../../login/view/login_screen.dart';
+import '../../../core/widgets/base_scaffold.dart';
+import '../../../core/widgets/loading_widget.dart';
+import '../../../core/widgets/secondary_app_bar.dart';
+import '../view_model/cubit/profile_cubit.dart';
 
 class CompanyProfileScreen extends StatelessWidget {
   const CompanyProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final instance = DataHelper.instance;
     return BlocProvider(
       create: (context) => ProfileCubit()..getCompanyProfile(context),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text('Company Profile', style: TextStyle(color: AppColors.mainColor)),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: AppColors.mainColor),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            Image.asset('assets/images/home_logo.png', width: 40, height: 40),
-            const SizedBox(width: 15),
-          ],
-          backgroundColor: Colors.white,
+      child: BaseScaffold(
+        currentNavIndex: 2, // Profile section
+        appBar: SecondaryAppBar(
+          title: 'Company Overview',
+          showBackButton: true,
+          notificationCount: DataHelper.unreadNotificationCount,
         ),
         body: BlocBuilder<ProfileCubit, ProfileState>(
           builder: (context, state) {
-            var cubit = ProfileCubit.get(context);
-            return Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: RefreshIndicator(
-                    onRefresh: () => cubit.getCompanyProfile(context),
-                    child: ListView(
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.grey.shade200,
-                          child: Image.asset('assets/images/home_logo.png', width: 70, height: 70),
-                        ),
-                        const SizedBox(height: 16),
-                        Text('SVG', textAlign: TextAlign.center, style: TextStyle(color: AppColors.mainColor, fontSize: 24)),
-                        const SizedBox(height: 25),
-                        ProfileContainer(
-                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 28),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            return SafeArea(
+              child: Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () => context.read<ProfileCubit>().getCompanyProfile(context),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                      child: Column(
+                        children: [
+                          // About Section
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                              boxShadow: AppShadows.defaultShadow,
+                            ),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20),
-                                  child: ListTile(title: Text(cubit.company ?? '', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                                Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/images/building.svg',
+                                      width: 24,
+                                      height: 24,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppColors.darkText,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'About ${state is CompanyLoaded ? state.info.companyName : 'Company'}',
+                                      style: AppTypography.body16(),
+                                    ),
+                                  ],
                                 ),
-                                const Divider(),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20),
-                                  child: ListTile(
-                                    title: Text(
-                                      'The company\'s branch in ${cubit.branch ?? ''}', 
-                                      style: TextStyle(fontSize: 16, color: AppColors.darkColor), 
-                                      maxLines: 2, 
-                                      overflow: TextOverflow.ellipsis,
-                                    )),
+                                const SizedBox(height: 16),
+                                Html(
+                                  data: state is CompanyLoaded ? state.info.brief : '',
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 30),
-                        const Padding(
-                          padding: EdgeInsetsDirectional.only(start: 15),
-                          child: Text('Company Information'),
-                        ),
-                        const SizedBox(height: 16),
-                        ProfileContainer(
-                          margin: const EdgeInsetsDirectional.symmetric(horizontal: 28),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
-                            child: ListTile(title: Text(cubit.description ?? 'not set', style: TextStyle(fontSize: 16, color: AppColors.darkColor))),
+                          const SizedBox(height: 20),
+                          // Contact Information Section
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
+                              boxShadow: AppShadows.defaultShadow,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/images/phone.svg',
+                                      width: 24,
+                                      height: 24,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppColors.darkText,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Contact Information',
+                                      style: AppTypography.body16(),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.language,
+                                      color: AppColors.helperText,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        state is CompanyLoaded ? state.info.website : '',
+                                        style: AppTypography.p16(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.phone_outlined,
+                                      color: AppColors.helperText,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        state is CompanyLoaded ? state.info.phone : '',
+                                        style: AppTypography.p16(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.email_outlined,
+                                      color: AppColors.helperText,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        state is CompanyLoaded ? state.info.email : '',
+                                        style: AppTypography.p16(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: context.width * 0.2),
-                          child: PrimaryButton(
-                            text: 'Logout',
-                            color: HexColor('#D9534F'),
-                            onTap: () async {
-                              await instance.reset();
-                              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
-                            }
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                if(cubit.profileLoading)
-                const LoadingWidget(),
-              ],
+                  if(state is ProfileLoading) const LoadingWidget(),
+                ],
+              ),
             );
           },
         ),
