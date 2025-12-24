@@ -8,19 +8,11 @@ import '../../../core/widgets/icon_badge.dart';
 import 'action_button.dart';
 
 class ApprovalRecord extends StatelessWidget {
-  final String requestType;
-  final String status;
-  final String employeeName;
-  final String? date;
-  final String? dateRange;
-  final String description;
-  final String submitted;
-  final int? hours;
-  final String? hoursText;  final bool showActions;
-  final bool hasAttachment;
-  final String? attachmentName;
-  final VoidCallback? onReject;
-  final VoidCallback? onApprove;
+  final String requestType, status, employeeName, description, submitted;
+  final String? date, dateRange, hoursText, attachmentName;
+  final num? hours;
+  final bool showActions, hasAttachment;
+  final VoidCallback? onReject, onApprove;
 
   const ApprovalRecord({super.key, 
     required this.requestType,
@@ -119,12 +111,12 @@ class ApprovalRecord extends StatelessWidget {
           ],
 
           // Hours badge (if applicable)
-          if (hours != null || hoursText != null) ...[
+          if ((hours != null && hours! > 0) || hoursText != null) ...[
             const SizedBox(height: 8),
             HoursBadge(
               number: hours,
               text: hoursText,
-              suffixText: hours == 1 ? 'hour' : 'hours',
+              suffixText: hours == 1.0 ? 'hour' : 'hours',
             )
           ],
           const SizedBox(height: 8),

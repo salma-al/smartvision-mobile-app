@@ -66,6 +66,7 @@ class RequestsScreen extends StatelessWidget {
                               hasAttachment: req.attachUrl != null,
                               attachmentName: req.attachUrl != null ? req.attachUrl!.split('/').last : '',
                               showActions: req.showActions,
+                              hours: req.duration != null ? double.tryParse(req.duration ?? '0') : null,
                               onApprove: () => cubit.updateRequest(context, req, 'Approved'),
                               onReject: () => cubit.updateRequest(context, req, 'Rejected'),
                             );
