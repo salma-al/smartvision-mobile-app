@@ -12,15 +12,11 @@ class DataHelper {
   static DataHelper get instance => _instance;
 
   String? token, name, userId, email, img, company;
-  bool showRequests = false, isHr = false, isManager = false;
+  bool isHr = false, isManager = false;
 
   //global variables
   CompanyBranding? comp;
   static int unreadNotificationCount = 0;
-  static int unreadEmailsCount = 0;
-  static int unreadRequestsCount = 0;
-  static bool isCheckedIn = false;
-  static String checkInTime = '';
 
   set() async{
     await CacheHelper.setData('userId', userId);

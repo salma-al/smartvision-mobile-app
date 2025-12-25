@@ -80,6 +80,7 @@ class LeavesRequestTab extends StatelessWidget {
                     label: _formatDate(startDate),
                     selectedDate: startDate,
                     onDateSelected: (picked) => changeDate(picked, true),
+                    firstDate: DateTime.now().subtract(const Duration(days: 1)),
                   ),
                 ],
               ),
@@ -95,6 +96,7 @@ class LeavesRequestTab extends StatelessWidget {
                     label: _formatDate(endDate),
                     selectedDate: endDate,
                     onDateSelected: (picked) => changeDate(picked, false),
+                    firstDate: DateTime.now().subtract(const Duration(days: 1)),
                   )
                 ],
               ),

@@ -110,7 +110,7 @@ class SignInOutScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    cubit.isCheckedIn ? 'Check In Time' : 'Tap to Check In',
+                                    !cubit.isCheckedIn ? 'Check In Time' : 'Tap to Check In',
                                     style: AppTypography.p16(),
                                   ),
                                 ],
@@ -192,27 +192,27 @@ class SignInOutScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () => cubit.pickImage(context),
-                                borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF9FAFB),
-                                    borderRadius: BorderRadius.circular(AppBorderRadius.radius8),
-                                    border: Border.all(color: AppColors.dividerLight, width: 1),
+                              ElevatedButton(
+                                onPressed: () => cubit.pickImage(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: !cubit.isCheckedIn 
+                                      ? const Color(0xFF991B1B)
+                                      : const Color(0xFF065F46),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(AppBorderRadius.radius12),
                                   ),
-                                  child: Text(
-                                    'Capture',
-                                    style: AppTypography.helperTextSmall(color: AppColors.darkText),
-                                  ),
+                                  elevation: 0,
+                                ),
+                                child: Text(
+                                  'Capture',
+                                  style: AppTypography.helperTextSmall(color: AppColors.white),
                                 ),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // Today's Progress (always shown)
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),

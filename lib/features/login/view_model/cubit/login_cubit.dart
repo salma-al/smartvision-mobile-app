@@ -81,7 +81,7 @@ class LoginCubit extends Cubit<LoginState> {
           emit(LoginError(save));
           emit(LoginLoading());
         }
-        await checkReports(context);
+        // await checkReports(context);
         await instance.set();
         emit(LoginSuccess());
       }else {
@@ -111,11 +111,10 @@ class LoginCubit extends Cubit<LoginState> {
       return 'Something went wrong';
     }
   }
-  checkReports(BuildContext context) async {
-    final instance = DataHelper.instance;
-    final data = await HTTPHelper.httpPost(EndPoints.availableRequests, {'employee_id': instance.userId}, context);
-    instance.showRequests = data['message']['has_access'] ?? false;
-    instance.isHr = data['message']['is_hr'] ?? false;
-    instance.isManager = data['message']['is_direct_manager'] ?? false;
-  }
+  // checkReports(BuildContext context) async {
+  //   final instance = DataHelper.instance;
+  //   final data = await HTTPHelper.httpPost(EndPoints.availableRequests, {'employee_id': instance.userId}, context);
+  //   instance.isHr = data['message']['is_hr'] ?? false;
+  //   instance.isManager = data['message']['is_direct_manager'] ?? false;
+  // }
 }

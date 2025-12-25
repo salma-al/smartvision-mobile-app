@@ -10,6 +10,7 @@ class InlineDatePicker {
     required GlobalKey fieldKey,
     required DateTime initialDate,
     required Function(DateTime) onDateSelected,
+    DateTime? firstDate,
     double horizontalPadding = AppSpacing.pagePaddingHorizontal,
   }) {
     final renderBox = fieldKey.currentContext?.findRenderObject() as RenderBox?;
@@ -79,12 +80,14 @@ class InlineDatePicker {
                             }),
                             dayForegroundColor: WidgetStateProperty.resolveWith((states) {
                               if (states.contains(WidgetState.selected)) return Colors.white;
+                              if (states.contains(WidgetState.disabled)) return Colors.grey.withValues(alpha: 0.3);
                               return AppColors.darkText;
                             }),
                             todayForegroundColor: WidgetStateProperty.all(accentColor),
                             todayBackgroundColor: WidgetStateProperty.all(Colors.transparent),
                             yearForegroundColor: WidgetStateProperty.resolveWith((states) {
                               if (states.contains(WidgetState.selected)) return Colors.white;
+                              if (states.contains(WidgetState.disabled)) return Colors.grey.withValues(alpha: 0.3);
                               return AppColors.darkText;
                             }),
                             yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
@@ -95,7 +98,7 @@ class InlineDatePicker {
                         ),
                         child: CalendarDatePicker(
                           initialDate: initialDate,
-                          firstDate: DateTime(DateTime.now().year - 1),
+                          firstDate: firstDate ?? DateTime(DateTime.now().year - 1),
                           lastDate: DateTime(DateTime.now().year + 2),
                           onDateChanged: (picked) {
                             onDateSelected(picked);

@@ -8,11 +8,13 @@ class DateField extends StatelessWidget {
   final DateTime selectedDate;
   final Function(DateTime) onDateSelected;
   final GlobalKey _key = GlobalKey();
+  final DateTime? firstDate;
 
   DateField({super.key, 
     required this.label,
     required this.selectedDate,
     required this.onDateSelected,
+    this.firstDate,
   });
 
   @override
@@ -28,6 +30,7 @@ class DateField extends StatelessWidget {
             fieldKey: _key,
             initialDate: selectedDate,
             onDateSelected: onDateSelected,
+            firstDate: firstDate,
           );
         },
         child: Container(

@@ -66,7 +66,7 @@ class LeavesCubit extends Cubit<LeavesState> {
       'employee_id': instance.userId ?? '0',
       'shift_type': selectedShift,
       'start_date': startDate.toIso8601String(),
-      'end_date': endDate.toIso8601String(),
+      'end_date': startDate.toIso8601String(),
       'reason': reasonController.text,
     };
     if((excuseTime.isEmpty || excuseType.isEmpty) && selectedShift.toLowerCase().contains('excuse')) {

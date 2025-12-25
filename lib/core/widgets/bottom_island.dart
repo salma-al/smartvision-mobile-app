@@ -14,6 +14,8 @@ class BottomIsland extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = DataHelper.instance.comp?.primaryColor ?? AppColors.svecColor;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(
@@ -46,7 +48,7 @@ class BottomIsland extends StatelessWidget {
                 height: 24,
                 colorFilter: ColorFilter.mode(
                   currentIndex == 0
-                      ? DataHelper.instance.comp!.primaryColor
+                      ? primaryColor
                       : AppColors.darkText,
                   BlendMode.srcIn,
                 ),
@@ -66,7 +68,7 @@ class BottomIsland extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: currentIndex == 1
-                    ? DataHelper.instance.comp!.primaryColor
+                    ? primaryColor
                     : AppColors.darkText,
                 shape: BoxShape.circle,
               ),
@@ -98,7 +100,7 @@ class BottomIsland extends StatelessWidget {
                 height: 24,
                 colorFilter: ColorFilter.mode(
                   currentIndex == 2
-                      ? DataHelper.instance.comp!.primaryColor
+                      ? primaryColor
                       : AppColors.darkText,
                   BlendMode.srcIn,
                 ),

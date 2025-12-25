@@ -7,14 +7,25 @@ import '../../check_in_out/view/sign_in_out_screen.dart';
 class SignInOutCard extends StatelessWidget {
   final bool isCheckedIn;
   final String checkInTime;
+  final VoidCallback onPopOut;
 
-  const SignInOutCard({super.key, required this.isCheckedIn, required this.checkInTime});
+  const SignInOutCard({
+    super.key, 
+    required this.isCheckedIn, 
+    required this.checkInTime, 
+    required this.onPopOut,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const SignInOutScreen()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => PopScope(
+          onPopInvokedWithResult: (didPop, result) async {
+            if(didPop) onPopOut();
+          },
+          child: const SignInOutScreen(),
+        )));
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppBorderRadius.radius12),

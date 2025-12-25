@@ -11,8 +11,8 @@ class ShiftRequestTab extends StatelessWidget {
   final List<String> excuseTimes;
   final Function(String) changeShift, changeExcuseTime, changeExcuseType;
   final VoidCallback submitShift;
-  final DateTime startDate, endDate;
-  final Function(DateTime, bool) selectDate;
+  final DateTime startDate;
+  final Function(DateTime) selectDate;
   final TextEditingController reasonController;
 
   const ShiftRequestTab({
@@ -26,7 +26,6 @@ class ShiftRequestTab extends StatelessWidget {
     required this.changeExcuseType,
     required this.submitShift,
     required this.startDate,
-    required this.endDate,
     required this.selectDate,
     required this.reasonController
   });
@@ -67,28 +66,14 @@ class ShiftRequestTab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const FormLabel('Start Date'),
+                  const FormLabel('Shift Date'),
                   const SizedBox(height: AppSpacing.margin12),
                   DateField(
                     label: _formatDate(startDate),
                     selectedDate: startDate,
-                    onDateSelected: (picked) => selectDate(picked, true),
+                    onDateSelected: (picked) => selectDate(picked),
+                    firstDate: DateTime.now().subtract(const Duration(days: 1)),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const FormLabel('End Date'),
-                  const SizedBox(height: AppSpacing.margin12),
-                  DateField(
-                    label: _formatDate(endDate),
-                    selectedDate: endDate,
-                    onDateSelected: (picked) => selectDate(picked, false),
-                  )
                 ],
               ),
             ),

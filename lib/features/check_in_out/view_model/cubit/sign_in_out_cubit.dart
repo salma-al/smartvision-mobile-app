@@ -212,6 +212,7 @@ class SignInOutCubit extends Cubit<SignInOutState> {
     }
   }  
   Future<void> checkFunction(context, bool isCheckIn) async {
+    if(!isCheckIn) stopTimer();
     emit(CheckInOutLoading());
     await getCurrentLocation(context);
     if(currLat == 0.0 || currLong == 0.0) {
@@ -221,7 +222,6 @@ class SignInOutCubit extends Cubit<SignInOutState> {
     }
     double distance = calculateDistance();
     final instance = DataHelper.instance;
-    
     final body = {
       'action': isCheckIn ? 'check-in' : 'check-out',
       'employee_id': instance.userId!,
@@ -244,10 +244,9 @@ class SignInOutCubit extends Cubit<SignInOutState> {
         );
         if(data['status'] == 200) {
           imageFile = null;
-          ToastWidget().showToast(data['data']['message']['message'], context);
+          ToastWidget().showToast(data['data']['message']['message'] ?? 'Attendance marked successfuly', context);
           uploadProgress = null;
-          if(data['data']['message']['status'] == 'success') await getLastChecks(context);
-          return;
+          await getLastChecks(context);
         } else {
           ToastWidget().showToast(data['message']['message'] ?? 'Something went wrong', context);
           emit(CheckInOutError());
